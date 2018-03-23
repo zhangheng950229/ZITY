@@ -1,0 +1,29 @@
+const getters = {
+  // sidebar: state => state.app.sidebar,
+  // language: state => state.app.language,
+  // visitedViews: state => state.tagsView.visitedViews,
+  clientList: state => state.clientList.clientList,
+  ListByStatus: state => state.clientList.ListByStatus,
+  manageList: state => state.manageList.manageList,
+  aciByStatus: state => state.activityList.aciByStatus,
+  aciList: state => state.activityList.aciList,
+  hasClickSave: state => state.globalSave.hasClickSave,
+  barActive: state => state.globalSave.barActive,
+  token: state => state.user.token,
+  // avatar: state => state.user.avatar,
+  code: state => state.user.code,
+  name: state => state.user.name,
+  // introduction: state => state.user.introduction,
+  status: state => state.user.status,
+  roles: state => state.user.roles,
+  flag: state => state.user.flag,
+  lotteryData: state => state.lottery.lotteryData,
+  currentLotteryItem: state => state.lottery.currentLotteryItem,
+  isCreate: state => state.lottery.isCreate,
+  preparePath: state => state.lottery.preparePath,
+  isSubmit: state => state.lottery.isSubmit,
+  permission_routers: state => state.permission.routers,
+  addRouters: state => state.permission.addRouters
+  // errorLogs: state => state.errorLog.logs
+}
+export default getters
