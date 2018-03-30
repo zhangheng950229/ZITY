@@ -8,16 +8,21 @@
       <div class="sort-bottom">
         <div class="festival sort">
           <span>节日:</span>
-          <span class="all" @click="openFullScreen">全部</span>
+          <span class="all" :class="{noactive: jsIndex!=='all'}" @click="openFullScreen('all')">全部</span>
           <ul class="sort-ul">
-            <li  @click="openFullScreen" v-for="(item,index) in festivalData" :key="index">{{item}}</li>
+            <li  :class="{active: index===jsIndex}" 
+              @click="openFullScreen(index)" 
+              v-for="(item,index) in festivalData" 
+              :key="index">{{item}}</li>
           </ul>
         </div>
         <div class="sort">
             <span>类型:</span>
-            <span class="all" @click="openFullScreen" >全部</span>
+            <span class="all" :class="{noactive: jsIndex1!=='all'}" @click="openFullScreen1('all')" >全部</span>
             <ul class="sort-ul">
-             <li @click="openFullScreen" v-for="(item,index) in levelData" :key="index">{{item,index}}</li>
+             <li 
+             :class="{active: index===jsIndex1}"
+              @click="openFullScreen1(index)" v-for="(item,index) in levelData" :key="index">{{item}}</li>
             </ul>
         </div>
       </div>
@@ -60,7 +65,7 @@ let levelData = ['抽奖活动', '签到活动','游戏活动']
 import Dialog from 'components/Dialog'
 import svgIcon from 'components/Icon'
 import { mapGetters,mapMutations } from 'vuex'
-import { getTemplates } from 'api/activity'   //调用API中的获取模板数据请求
+import { getTemplates } from 'api/activity'
 
 
 
@@ -72,7 +77,9 @@ export default {
       showModal:false,
       festivalData: festivalData,
       levelData:levelData,
-      loadingObj:''
+      loadingObj:'',
+      jsIndex:'all',
+      jsIndex1:'all'
     }
   },
   computed: {
@@ -96,7 +103,7 @@ export default {
 //   {num:'03',text:'欢乐拼图',type:'jigsaw'},
 //   {num:'04',text:'开宝箱',type:'box'}
 // ]
-    changeTemplateData (arr) {      // 处理请求后台过来的模板数据（不定）
+    changeTemplateData (arr) {
       let result = []
       arr.forEach((item,index) =>{
         if(item.template_no === '123456') {
@@ -110,10 +117,9 @@ export default {
     getTemplates () {
       this.setLoading()
       getTemplates().then((res) =>{
-        let data = res.data;
+        let data = res.data
         if(data.code === 'ok') {
-          let result = this.changeTemplateData(data.list);
-          
+          let result = this.changeTemplateData(data.list)
           // this.lotteryData = result
           // 将异步获取的数据 放到vuex全局
           this.initLotteryData(result)
@@ -126,10 +132,8 @@ export default {
       })
     },
     openModel(item) {
-      this.showModal = true;
-      console.log("item",item); 
+      this.showModal = true
       this.setCurrentLottery(item)
-      // console.log('cuttt',this.currentLotteryItem )
     },
     setLoading () {
       this.loading = this.$loading({
@@ -139,13 +143,20 @@ export default {
         background: 'rgba(0, 0, 0, 0.7)'
       });
     },
-    openFullScreen() {
-      // this.showLoading = true
+    midFun (type, index) {
+      this.jsIndex = ''
+      this.jsIndex1 = ''
+      this[type] = index
       this.setLoading()
       setTimeout(() => {
-        // this.showLoading = false
-        this.loading.close()
-      }, 500);
+          this.loading.close()
+        }, 500);
+    },
+    openFullScreen(index) {
+      this.midFun('jsIndex', index)
+    },
+    openFullScreen1(index) {
+      this.midFun('jsIndex1', index)
     }
   },
   components:{
@@ -199,6 +210,8 @@ export default {
 .sort-ul li
   float:left
   cursor:pointer
+.sort-ul > .active
+  color:#0dc1f1
 .sort span,.sort-ul li
   padding: 0 10px
 .sort span:first-child
@@ -208,6 +221,8 @@ export default {
 .all
   color:#0dc1f1
   cursor:pointer
+.all.noactive
+  color:#000
 .recommend
   padding: 0 10px
 .re-title

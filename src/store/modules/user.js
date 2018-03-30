@@ -1,16 +1,37 @@
 import { login, logout } from 'api/login'
-import { getToken, setToken, removeToken } from 'utils/auth'
+import { getToken, setToken, removeToken , handleCookie} from 'utils/auth'
+import { stringify } from 'querystring';
+// setToken({name:'cui',code:'1',status:'login',roles:['de']})
 
+// let data = {
+//         "id": "7317106a-b6f6-4193-81a3-bf5b1b3aa081",
+//         "login_name": "18863025806",
+//         "mobile_number": "18863025806",
+//         "contract_name": "天津支行",
+//         "contact_name": "张霄峰",
+//         "status": "1",
+//         "password": "",
+//         "start_time": "2018-03-03 14:38:30",
+//         "expired_time": "2018-03-14 00:00:00",
+//         "authorities": [
+//             {
+//                 "authority": "AUTHORITY_DEFAULT"
+//             }
+//         ]
+//     }
+// localStorage.setItem('USER_INFO', JSON.stringify(data))
+
+// handleCookie()
 const user = {
   state: {
     user: '',
-    status: 'login',
+    status: handleCookie('status'),
     // status: 'noRegister',
-    code: '1',
+    code: handleCookie('code'),
     token: getToken(),
-    name: '',
-    roles: ['admin'],
-    flag: true,
+    name: handleCookie('name'),
+    roles: handleCookie('roles') || [],
+    // flag: true,
     info:{}
   },
 
@@ -28,34 +49,50 @@ const user = {
       state.name = name
     },
     SET_ROLES: (state, roles) => {
-      state.roles = roles
+      let arr = [];
+      arr.push(roles);
+      state.roles = arr;
     },
-    SET_FLAG: (state, flag) => {
-      state.flag = flag
-    }
+    // SET_FLAG: (state, flag) => {
+    //   state.flag = flag
+    // }
   },
 
   actions: {
-    setFlag({ commit }, flag) {
-      commit('SET_FLAG', flag)
+    // setFlag({ commit }, flag) {
+    //   commit('SET_FLAG', flag)
+    // },
+    setRouters({ commit }, role){
+      commit('SET_ROLES', role)
     },
     // 用户名登录
     LoginByUsername({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
           login(userInfo).then(res => {
-            console.log('userres', res)
+            console.log('userres', res) 
               let result = res.data
               if(result.code === 'ok') {
                 let data = result.data
-                // setToken(data.id)
-                setToken({id:data.id,name:data.contact_name})
-                // commit('SET_TOKEN', {id:data.id,name:data.contact_name})
-                // commit('SET_TOKEN', data.SESSION)
-                let session = data.SESSION
-                document.cookie="SESSION=" + session
+      
+                // 获取token 如果token 中code的值是1正常，那么
                 // 用户登录之后获取status  设置
                 commit('SET_STATUS', 'login')
                 commit('SET_CODE', data.status)
+                // let  initRole = authorities[0].authority
+                let  initRole = data.authorities[0].authority
+                // console.log("initRole",initRole);
+                let role
+                if(initRole) {
+                  role = initRole.split('_')[1].toLowerCase();//测试
+                  // console.log("rloe",role);
+                  commit('SET_ROLES',role);
+                  // console.log("rloe",role);
+                }
+                setToken({id:data.id,name:data.contact_name,code:data.status,status:"login",roles:role})
+                localStorage.setItem('USER_INFO', JSON.stringify(data));
+                commit('SET_TOKEN', {id:data.id,name:data.contact_name})
+                // commit('SET_NAME', data.nickName)
+                // document.cookie="SESSION=" + session
               }
               // 数据传到页面中
               resolve(res)
@@ -101,41 +138,8 @@ const user = {
           commit('SET_ROLES', [])
           removeToken()
           resolve()
-      //   logout(state.token).then(() => {
-      //     commit('SET_TOKEN', '')
-      //     commit('SET_ROLES', [])
-      //     removeToken()
-      //     resolve()
-      //   }).catch(error => {
-      //     reject(error)
-      //   })
       })
-    },
-
-    // 前端 登出
-    // FedLogOut({ commit }) {
-    //   return new Promise(resolve => {
-    //     commit('SET_TOKEN', '')
-    //     removeToken()
-    //     resolve()
-    //   })
-    // },
-
-    // 动态修改权限
-    // ChangeRoles({ commit }, role) {
-    //   return new Promise(resolve => {
-    //     commit('SET_TOKEN', role)
-    //     setToken(role)
-    //     getUserInfo(role).then(response => {
-    //       const data = response.data
-    //       commit('SET_ROLES', data.roles)
-    //       commit('SET_NAME', data.name)
-    //       commit('SET_AVATAR', data.avatar)
-    //       commit('SET_INTRODUCTION', data.introduction)
-    //       resolve()
-    //     })
-    //   })
-    // }
+    }
   }
 }
 

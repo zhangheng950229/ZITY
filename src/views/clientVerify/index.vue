@@ -43,10 +43,19 @@
             height="600"
             style="width: 100%">
               <el-table-column align="center" width="180"
-                v-for="{ prop, label } in colConfigs"
+                v-for="{ prop, label } in colConfigs1"
                 :key="prop"
                 :prop="prop"
                 :label="label">
+              </el-table-column>
+              <el-table-column
+                label="有效期"
+                align="center"
+                width="180">
+                 <template slot-scope="scope">
+                  <p >{{ scope.row.start_time }}</p>
+                  <p >{{ scope.row.expired_time }}</p>
+                </template> 
               </el-table-column>
               <el-table-column
                 label="全部状态"
@@ -66,7 +75,8 @@
                     size="mini"
                     type="primary"
                     plain
-                    @click="startEdit(scope.row.id, scope.row.status,scope.row.start_time,)"
+                    @click="startEdit(scope.row.id, scope.row.status,scope.row.start_time)"
+                    :disabled="scope.row.status!== '1'"
                     >编辑</el-button>
                 </template>
               </el-table-column>
@@ -75,7 +85,6 @@
         </el-tabs>
       </div>
     </div>
- 
     <modal v-if="pass">
       <div slot="header">
         <span class="fl">请选择账号有效日期</span>
@@ -99,7 +108,6 @@
         </el-form>
       </div>
     </modal>
-
     <modal v-if="edit">
       <div slot="header">
         <span class="fl">编辑</span>
@@ -128,8 +136,7 @@
           </el-form>
       </div>
     </modal>
-   
-		<modal v-if="dialogVisible">
+    <modal v-if="dialogVisible">
        <div slot="header">
         <span class="fl">提示</span>
         <span class="fr cursor" @click="close"><i class="el-icon-close"></i></span>
@@ -174,7 +181,6 @@
           { prop: 'contract_name', label: '企业名称' },
           { prop: 'contact_name', label: '联系人' },
           { prop: 'mobile_number', label: '手机号' },
-          { prop: 'id', label: '账号有效期' },
         ],
         loading:false,
         userList: [],
@@ -211,10 +217,10 @@
         //注意此处的value设置为数字，对应的是后台返回数据的status字段
         filters: [{text: '正常',value: '1'}, {text: '禁用',value: '2'}
         ,{text: '未通过',value: '3'}],
-        value: '',
-        value1:'',//这个是弹窗编辑的选择框对应的数据
-        dialogVisible: false,
-        tabHelp:true
+        // value: '',
+        // value1:'',
+        dialogVisible: false
+        // tabHelp:true
       }
     },
     computed: {
@@ -226,52 +232,26 @@
     },
     methods:{
       ...mapMutations([
-	      'setStatusList', // 将 `this.increment()` 映射为 `this.$store.commit('increment')`
-	      'setClientList',
-	      'handleRemove',
-	      'handleUpdate'
-    	]),
-    	fetchUserList () {
+      'setStatusList', // 将 `this.increment()` 映射为 `this.$store.commit('increment')`
+      'setClientList',
+      'handleRemove',
+      'handleUpdate'
+    ]),
+    fetchUserList () {
         this.listLoading = true
         fetchUserList().then((res) =>{
           // this.userList = res.data.list
-          this.setStatusList(res.data.list)// 获取待审核的客户数据	
-          console.log('list',this.ListByStatus)
-          this.listLoading = false
-        }).catch(()=>{
-          this.listLoading = false
-        })
-      },
-      fetchUserList1 () {
-        this.loading = true
-        fetchUserList().then((res) =>{
-          console.log('res again', res)
-          this.userList = res.data.list
-          this.loading = false
-          this.tepHelp = true
-          this.close()
-        }).catch(()=>{
-          // this.loading = false
-        })
-      },
-      fetchAllUser1 () {
-        // this.loading = true
-        fetchAllUser().then((res) =>{
           let result = res.data
-          if(result.code==='ok'){
-            this.userListAll = result.list
-            // this.loading = false
+          if(result.code === 'ok') {
+            this.setStatusList(res.data.list)
           }
+          this.listLoading = false
         }).catch(()=>{
-          // this.loading = false
+          this.listLoading = false
         })
       },
       filterTag(value, row) {
         return row.status === value;
-      },
-      toggleStatus (item) {
-        // item返回状态 commond，请求相关数据
-        console.log('te', item)
       },
       changeStatus (val) {
         let result
@@ -292,42 +272,36 @@
           return result
       },
       tabChange (tab) {
-        // console.log('tab', tab)
+        console.log('cha e')
         // tab 切换的时候不需要 每次都拉取列表，只在待审核列表处理数据的情况下，第一次切换到”客户列表“ 才需要重新拉取
         // 第一次拉取客户列表
         //添加路由
-         if(tab.name === 'first') {
-          this.$router.push({path:'/client-verify/index'})
+        if(tab.name === 'first') {
+          this.$router.push({path:'/client-verify/index?tab=first'})
+          this.fetchUserList()
         }else if(tab.name === 'second') {
-          this.$router.push({path:'/client-verify/index?tab=second'})
-        }
-        if(this.tabHelp && tab.active && tab.name === 'second'){
-          console.log('router action')
-          // this.fetchAllUser
-          this.listLoading = true
-          fetchAllUser().then((res) =>{
-            let result = res.data
-            if(result.code==='ok'){
-              // this.userListAll = result.list
-              let list = result.list
-              this.setClientList(list)
-              console.log('lit', list)
-              console.log('clientList', this.clientList)
+            this.$router.push({path:'/client-verify/index?tab=second'})
+            this.listLoading = true
+            fetchAllUser().then((res) =>{
+              let result = res.data
+              if(result.code==='ok'){
+                let list = result.list
+                this.setClientList(list)
+                this.listLoading = false
+              }else{
+                this.$message({
+                  message: '请稍后尝试',
+                  type: 'error',
+                  duration: 2* 1000
+                });
+                this.listLoading = false
+              }
+            }).catch(()=>{
               this.listLoading = false
-            }else{
-              this.$message({
-                message: '请稍后尝试',
-                type: 'error',
-                duration: 2* 1000
-              });
-              this.listLoading = false
-            }
-          }).catch(()=>{
-            console.log('shibai')
-            this.listLoading = false
-          })
-          this.tabHelp = false
+            })
+            // this.tabHelp = false
         }
+
       },
       passVerify (id, status) {
         this.pass = true
@@ -350,12 +324,12 @@
           if(data.code === 'ok'){
             this.loading = false
             // this.dialogVisible = false
-            // 重新拉取数据 
+            // 重新拉取数据
             // this.fetchUserList1()
             // 不用重新拉取 用 vuex管理
             let id = data.data.id
             this.handleRemove(id)
-            this.tabHelp = true
+            // this.tabHelp = true
             this.close()
           }else{
             this.$message({
@@ -481,7 +455,7 @@
                   this.$refs[formName].resetFields();
                   // 重新拉取待审核列表 此处不用table 加载图标，
                   // 开启 客户列表拉取数据 开关
-                  this.tabHelp = true
+                  // this.tabHelp = true
                   this.close()
                 }else{
                   alert('请稍后处理')
@@ -505,14 +479,21 @@
     },
     activated () {
       // this.fetchUserList()
-      console.log('active')
+      // this.fetchUserList()
+      // console.log('active')
       let query = this.$route.query.tab
-      if(query && query=== 'second'){
-        let tabObj = {active:true,name:'second'}
-        this.activeName = 'second'
+      let tabObj
+      if(query) {
+        if( query=== 'second'){
+          tabObj = {active:true,name:'second'}
+          this.activeName = 'second'
+        }else if(query=== 'first'){
+          tabObj = {active:true,name:'first'}
+          this.activeName = 'first'
+        }
+        console.log('tbo', tabObj)
         this.tabChange(tabObj)
       }else{
-        this.activeName = 'first'
         this.fetchUserList()
       }
     },

@@ -9,9 +9,14 @@ var CancelToken = axios.CancelToken;
 var cancel;
 
 const service = axios.create({
-  baseURL: 'http://47.93.236.101:8888', // api的base_url
+  baseURL: 'http://192.168.111.114:8888/marketing', // api的base_url
+  // http://192.168.111.114:9999
+
+  // http://47.93.236.101:8888   // 外网的口
   // baseURL: 'http://192.168.111.127:8888', // api的base_url
   // baseURL: 'http://192.168.88.224:8888', // api的base_url
+  
+ 
   timeout: 5000,// request timeout
   cancelToken: new CancelToken(function executor(c) {
     // An executor function receives a cancel function as a parameter
@@ -36,6 +41,7 @@ service.interceptors.request.use(config => {
   // pending.push({ u: config.url + '&' + config.method, f: cancel });
   // console.log('pending',pending)
   // console.log('config', config);
+  
   config.headers = {
     'Content-Type':'application/x-www-form-urlencoded'
   };
@@ -55,6 +61,7 @@ service.interceptors.request.use(config => {
 service.interceptors.response.use(
   response => {
     removePending(response.config);  //在一个ajax响应后再执行一下取消操作，把已经完成的请求从pending中移除 
+    // console.log('respone', response)
     return response;
   },
   error => {

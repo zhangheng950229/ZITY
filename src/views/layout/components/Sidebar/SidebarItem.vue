@@ -10,7 +10,7 @@
         @click.native="setIndex(index,item)"
         :class="{acitve: index===jsIndex}"
         :to="item.path+'/'+item.children[0].path"
-       	>
+       >
           <svg-icon v-if="item.meta&&item.meta.icon" :icon-class="item.meta.icon"></svg-icon>
           <span v-if="item.meta && item.meta.title">{{item.meta.title}}</span>
         </router-link>
@@ -48,8 +48,7 @@ export default {
     // ...mapMutations([
     //   'barActive',
     // ]),
-		
-		// 处理选中li标签给添加选中class
+
     setIndex(index, item){
       this.jsIndex = index
     }

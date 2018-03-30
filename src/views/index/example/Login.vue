@@ -6,7 +6,6 @@
   </div>
   <div class="" slot="body">
     <el-form status-icon :model="ruleForm" :rules="rules"  ref="ruleForm"  label-width="80px" label-position ="left">
-      </el-form-item>
       <el-form-item label="手机号码" prop="_loginName">
         <el-input v-model="ruleForm._loginName" placeholder="请输入手机号码" auto-complete="off"></el-input>
       </el-form-item>
@@ -70,7 +69,7 @@
           rules: {
             _loginName: [
               { required: true, message: '请输入手机号码', trigger: 'blur' },
-              { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确' }
+              { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur'}
             ],
             _password: [
               { required: true,message: '请输入密码', trigger: 'blur' }
@@ -106,6 +105,7 @@
                   // 证实后台已经发送验证码 开始倒计时
                   this.countDown = true
                 }else{
+                  this.countDown = false
                   this.$message({
                     message: '请稍后尝试',
                     type: 'error',

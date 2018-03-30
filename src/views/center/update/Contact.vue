@@ -6,15 +6,17 @@
     </div>
     <div class="" slot="body">
     <el-form status-icon :model="ruleForm" :rules="rules"  ref="ruleForm"  label-width="80px" label-position ="left">
+      <el-form-item label="联系人" prop="name">
+        <el-input v-model="ruleForm.name" placeholder="请输入新的联系人" auto-complete="off"></el-input>
       </el-form-item>
-      <el-form-item label="联系人" prop="tel">
-        <el-input v-model="ruleForm.tel" placeholder="请输入联系人" auto-complete="off"></el-input>
-      </el-form-item>
-      <el-form-item label="验证码" prop="captcha">
+  <!--     <el-form-item label="联系人" prop="tel" id="contract">
+        <span>{{tel}}</span>
+      </el-form-item> -->
+<!--       <el-form-item label="验证码" prop="captcha">
         <el-input class="captcha" v-model="ruleForm.captcha" placeholder="请确认验证码"></el-input>
         <captcha @click.native="getCaptcha" :countDown="countDown" @stop="stop"></captcha>
-      </el-form-item>
-        <el-button type="primary" class="info-btn" :loading="loading" @click="submitForm('ruleForm')">确认</el-button>
+      </el-form-item> -->
+        <el-button type="primary" class="info-btn" :loading="loading" @click="submitForm">确认</el-button>
     </el-form>
   </div>
   </modal>
@@ -22,93 +24,107 @@
 <script>
   import Modal from 'components/Modal'
   import Captcha from 'components/Captcha'
-  import {getCaptcha} from 'api/login'
+  // import {getCaptcha} from 'api/login'
   import {updateContact} from 'api/user'
+  import qs from "qs"
+
 
    export default {
-     data () {
-      var validatePass3 = (rule, value, callback) => {
-        this.$refs.ruleForm.validateField('tel' ,message => {
-          if (message==='请输入手机号码') {
-            callback(new Error('请先输入手机号码'));
-          }else if (message==='手机号码输入不正确') {
-            callback(new Error(message));
-          }else if (value==='') {
-            callback(new Error('请输入验证码'))
-          }else {
-            callback();
-          }
-        })
-      };
+    props:{
+      INFO: Object
+    },
+    data () {
       return {
-          countDown:false,
-          falg:true,
+          // countDown:false,
+          flag:true,
           loading:false,
           ruleForm: {
-            tel: '',
-            captcha: ''
+            name: '',
+            // captcha: ''
           },
           rules: {
-            tel: [
-              { required: true, message: '请输入手机号码', trigger: 'blur' },
-              { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确' }
+            name: [
+              { required: true, message: '请输入新的联系人', trigger: 'blur' }
               ],
-            captcha: [
-              { required: true,validator: validatePass3, trigger: 'blur' }
-            ],
+            // captcha: [
+            //   { required: true,message: '请输入验证码', trigger: 'blur' }
+            // ]
           }
       }
     },
     methods:{
-      stop () {
-        this.countDown = false
+      stop (flag) {
+        // this.countDown = false
         this.flag = flag
       },
       close () {
         this.$emit('close')
-        this.countDown = false
+        // this.countDown = false
+        this.$refs.ruleForm.resetFields();
       },
-      getCaptcha () {
-        // this.countDown = true
-        this.$refs.ruleForm.validateField('captcha' ,message => {
-          // 说明有错误字段
-          if(message ==='请输入验证码'){
-            if(this.flag){
-              this.flag = false
-              this.countDown = true
-              //在这里post短信验证码，data mobileNumber
-              let data = this.ruleForm.tel
-              // let data = qs.stringify(phoneNum)
-              getCaptcha(data).then((res)=>{
-                if(res.data && res.data.code==='ok'){
-                  // 证实后台已经发送验证码 开始倒计时
-                  this.countDown = true
-                }else{
-                  this.$message({
-                    message: '请稍后尝试',
-                    type: 'error',
-                    duration: 2* 1000
-                  });
-                }
-              })
-            }
-          }
-        })
-      },
+      // getCaptcha () {
+      //   console.log('flag', this.flag)
+      //       if(this.flag){
+      //         this.flag = false
+      //         this.countDown = true
+      //         //在这里post短信验证码，data mobileNumber
+      //         let data = this.ruleForm.tel
+      //         getCaptcha(data).then((res)=>{
+      //           if(res.data && res.data.code==='ok'){
+      //             // 证实后台已经发送验证码 开始倒计时
+      //             this.countDown = true
+      //           }else{
+      //             this.countDown = false
+      //             this.$message({
+      //               message: '请稍后尝试',
+      //               type: 'error',
+      //               duration: 2* 1000
+      //             });
+      //           }
+      //         })
+      //       }
+      //   // this.$refs.ruleForm.validateField('captcha' ,message => {
+      //   //   // 说明有错误字段
+      //   //   if(message ==='请输入验证码'){
+      //   //     if(this.flag){
+      //   //       this.flag = false
+      //   //       this.countDown = true
+      //   //       //在这里post短信验证码，data mobileNumber
+      //   //       let data = this.ruleForm.tel
+      //   //       getCaptcha(data).then((res)=>{
+      //   //         if(res.data && res.data.code==='ok'){
+      //   //           // 证实后台已经发送验证码 开始倒计时
+      //   //           this.countDown = true
+      //   //         }else{
+      //   //           this.countDown = false
+      //   //           this.$message({
+      //   //             message: '请稍后尝试',
+      //   //             type: 'error',
+      //   //             duration: 2* 1000
+      //   //           });
+      //   //         }
+      //   //       })
+      //   //     }
+      //   //   }
+      //   // })
+      // },
       submitForm(formName) {
         // this.$router.push({ path: '/create-project/index' })
-        this.$refs.formName.validate(valid => {
-          // console.log('rule', this.ruleForm)
+        this.$refs.ruleForm.validate(valid => {
           if (valid) {
+            // this.countDown = false
             this.loading = true
-            // this.isDisabled = true
+
             let init = this.ruleForm
-            let data = qs.stringify(init) //测试不用
+            let data = "contactName=" + init.name + "&id=" + this.INFO.id
+            
             updateContact(data).then((res) =>{
               // 重新获取一遍用户数据
-              let data = res.code
+              let data = res.data;
               if(data.code === 'ok'){
-                this.loading = false
+                this.loading = false;
+                this.close();
+                this.$emit("change_INFO",data.data)
               }else{
                 this.loading = false
               }

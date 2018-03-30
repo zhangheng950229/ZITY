@@ -15,7 +15,7 @@ export default {
   data () {
     return{
       text:'发送验证码',
-      time: 30
+      time: 60
     }
   },
   methods:{
@@ -29,7 +29,7 @@ export default {
             return
           }
           if(this.time===0){
-            this.time = 30
+            this.time = 60
             this.$emit('stop',true)
             clearInterval(timer)
           }

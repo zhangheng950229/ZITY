@@ -4,21 +4,19 @@
     <div slot="body" class="index-dialog" v-if="showMainPop">
         <span class="close-icon" @click="close">
           <i class="el-icon-close"></i>
-</span>
+        </span>
       <div class="index-tep">
         <div class="index-img">
           <img class="item-img" :src="'/static/images/' + list.num + '-scan.jpg' ">
           <img class="arrow" src="/static/images/arrow.jpg ">
         </div>
         <div class="qrcode-wrapper">
-          <!-- <div class="index-title">活动名称：{{list.text}}</div> -->
           <div class="index-title">活动名称：{{detail ? list.activityName : list.text}}</div>
           <div class="qrcode">
             <qrcode
                   :value="qrcode.val"
                   :options="{ size: 130 }">
             </qrcode>
-            <!-- <img class="qrcode-img" src="/static/images/qrcode.jpg"> -->
             <div class="qrcode-text">微信扫一扫体验活动</div>
           </div>
           <div v-if="!hasCreated">
@@ -40,15 +38,15 @@
     <div slot="body" v-if="showLoginPop">
       <div class="close-tep"><span>请您先登录</span><span class="fr" @click="close"><i class="el-icon-close"></i></span></div>
     </div>
+    <div slot="body" v-if="showCodePop">
+      <div class="close-tep"><span>{{codeStr}}</span><span class="fr" @click="close"><i class="el-icon-close"></i></span></div>
+    </div>
   </modal>
 </template>
 <script>
   import Modal from '../Modal'
   import { mapGetters} from 'vuex'
   import Qrcode from '@xkeshi/vue-qrcode';
-
-  // import { mapGetters,mapMutations} from 'vuex'
-  // import VueClipboard from 'vue-clipboard2'
 
   export default {
     props:{
@@ -74,6 +72,8 @@
         },
         showLoginPop:false,
         showMainPop:true,
+        showCodePop:false,
+        codeStr:'',
         list:[],
         detail:false
       }
@@ -85,6 +85,7 @@
       ...mapGetters([
         'currentLotteryItem',
         'status',
+        'code'
       ])
     },
     methods:{
@@ -98,34 +99,48 @@
       },
       createProject () {
         // 判断用户是否已经登录，未登录，弹窗提示登录
-        if(this.status !=='login'){
-          this.showMainPop = false
+        // 首页未注册时候
+        this.showMainPop = false
+        if(this.status ==='noRegister'){
+          this.showCodePop = false
           this.showLoginPop = true
-        }else{
-          //新添加的
-          this.showMainPop = true
+        }
+        if(this.status === 'login'){
           this.showLoginPop = false
-          // let name = this.setRouterName()
-          this.$emit('close')
-          // 在这里判断是那个模块点击的弹窗，关闭后，还是定位到本身的页面，而不是跳转 可能需要全局vuex
-          // 获取模板预览地址 赋值到二维码的value 动态的
-          let name = this.currentLotteryItem.type
-          let templateNo = this.currentLotteryItem.templateNo
-          if(name){
-            this.$router.push({ path: `/create-project/${name}/${templateNo}`,})
+          let code = this.code
+          if(code==='0') {//审核中
+            this.codeStr = '审核中'
+            this.showCodePop = true
+          }else if(this.code ==='2'){
+            this.codeStr = '禁用'
+            this.showCodePop = true
+          }else if(this.code ==='3'){
+            this.codeStr = '未通过'
+            this.showCodePop = true
+          }else{
+            this.showCodePop = false
+            this.codeStr = '正常'
+            let name = this.currentLotteryItem.type
+            let templateNo = this.currentLotteryItem.templateNo
+            if(name){
+              this.$router.push({ path: `/create-project/${name}/${templateNo}`,})
+            }
+            this.close()
           }
         }
-      }
+        }
     },
     created () {
         if(this.currentActivity.url){
-          console.log('currentActivity',this.currentActivity)
           this.detail = true
           this.list = this.currentActivity
           this.qrcode.val = this.list.url
         }else{
-          console.log('no',this.currentLotteryItem)
           this.list = this.currentLotteryItem
+        }
+        // 拉取用户信息 判断当前的code 代码
+        if(this.code !==1){
+          // 获取用户信息
         }
     },
     activated () {

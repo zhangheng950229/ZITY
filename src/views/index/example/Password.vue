@@ -6,7 +6,7 @@
   </div>
   <div class="" slot="body" v-if="showInfo">
     <el-form status-icon :model="ruleForm" :rules="rules"  ref="ruleForm"  label-width="80px" label-position ="left">
-       <el-form-item label="联系人" prop="contact">
+      <el-form-item label="联系人" prop="contact">
         <el-input v-model="ruleForm.contact" placeholder="请输入联系人" auto-complete="off"></el-input>
       </el-form-item>
       <el-form-item label="手机号码" prop="tel">
@@ -48,8 +48,8 @@
   // import formBase from './formBase'
   import Modal from 'components/Modal'
   import  Captcha from 'components/Captcha'
-  import {getCaptchaForget} from 'api/login'
-
+  import {getCaptchaForget,surePassword} from 'api/login'
+  import {checkSMSCode} from "api/user"
   export default {
     data () {
       var validatePass = (rule, value, callback) => {
@@ -79,7 +79,14 @@
             callback(new Error(message));
           }else if (value==='') {
             callback(new Error('请输入验证码'))
-          }else {
+          }
+          // else if (this.test === "手机号不正确") {
+          //   callback(new Error('手机号不正确'))
+          // }
+          else if (this.test === "验证码错误") {
+            callback(new Error('验证码错误,请重新输入'))
+          }
+          else {
             callback();
           }
         })
@@ -89,6 +96,7 @@
         showInfo:true,
         flag:true,
         loading:false,
+        mobileNumber:"",
         // showPassword:false
           ruleForm: {
             tel: '',
@@ -105,7 +113,7 @@
             ],
             tel: [
               { required: true, message: '请输入手机号码', trigger: 'blur' },
-              { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确' }
+              { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur' }
             ],
             captcha: [
               { required: true, validator: validatePass3, trigger: 'blur' },
@@ -133,13 +141,21 @@
               this.flag = false
               this.countDown = true
               //在这里post短信验证码，data mobileNumber
-              let data = this.ruleForm.tel
-
+              console.log(this.ruleForm.tel);
+              let data = "phoneNumber=" +this.ruleForm.tel+"&contactName="+this.ruleForm.contact
+              // console.log(data);
               getCaptchaForget(data).then((res)=>{
+                console.log(res);
                 if(res.data && res.data.code==='ok'){
                   // 证实后台已经发送验证码 开始倒计时
-                  this.countDown = true
+                  this.countDown = true;
+                  this.mobileNumber = this.ruleForm.tel;
+                }else if(res.data.code != 'ok'){  // 手机号码不正确
+                  this.countDown = false;
+                  // this.test = "手机号不正确";
+                  this.message == "手机号不正确";
                 }else{
+                  this.countDown = false
                   this.$message({
                     message: '请稍后尝试',
                     type: 'error',
@@ -153,23 +169,20 @@
       },
       goToConfirmPassword(formName) {
         this.$refs[formName].validate((valid) => {
+          this.test = ""
           if (valid) {
-            if(this.showInfo) {
-              this.showInfo = false
-              this.$refs[formName].resetFields();
-            }
-            // console.log('valid', this.$refs[formName].model)
-            // let data = this.$refs[formName].model
-            // createUser(data).then((response) => {
-            //   // console.log('kk', response) response data是post的数据
-            //   this.$notify({
-            //     title: '成功',
-            //     message: '注册成功',
-            //     type: 'success',
-            //     duration: 2000
-            //   })
-            //   this.close()//这里注意顺序
-            // })
+
+            let data = "phoneNumber=" +this.ruleForm.tel+"&verCode="+this.ruleForm.captcha;
+            checkSMSCode(data).then((res) => {   // 验证手机号验证码是否正确请求
+              console.log(res);
+              if(res.data.data === true && res.data.code=== "ok"){   //验证码正确
+                alert(111)
+                this.showInfo = false;
+                this.$refs[formName].resetFields();
+              } else {  // 验证码错误
+                this.test = "验证码错误";
+              }
+            })
           } else {
             console.log('error submit!!');
             return false;
@@ -183,13 +196,13 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.countDown = false
-            // console.log('valid', this.$refs[formName].model)
             this.loading = true
             // 按钮禁止，防止重复提交
             this.isDisabled = true
-            let data = qs.stringify(this.ruleForm)
-            // console.log('注册数据', data)
-            createUser(data).then((res) => {
+            console.log(this.ruleForm.tel);
+            let data = "mobileNumber=" + this.mobileNumber + "&password="+this.ruleForm1.password+"&confirmPassword=" + this.ruleForm1.confirmPassword;
+            console.log(data);
+            surePassword(data).then((res) => {
               console.log('regis res', res)
               let data = res.data
               let message = res.data.message

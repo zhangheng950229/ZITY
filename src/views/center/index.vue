@@ -8,7 +8,7 @@
       <div class="item-wrapper">
         <div class="circle-tep">
           <div class="circle-item" v-for="(item,index) in data" :key="index" :class="{ noline: index === 2}">
-            <div class="big-circle" :class="{ active: index !== 0 && code !== '1'}">
+            <div class="big-circle" :class="{ active: index === 2}">
                  <span>{{item}}</span>
             </div>
             <div class="circle-line" :class="{ active: index !== 0}" v-if="index !== 2"  >
@@ -18,7 +18,7 @@
       </div>
       <div class='circle-text'>
           <p>提交成功，请等待管理员审核！</p>
-          <span>预计3个工作日内审核完毕，审核结果会短信通过到您的注册手机上。</span>
+          <span>预计3个工作日内审核完毕，审核结果会短信通知到您的注册手机上。</span>
       </div>
     </div>
   </div>
@@ -28,22 +28,22 @@
     <div class="center-lay">
       <div class="center-info">
         <span class="center-label">企业名称</span>
-        <span class="label-text">中国农业银行顺德支行</span>
+        <span class="label-text">{{userInfo.contractName || userInfo.contract_name }}</span>
       </div>
       <div class="center-info">
         <span class="center-label">联系人</span>
-        <span class="label-text">换小燕</span>
+        <span class="label-text">{{userInfo.contactName || userInfo.contact_name }}</span>
         <span class="may-change" @click="change('contact')">修改联系人</span>
       </div>
       <div class="center-info">
         <span class="center-label">手机号</span>
-        <span class="label-text">1111111111</span>
+        <span class="label-text">{{userInfo.loginName || userInfo.login_name}}</span>
         <span class="may-change" @click="change('tel')">更换手机号</span>
       </div>
       <div class="center-info">
         <span class="center-label label-tep">账号有效期</span>
         <div class="time-item">
-          <div class="time">2018-01-10 09：00：00</div><div class="time">2018-01-10 09：00：00</div>
+          <div class="time">{{userInfo.startTime || userInfo.start_time}}</div><div class="time">{{userInfo.expiredTime || userInfo.expired_time}}</div>
         </div>
       </div>
       <div class="center-info">
@@ -55,12 +55,12 @@
         <span class="label-text">安全</span>
         <span class="may-change" @click="change('password')">修改登录密码</span>
       </div>
-      <tel v-show="showModalTel" @close="close"></tel>
-      <contact v-show="showModalContact" @close="close"></contact>
-      <password v-show="showModalPassword" @close="close"></password>
+      <tel v-show="showModalTel" @close="close" :INFO='userInfo' @change_INFO="changeStorage"></tel>
+      <contact v-show="showModalContact" @close="close" :INFO='userInfo' @change_INFO="changeStorage"></contact>
+      <password v-show="showModalPassword" @close="close" :INFO='userInfo' @change_INFO="changeStorage"></password>
     </div>
   </div>
-</div>
+</div>  
 </template>
 <script>
   import Tel from './update/Tel'
@@ -78,6 +78,7 @@
         showModalTel:false,
         showModalPassword:false,
         showMain:true,
+        userInfo:{}
       };
     },
     methods: {
@@ -85,9 +86,6 @@
         this.showModalContact = false
         this.showModalTel = false
         this.showModalPassword = false
-      },
-      next() {
-          if (this.active++ > 2) this.active = 0;
       },
       change (item) {
         if(item==='contact') {
@@ -97,6 +95,13 @@
         }else{
           this.showModalPassword = true
         }
+      },
+      changeStorage(obj) {
+        console.log("father",obj)
+        let data = JSON.stringify(obj);
+        localStorage.setItem('USER_INFO',data);
+        this.userInfo = obj;
+        console.log("localstorage",localStorage.getItem("USER_INFO"))
       }
     },
     computed: {
@@ -107,9 +112,13 @@
     ])
   },
     activated () {
+      // console.log("localStorage",localStorage.getItem('USER_INFO'))
+      let userInfo = JSON.parse(localStorage.getItem('USER_INFO')); 
+      console.log("USER_INFO",userInfo)
+      this.userInfo = userInfo;
+      console.log('userInfo',this.userInfo)
       // // 拉取信息 确定状态status字段
-      if(this.status==='login' && this.code === '1'){
-        console.log(1)
+      if(this.status==='login' && this.code === '0'){
         this.showMain = false
       }
     },
