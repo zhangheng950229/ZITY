@@ -44,6 +44,7 @@
   import Modal from 'components/Modal'
   import  Captcha from 'components/Captcha'
   import { createUser, getCaptcha } from 'api/user'
+  import { loginGetCaptcha } from 'api/login'
   import qs from 'qs'
 
   export default {
@@ -130,8 +131,8 @@
               this.countDown = true
               //在这里post短信验证码，data mobileNumber
               let data = this.ruleForm.mobileNumber
-
-              getCaptcha(data).then((res)=>{
+              
+              loginGetCaptcha(data).then((res)=>{
                 if(res.data && res.data.code==='ok'){
                   // 证实后台已经发送验证码 开始倒计时
                   this.countDown = true

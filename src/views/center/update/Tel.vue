@@ -136,6 +136,7 @@
                 }else if(res.data.code !== "ok" && res.data.message == "号码已存在") {   // 手机号已存在
                   alert("手机号已存在！！")
                   this.countDown = false;
+                  this.flag = true;
                 }else if(res.data.code !== "ok" && res.data.message == "旧密码输入不正确") {   // 手机号已存在
                   alert("旧密码输入不正确")
                   this.falsePW = "旧密码输入不正确";
@@ -148,7 +149,7 @@
                     type: 'error',
                     duration: 2* 1000
                   });
-                  
+                  this.flag = true;
                 }
               })
             }
@@ -159,6 +160,7 @@
         this.$emit('close')
         this.countDown = false
         this.$refs.ruleForm.resetFields();
+        this.flag =true;
       },
       submitForm() {
         // this.$router.push({ path: '/create-project/index' })

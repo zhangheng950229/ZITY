@@ -49,9 +49,10 @@ const user = {
       state.name = name
     },
     SET_ROLES: (state, roles) => {
-      let arr = [];
-      arr.push(roles);
-      state.roles = arr;
+      // let arr = [];
+      // arr.push(roles);
+      console.log("rolseARR",rolse)
+      state.roles = roles;
     },
     // SET_FLAG: (state, flag) => {
     //   state.flag = flag
@@ -80,15 +81,17 @@ const user = {
                 commit('SET_CODE', data.status)
                 // let  initRole = authorities[0].authority
                 let  initRole = data.authorities[0].authority
-                // console.log("initRole",initRole);
                 let role
                 if(initRole) {
                   role = initRole.split('_')[1].toLowerCase();//测试
-                  // console.log("rloe",role);
-                  commit('SET_ROLES',role);
-                  // console.log("rloe",role);
+                  let arr = [];
+                  arr.push(role);
+                  console.log(arr)
+                  commit('SET_ROLES',arr);
+                  
+                  
                 }
-                setToken({id:data.id,name:data.contact_name,code:data.status,status:"login",roles:role})
+                setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:role})
                 localStorage.setItem('USER_INFO', JSON.stringify(data));
                 commit('SET_TOKEN', {id:data.id,name:data.contact_name})
                 // commit('SET_NAME', data.nickName)

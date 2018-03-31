@@ -139,18 +139,20 @@
                   this.countDown = true
                 } 
                 else if(res.data.code !== 'ok' && res.data.message == "手机号不正确"){
-                  this.countDown = false
-                  alert("手机号不正确")
+                  this.countDown = false;
+                  this.flag = true;
+                  alert("手机号不正确");
                 }
                 else{
-                  this.countDown = false
+                  this.countDown = false;
+                  this.flag = true;
                   this.$message({
                     message: '请稍后尝试',
                     type: 'error',
                     duration: 2 * 1000
                   });
-                  }
-                })
+                }
+              })
             }
           }
         })
@@ -161,13 +163,12 @@
         this.$refs[formName].validate((valid) => {
           if(valid) {
             checkSMSCode(data).then((res) => {   // 验证手机号验证码是否正确请求
-             
               if(res.data.data === true && res.data.code=== "ok"){   //验证码正确
-                alert(111)
+                // alert(111)
                 this.showInfo = false;
                 this.$refs[formName].resetFields();
               } else {  // 验证码错误
-                alert(2222)
+                alert("验证码错误")
                 this.test = "验证码错误";
               }
             })
@@ -178,6 +179,7 @@
         this.$emit('close')
         this.countDown = false
         this.$refs.ruleForm.resetFields();
+        this.flag = true;
       },
       submitForm(formName) {
         // this.$router.push({ path: '/create-project/index' })

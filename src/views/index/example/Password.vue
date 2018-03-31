@@ -198,7 +198,7 @@
             this.countDown = false
             this.loading = true
             // 按钮禁止，防止重复提交
-            this.isDisabled = true
+            this.isDisabled = true;
             console.log(this.ruleForm.tel);
             let data = "mobileNumber=" + this.mobileNumber + "&password="+this.ruleForm1.password+"&confirmPassword=" + this.ruleForm1.confirmPassword;
             console.log(data);

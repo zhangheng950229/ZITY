@@ -14,8 +14,7 @@
               <el-button style='margin-bottom:20px;' type="primary" icon="document" @click="handleDownload" :loading="downloadLoading">导出excel</el-button>
             </div>
           </div>
-          <el-table :data="list" v-loading="listLoading" element-loading-text="拼命加载中" border fit highlight-current-row height="550"
-      >
+          <el-table :data="list" v-loading="listLoading" element-loading-text="拼命加载中" border fit highlight-current-row height="550">
             <el-table-column align="center" label='Id' width="95">
               <template slot-scope="scope">
                 {{scope.$index}}
@@ -23,40 +22,40 @@
             </el-table-column>
             <el-table-column align="center" label='用户手机号' width="95">
               <template slot-scope="scope">
-                {{scope.row.tel}}
+                {{scope.row.mobile}}
               </template>
             </el-table-column>
-            <el-table-column label="中奖时间">
+            <el-table-column align="center" label="中奖时间">
               <template slot-scope="scope">
-                {{scope.row.name}}
+                {{scope.row.updateTime}}
               </template>
             </el-table-column>
             <el-table-column label="是否支付成功" width="110" align="center">
               <template slot-scope="scope">
-                <el-tag>{{scope.row.contact}}</el-tag>
+                <el-tag>{{scope.row.payStatus == 0 ? "未支付" : "已支付"}}</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="奖品类别" width="115" align="center">
               <template slot-scope="scope">
-                {{scope.row.tel}}
+                {{scope.row.priceType}}
               </template>
             </el-table-column>
             <el-table-column align="center" label="奖品面额" width="220">
               <template slot-scope="scope">
                 <i class="el-icon-time"></i>
-                <span>{{scope.row.password}}</span>
+                <span>{{scope.row.priceDenomination}}</span>
               </template>
             </el-table-column>
             <el-table-column align="center" label="奖券费用" width="220">
               <template slot-scope="scope">
                 <i class="el-icon-time"></i>
-                <span>{{scope.row.createdAt}}</span>
+                <span>{{scope.row.priceMoney  }}</span>
               </template>
             </el-table-column>
             <el-table-column align="center" label="是否充值成功" width="220">
               <template slot-scope="scope">
                 <i class="el-icon-time"></i>
-                <span>{{scope.row.createdAt}}</span>
+                <span>{{scope.row.chargeStatus == 0 ? "未充值" : "已充值"}}</span>
               </template>
             </el-table-column>
           </el-table>
@@ -75,19 +74,22 @@ export default {
       list: null,
       listLoading: true,
       downloadLoading: false,
-      filename: ''
+      filename: '',
+      templateId: ""
     }
   },
   created() {
-    let id = this.$route.params.id
+    let id = this.$route.params.id;
+    this.templateId = id;
     this.fetchInfoList()
   },
   methods: {
     fetchInfoList() {
-      this.listLoading = true
-      fetchInfoList().then(response => {
-        console.log('impi', response)
-        this.list = response.data
+      this.listLoading = true;
+      let data = this.templateId;
+      fetchInfoList(data).then(res => {
+        console.log('templateRES', res.data.list)
+        this.list = res.data.list
         this.listLoading = false
       }).catch(()=>{
           this.listLoading = false

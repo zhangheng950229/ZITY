@@ -11,7 +11,7 @@ export function activityManageList() {
 // 活动管理  发布操作
 export function activityPublish(data) {
   return http({
-    url: `/marketing/activityClient/editInfo?${data}`,
+    url: `/activityClient/editInfo?${data}`,
     method: 'post',
   })
 }
@@ -50,9 +50,10 @@ export function changeStatus(data) {
   })
 }
 //  待审核  查看
+// http://192.168.111.114:8888/marketing/activityClient/getOrder
 export function fetchInfoList(data) {
   return http({
-    url: `/user`,
+    url: `/activityClient/getOrder?_activityId=${data}`,
     method: 'post',
   })
 }

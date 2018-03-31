@@ -41,3 +41,11 @@ export function surePassword(data) {
   })
 }
 
+// 注册获取手机验证码接口
+// http://47.93.236.101:8888/marketing/api/register/send
+export function loginGetCaptcha(data) {
+  return request({
+    url: `/api/register/send?phoneNumber=${data}`,
+    method: 'post',
+  })
+}

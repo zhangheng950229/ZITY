@@ -211,7 +211,8 @@
       },
       goToInfo (item) {//这里应该是带着活动的id的
         if(item.status==='3' || item.status ==='6'){
-         this.$router.push({ path: `/management/info/1` })
+          console.log("item",item.id);
+          this.$router.push({ path: `/management/info/${item.id}` })
         }
       },
       filterTag(value, row) {
