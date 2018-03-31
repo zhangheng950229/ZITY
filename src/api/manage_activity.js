@@ -19,7 +19,7 @@ export function activityPublish(data) {
 // 活动管理  编辑操作
 export function activityEdit(data) {
   return http({
-    url: `/marketing/activityClient/showOne?_activityId=${data}`,
+    url: `/activityClient/showOne?_activityId=${data}`,
     method: 'post',
   })
 }
@@ -28,7 +28,7 @@ export function activityEdit(data) {
 //  获取活动审核 待审核 列表
 export function fetchVerfityList() {
   return http({
-    url: `/marketing/activityClient/getActivityWithStatus?_status=1`,
+    url: `/activityClient/getActivityWithStatus?_status=1`,
     method: 'post',
   })
 }
@@ -38,14 +38,14 @@ export function fetchVerfityList() {
 // 获取所有客户的活动列表，包括所有状态
 export function fetchActivityListAll() {
   return http({
-    url: `/marketing/activityClient/getActivityWithStatus?_status=0,2,3,4,5,6,9`,
+    url: `/activityClient/getActivityWithStatus?_status=0,2,3,4,5,6,9`,
     method: 'post',
   })
 }
 // 活动审核 状态变化
 export function changeStatus(data) {
   return http({
-    url: `/marketing/activityClient/editInfo?${data}`,
+    url: `/activityClient/editInfo?${data}`,
     method: 'post',
   })
 }

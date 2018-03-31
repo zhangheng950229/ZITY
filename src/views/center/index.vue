@@ -118,7 +118,7 @@
       this.userInfo = userInfo;
       console.log('userInfo',this.userInfo)
       // // 拉取信息 确定状态status字段
-      if(this.status==='login' && this.code === '0'){
+      if(this.status==='login' && this.code === '1'){
         this.showMain = false
       }
     },

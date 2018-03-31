@@ -49,9 +49,10 @@ const user = {
       state.name = name
     },
     SET_ROLES: (state, roles) => {
-      // let arr = [];
-      // arr.push(roles);
-      console.log("rolseARR",rolse)
+      let arr = [];
+      arr.push(roles);
+      console.log("rolseARR",roles);
+      // state.roles = arr;
       state.roles = roles;
     },
     // SET_FLAG: (state, flag) => {
@@ -71,34 +72,32 @@ const user = {
       return new Promise((resolve, reject) => {
           login(userInfo).then(res => {
             console.log('userres', res) 
-              let result = res.data
-              if(result.code === 'ok') {
-                let data = result.data
-      
-                // 获取token 如果token 中code的值是1正常，那么
-                // 用户登录之后获取status  设置
-                commit('SET_STATUS', 'login')
-                commit('SET_CODE', data.status)
-                // let  initRole = authorities[0].authority
-                let  initRole = data.authorities[0].authority
-                let role
-                if(initRole) {
-                  role = initRole.split('_')[1].toLowerCase();//测试
-                  let arr = [];
-                  arr.push(role);
-                  console.log(arr)
-                  commit('SET_ROLES',arr);
-                  
-                  
-                }
-                setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:role})
-                localStorage.setItem('USER_INFO', JSON.stringify(data));
-                commit('SET_TOKEN', {id:data.id,name:data.contact_name})
-                // commit('SET_NAME', data.nickName)
-                // document.cookie="SESSION=" + session
+            let result = res.data
+            if(result.code === 'ok') {
+              let data = result.data
+    
+              // 获取token 如果token 中code的值是1正常，那么
+              // 用户登录之后获取status  设置
+              commit('SET_STATUS', 'login')
+              commit('SET_CODE', data.status)
+              // let  initRole = authorities[0].authority
+              let  initRole = data.authorities[0].authority
+              let role
+              if(initRole) {
+                role = initRole.split('_')[1].toLowerCase();//测试
+                let arr = [];
+                arr.push(role);
+                // console.log(arr)
+                commit('SET_ROLES',arr);
               }
-              // 数据传到页面中
-              resolve(res)
+              setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:role})
+              localStorage.setItem('USER_INFO', JSON.stringify(data));
+              commit('SET_TOKEN', {id:data.id,name:data.contact_name})
+              // commit('SET_NAME', data.nickName)
+              // document.cookie="SESSION=" + session
+            }
+            // 数据传到页面中
+            resolve(res)
           })
       });
     },

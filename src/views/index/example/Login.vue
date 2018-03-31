@@ -134,13 +134,13 @@
               let message = res.data.message
               if(code==='ok'){
                 this.$router.push({ path: '/create-project' });
-              }else if(message==='验证码错误'){
+              } else if(message==='验证码错误') {
                 this.$message({
                   message: '验证码错误',
                   type: 'error',
                   duration: 2* 1000
                 });
-              }else{
+              } else {
                 this.$message({
                   message: '请稍后尝试',
                   type: 'error',
