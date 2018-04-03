@@ -3,7 +3,7 @@
     <div class="tab-img">
       <!-- <img :src=" '/static/images/slyder-' + activeName + '.jpg' "> -->
       <img :src=" '/static/images/' + currentItemFromRouter + '-' + activeName + '.png' ">
-      <pre v-show="activeName==='second' || activeName==='first'"class="rule-content" v-html="ruleForm.activityRule" ></pre>
+      <pre v-show="activeName==='second' || activeName==='first'" class="rule-content" v-html="ruleForm.activityRule" ></pre>
       <div v-show="activeName==='second'" class="rule-area">
         <ul class="lottery-area">
           <li v-for="(item,index) in lotteryList" v-show="item.price && item.category">
@@ -53,7 +53,7 @@
                 <span>手机号次数</span>
                 <div class="mobile">
                   <span id="reduce" @click="reduce">-</span>
-                  <input class="input-self" v-model="ruleForm.settings[1].value" id="input-self"></input>
+                  <input class="input-self" v-model="ruleForm.settings[1].value" id="input-self">
                   <span id="plus" @click="plus">+</span>
                 </div>
               </div>
@@ -76,7 +76,7 @@
                   </td>
                   <td class="spc-width-select">
                     <el-input v-if="autoDefinie" class="td-six" placeholder="奖项名称" v-model="item['name']"/>
-                    </el-input>
+                    
                     <span v-else>{{item.name}}</span>
                   </td>
                   <td class="spc-width-select" >
@@ -287,11 +287,11 @@ export default {
         this.middle = true //开启省市变化
       }
       this.select.province = value
-      console.log('province', value)
+      // console.log('province', value)
     },
     selectCity(value) {
       this.select.city = value
-      console.log('city', value)
+      // console.log('city', value)
     },
     getAllCities (cities) {
       for (let key in cities) {
@@ -364,7 +364,7 @@ export default {
       this.validate(len, item)
     },
     change (value) {
-      console.log('vale', value)
+      // console.log('vale', value)
       // 根据种类 设置奖品面额 的type
       // 每次点击种类，清空 面额数据 重新选择面额
       // this.position 索引
@@ -372,7 +372,7 @@ export default {
       // 根据选择的key 值 找出索引
 
       this.currentSelectOption[this.position] = value
-      console.log('cu', this.currentSelectOption)
+      // console.log('cu', this.currentSelectOption)
       if(value){
         //在这里处理奖品 种类
         this.category = value
@@ -596,11 +596,11 @@ export default {
       let activityId = this.queryId
       this.setLoading('正在拉取数据中...')
       let initData
-      activityEdit().then((res) =>{
+      activityEdit(activityId).then((res) =>{
         let data = res.data
         if(data.code ==='ok'){
           initData = data.data
-          console.log('id init', initData)
+          // console.log('id init', initData)
           // 处理settings 格式
           initData.settings = JSON.parse(initData.settings)
           initData.prizeSettings = JSON.parse(initData.prizeSettings)
@@ -671,7 +671,7 @@ export default {
           let psLen = arr.length
           this.setTepData(psLen)
 
-          console.log('change', this.ruleForm)
+          // console.log('change', this.ruleForm)
         }else{// 如果数据请求不成功,返回活动管理标签
           this.setIsSubmit(true)
           this.setPass(true)

@@ -133,7 +133,7 @@
               //在这里post短信验证码，data mobileNumber
               let data = this.ruleForm.contact  //手机号
               getCaptcha(data).then((res)=>{
-                console.log("更改密码验证码请求", res)
+                // console.log("更改密码验证码请求", res)
                 if(res.data.code === 'ok'&& res.data.data==='true'){
                   // 证实后台已经发送验证码 开始倒计时
                   this.countDown = true

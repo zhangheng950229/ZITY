@@ -1,8 +1,10 @@
 import { login, logout } from 'api/login'
 import { getToken, setToken, removeToken , handleCookie} from 'utils/auth'
 import { stringify } from 'querystring';
-// setToken({name:'cui',code:'1',status:'login',roles:['de']})
 
+
+
+// setToken({name:'cui',code:'1',status:'login',roles:['de']})
 // let data = {
 //         "id": "7317106a-b6f6-4193-81a3-bf5b1b3aa081",
 //         "login_name": "18863025806",
@@ -49,9 +51,9 @@ const user = {
       state.name = name
     },
     SET_ROLES: (state, roles) => {
-      let arr = [];
-      arr.push(roles);
-      console.log("rolseARR",roles);
+      // let arr = [];
+      // arr.push(roles);
+      // console.log("rolseARR",roles);
       // state.roles = arr;
       state.roles = roles;
     },
@@ -71,11 +73,10 @@ const user = {
     LoginByUsername({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
           login(userInfo).then(res => {
-            console.log('userres', res) 
+            // console.log('userres', res) 
             let result = res.data
             if(result.code === 'ok') {
               let data = result.data
-    
               // 获取token 如果token 中code的值是1正常，那么
               // 用户登录之后获取status  设置
               commit('SET_STATUS', 'login')
@@ -85,16 +86,18 @@ const user = {
               let role
               if(initRole) {
                 role = initRole.split('_')[1].toLowerCase();//测试
+                // console.log("role",role)
                 let arr = [];
                 arr.push(role);
-                // console.log(arr)
                 commit('SET_ROLES',arr);
               }
               setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:role})
               localStorage.setItem('USER_INFO', JSON.stringify(data));
               commit('SET_TOKEN', {id:data.id,name:data.contact_name})
-              // commit('SET_NAME', data.nickName)
-              // document.cookie="SESSION=" + session
+           
+            } else {
+              alert("延时")
+              this.loading = false
             }
             // 数据传到页面中
             resolve(res)

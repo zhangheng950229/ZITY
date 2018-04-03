@@ -39,7 +39,7 @@
         if( value ==='') {
           callback(new Error('请输入登录密码'))
         } else if (this.falsePW === "旧密码输入不正确") {
-          console.log('thhis', this.falsePW )
+          // console.log('thhis', this.falsePW )
           callback(new Error('登陆密码不正确'))
         } else {
           callback();
@@ -126,7 +126,7 @@
               this.flag = false;
               this.countDown = false;
               //在这里post短信验证码，data 为后台需要的字段
-              console.log("TelINFO",this.INFO);
+              // console.log("TelINFO",this.INFO);
               let data = "phoneNumber="+this.INFO.login_name+"&newPhoneNumber="+this.ruleForm.tel+"&oldPassword="+this.ruleForm.password; 
               phoneGetCaptcha(data).then((res)=>{
                 if(res.data.code == "ok" && res.data.data == true ){ // 成功发送请求
@@ -173,7 +173,7 @@
             let data = "mobileNumber="+this.ruleForm.tel+"&verifyCode="+this.ruleForm.captcha + "&id=" + this.INFO.id;
             updateTel(data).then((res) =>{
               // 重新获取一遍用户数据
-              console.log("udateTel",res);
+              // console.log("udateTel",res);
               if(res.data.code === 'ok'){
                 this.loading = false;
                 this.$emit("change_INFO",res.data.data);

@@ -7,11 +7,26 @@
       <span class="client-name"><svg-icon style="color:#1aadf0" :icon-class="iconName.user"></svg-icon><i>{{name}}</i></span>
       <span @click="logOut" class="client-out"><svg-icon style="color:#ccc" :icon-class="iconName.tuichu"></svg-icon><i>退出</i></span>
     </div>
+    <!-- <modal v-if="isPublish">
+       <div slot="header">
+        <span class="fl">提示</span>
+        <span class="fr cursor" @click="close"><i class="el-icon-close"></i></span>
+      </div>
+      <div slot="body">
+        <div class="confirm">确定发布吗？</div>
+        <div>
+           <el-button @click="close">取消</el-button>
+           <el-button type="primary" @click="publish" :loading="loading">确定</el-button>
+        </div>
+      </div>
+    </modal> -->
   </header>
+  
 </template>
 <script>
 import svgIcon from 'components/Icon'
 import { mapGetters } from 'vuex'
+import Modal from 'components/Modal'
 
 export default {
   name: 'Navbar',
@@ -19,7 +34,8 @@ export default {
     return {
       iconName:{
         user: 'user',
-        tuichu: 'tuichu'
+        tuichu: 'tuichu',
+        // isPublish:false,
       },
       name:''
     }
@@ -32,6 +48,8 @@ export default {
   },
   methods:{
     logOut() {
+      
+      // this.isPublish = true;
       this.$store.dispatch('LogOut').then(() => {
         location.reload()// In order to re-instantiate the vue-router object to avoid bugs
       })

@@ -45,7 +45,11 @@
             align="center" 
             width="130">
             <template slot-scope="scope">
-              <span @click="goToInfo(scope.row)" class="look">查看</span>
+              <span 
+              @click="goToInfo(scope.row)" 
+              class="look"
+              :class="{active: scope.row.status==='3' || scope.row.status==='6'}"
+              >查看</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" align="center" width="270">
@@ -136,16 +140,17 @@
         //item携带了项目的所有信息 获取id -》获取全部信息到 创建活动页面 展示该项目的全部数据
         //（根据后台接口）
         //根据携带的 templateNo获得需要跳转的路由，根据路由的query  created 函数获取数据
-
+        
         let templateNo = item.templateNo
-        let type
+        let types
         if(templateNo==='123456'){
           type='slyder'
         }else if(templateNo==='234567'){
           type='envelope'
         }
-        this.$router.push({ path: `/create-project/envelope/234567?id=${item.id}`,})
-        // this.$router.push({ path: `/create-project/${type}/${templateNo}?id=${item.id}`,})
+        let ID = item.id;
+        // this.$router.push({ path: `/create-project/envelope/234567?id=${item.id}`,})
+        this.$router.push({ path: `/create-project/${type}/${templateNo}?id=${ID}`,})
       },
       changeStatus (val) {
         let result
@@ -202,7 +207,7 @@
         this.showModal = false
       },
       openDialog (item) {
-        console.log('ite', item)
+        // console.log('ite', item)
         this.showModal = true
         this.currentActivity  = item
       },
@@ -211,8 +216,8 @@
       },
       goToInfo (item) {//这里应该是带着活动的id的
         if(item.status==='3' || item.status ==='6'){
-          console.log("item",item.id);
-          this.$router.push({ path: `/management/info/${item.id}` })
+          let ID = item.id;
+          this.$router.push({ path: `/management/info/${ID}` })
         }
       },
       filterTag(value, row) {
@@ -253,7 +258,7 @@
     activated () {
       // 获取活动审核 待审核列表
       if(!this.pass){
-        console.log(1111)
+        // console.log(1111)
         this.activityManageList()
       }else{
         this.setPass(false)

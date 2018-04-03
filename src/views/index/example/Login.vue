@@ -129,7 +129,7 @@
             let init = this.ruleForm
             let data = qs.stringify(init) //测试不用
           this.$store.dispatch('LoginByUsername', data).then((res) => {
-              console.log('storeres', res)
+              // console.log('storeres', res)
               let code = res.data.code
               let message = res.data.message
               if(code==='ok'){

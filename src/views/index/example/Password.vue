@@ -141,11 +141,11 @@
               this.flag = false
               this.countDown = true
               //在这里post短信验证码，data mobileNumber
-              console.log(this.ruleForm.tel);
+              // console.log(this.ruleForm.tel);
               let data = "phoneNumber=" +this.ruleForm.tel+"&contactName="+this.ruleForm.contact
               // console.log(data);
               getCaptchaForget(data).then((res)=>{
-                console.log(res);
+                // console.log(res);
                 if(res.data && res.data.code==='ok'){
                   // 证实后台已经发送验证码 开始倒计时
                   this.countDown = true;
@@ -153,7 +153,8 @@
                 }else if(res.data.code != 'ok'){  // 手机号码不正确
                   this.countDown = false;
                   // this.test = "手机号不正确";
-                  this.message == "手机号不正确";
+                  // this.message == "手机号不正确";
+                  alert("手机号不正确");
                 }else{
                   this.countDown = false
                   this.$message({
@@ -174,9 +175,8 @@
 
             let data = "phoneNumber=" +this.ruleForm.tel+"&verCode="+this.ruleForm.captcha;
             checkSMSCode(data).then((res) => {   // 验证手机号验证码是否正确请求
-              console.log(res);
+              // console.log(res);
               if(res.data.data === true && res.data.code=== "ok"){   //验证码正确
-                alert(111)
                 this.showInfo = false;
                 this.$refs[formName].resetFields();
               } else {  // 验证码错误
@@ -199,11 +199,11 @@
             this.loading = true
             // 按钮禁止，防止重复提交
             this.isDisabled = true;
-            console.log(this.ruleForm.tel);
+
             let data = "mobileNumber=" + this.mobileNumber + "&password="+this.ruleForm1.password+"&confirmPassword=" + this.ruleForm1.confirmPassword;
-            console.log(data);
+
             surePassword(data).then((res) => {
-              console.log('regis res', res)
+              // console.log('regis res', res)
               let data = res.data
               let message = res.data.message
               if(data.code === 'ok') {
@@ -225,12 +225,16 @@
                   type: 'error',
                   duration: 2* 1000
                 });
+                // 把提交按钮放开
+                this.isDisabled = true;
               }else{
                 this.$message({
                   message: '请稍后再试',
                   type: 'error',
                   duration: 2* 1000
                 });
+                // 把提交按钮放开
+                this.isDisabled = true;
               }
             })
             this.isDisabled = false

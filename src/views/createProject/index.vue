@@ -124,8 +124,12 @@ export default {
           // 将异步获取的数据 放到vuex全局
           this.initLotteryData(result)
           console.log('template', result)
-
           this.loading.close()
+        } else {
+          let timer = setInterval(function() {
+            this.loading.close();
+          })
+          clearInterval(timer);
         }
       }).catch((res) =>{
         this.loading.close()

@@ -97,11 +97,11 @@
         }
       },
       changeStorage(obj) {
-        console.log("father",obj)
+        // console.log("father",obj)
         let data = JSON.stringify(obj);
         localStorage.setItem('USER_INFO',data);
         this.userInfo = obj;
-        console.log("localstorage",localStorage.getItem("USER_INFO"))
+        // console.log("localstorage",localStorage.getItem("USER_INFO"))
       }
     },
     computed: {
@@ -114,11 +114,12 @@
     activated () {
       // console.log("localStorage",localStorage.getItem('USER_INFO'))
       let userInfo = JSON.parse(localStorage.getItem('USER_INFO')); 
-      console.log("USER_INFO",userInfo)
+      // console.log("USER_INFO",userInfo)
       this.userInfo = userInfo;
-      console.log('userInfo',this.userInfo)
+      // console.log('userInfo',this.userInfo) ;
+      // console.log("code",this.code)
       // // 拉取信息 确定状态status字段
-      if(this.status==='login' && this.code === '1'){
+      if(this.status==='login' && this.code !== '0'){
         this.showMain = false
       }
     },

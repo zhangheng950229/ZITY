@@ -27,7 +27,7 @@ router.beforeEach((to, from, next) => {
     // has token 如果已经登录,去login页面，即是本项目的首页，导向创建活动页面
     // console.log("to.path", to.path)
     if (to.path === '/login') {
-        next({ path: '/create-project' });
+      next({ path: '/create-project' });
     }
     else {
       if(flag) {
@@ -35,12 +35,10 @@ router.beforeEach((to, from, next) => {
         // let roles = ['admin']
         let roles = store.getters.roles
         // console.log("store.getters.roles",store.getters.roles)
-        store.dispatch('GenerateRoutes', { roles }).then(() => { // 根据roles权限生成可访问的路由表
-          console.log('rute', store.getters.addRouters)
-          router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
+        store.dispatch('GenerateRoutes', { roles }).then(() => {  // 根据roles权限生成可访问的路由表
+          router.addRoutes(store.getters.addRouters)  // 动态添加可访问路由表
         })
       }
-      console.log("store.getters.roles",store.getters.rolse)
       if(to.name === 'template'){
         // 判断是否具有资格创建活动
         if(store.getters.code ==='1'){

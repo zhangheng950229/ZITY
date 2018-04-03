@@ -1,8 +1,7 @@
 <template>
   <div class="container">
     <div class="verify-header">
-    <span><i class="el-icon-arrow-left
-"></i></span>
+    <span><i class="el-icon-arrow-left"></i></span>
     <span>活动审核</span></div>
     <div class="verify-lay" style="max-width:1100px">
       <div class="verify-content">
@@ -253,7 +252,7 @@
       fetchVerfityList () {
         this.listLoading = true
         fetchVerfityList().then((res) =>{
-          console.log('e', res)
+          // console.log('e', res)
           // this.userList = res.data.list
           // 使用vuex 管理
           let result = res.data
@@ -271,7 +270,7 @@
       },
       openDialog (item) {
         this.showModal = true
-        console.log('pass', this.currentActivity)
+        // console.log('pass', this.currentActivity)
         this.currentActivity  = item
         // 在这里获取活动名称
         // this.setCurrentLottery(item)
@@ -366,6 +365,7 @@
             // 重新拉取待审核列表 此处不用table 加载图标，
             // this.fetchVerfityList1()
             // 不再拉取数据， 使用vuex 管理
+            // console.log("AAA",res)
             let id = result.data.id
             let newObj = result.data
             if(flag === 'pass' || flag ==='reject'){
@@ -397,7 +397,8 @@
       },
       goToInfo (item) {//这里应该是带着活动的id的
         if(item.status==='3' || item.status ==='6'){
-         this.$router.push({ path: `/management/info/1` })
+          let ID = item.id;
+         this.$router.push({ path: `/management/info/${ID}` })
         }
       },
       openChange(flag, item) {

@@ -71,6 +71,11 @@ export default {
           console.log('template', result)
 
           this.loading.close()
+        } else {
+          let timer = setInterval(function() {
+            this.loading.close();
+          })
+          clearInterval(timer);
         }
       }).catch((res) =>{
         this.loading.close()

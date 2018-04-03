@@ -9,16 +9,15 @@ var CancelToken = axios.CancelToken;
 var cancel;
 
 const service = axios.create({
-  baseURL: 'http://192.168.111.114:8888/marketing', // api的base_url
-  // http://192.168.111.114:9999
+    baseURL: 'http://192.168.111.114:8888/marketing', // api的base_url
+    // http://192.168.111.114:9999
 
-  // http://47.93.236.101:8888   // 外网的口
-  // baseURL: 'http://192.168.111.127:8888', // api的base_url
-  // baseURL: 'http://192.168.88.224:8888', // api的base_url
-  
- 
-  timeout: 5000,// request timeout
-  cancelToken: new CancelToken(function executor(c) {
+    // http://47.93.236.101:8888   // 外网的口
+    // baseURL: 'http://192.168.111.127:8888', // api的base_url
+    // baseURL: 'http://192.168.88.224:8888', // api的base_url
+    
+    timeout: 5000,// request timeout
+    cancelToken: new CancelToken(function executor(c) {
     // An executor function receives a cancel function as a parameter
     cancel = c;
   })
@@ -52,8 +51,7 @@ service.interceptors.request.use(config => {
   return config;
 }, error => {
   // Do something with request error
-  console.log('request_error', error); // for debug
-
+  console.log('request_error', error); // for debu
   Promise.reject(error);
 });
 
@@ -65,7 +63,7 @@ service.interceptors.response.use(
     return response;
   },
   error => {
-    console.log('err' + error);;// for debug
+    console.log('err' + error);   // for debug
     Message({
       message: '请稍后尝试',
       type: 'error',

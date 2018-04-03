@@ -304,7 +304,8 @@
 
       },
       passVerify (id, status) {
-        this.pass = true
+        this.pass = true;
+        status = "1";
         // 客户通过，待审核通过操作
         this.submitData  = {id, status}
       },
@@ -442,6 +443,7 @@
               // let data = this.submitData
               console.log('待审核通过form', this.submitData)
               console.log('待审核通过', data)
+              // console.log("data1111",data)
               userEdit(data).then((res) =>{
                 console.log('测试res', res)
                 let data = res.data
@@ -458,17 +460,16 @@
                   // this.tabHelp = true
                   this.close()
                 }else{
+                  let timer = setInterval(function(){
+                    this.listLoading = false;
+                  },2000)
+                  clearInterval(timer)
                   alert('请稍后处理')
                 }
                 this.loading = false
               }).catch((res) =>{
                 this.loading = false
               })
-            //   setTimeout(()=> {
-            //   this.loading = false
-            //   this.$refs[formName].resetFields();
-            //   this.close()
-            // }, 500)
           } else {
             console.log('error submit!!')
             this.loading = false

@@ -78,7 +78,7 @@ export default {
       templateId: ""
     }
   },
-  created() {
+  activated() {
     let id = this.$route.params.id;
     this.templateId = id;
     this.fetchInfoList()

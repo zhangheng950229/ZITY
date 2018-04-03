@@ -173,7 +173,7 @@
             let data = qs.stringify(this.ruleForm)
             // console.log('注册数据', data)
             createUser(data).then((res) => {
-              console.log('regis res', res)
+              // console.log('regis res', res)
               let data = res.data
               let message = res.data.message
               if(data.code === 'ok') {
