@@ -94,9 +94,7 @@ const user = {
               setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:role})
               localStorage.setItem('USER_INFO', JSON.stringify(data));
               commit('SET_TOKEN', {id:data.id,name:data.contact_name})
-           
             } else {
-              alert("延时")
               this.loading = false
             }
             // 数据传到页面中

@@ -22,7 +22,7 @@ const lottery = {
 
   mutations: {
     setCurrentLottery: (state, item) => {
-      // let localItem = localStorage.getItem('template')
+        // let localItem = localStorage.getItem('template')
         state.currentLotteryItem = item
         // localStorage.setItem('template',item)
     },

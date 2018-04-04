@@ -13,7 +13,12 @@
         <el-input v-model="ruleForm.tel" placeholder="请输入新手机号码" auto-complete="off"></el-input>
       </el-form-item>
       <el-form-item label="验证码" prop="captcha">
-        <el-input class="captcha" v-model="ruleForm.captcha" placeholder="请确认验证码"></el-input>
+        <el-input 
+        class="captcha" 
+        v-model="ruleForm.captcha" 
+        placeholder="请输入6位验证码"
+        maxlength=6
+        ></el-input>
         <!-- <button class="code-btn">发送验证码</button> -->
         <captcha @click.native="getCaptcha" :countDown="countDown" @stop="stop"></captcha>
       </el-form-item>

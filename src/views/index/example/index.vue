@@ -13,7 +13,7 @@
       <el-button type="primary" class="example-btn" @click="openModel(item)">创建活动</el-button>
     </el-col>
   </el-row>
-<!--   <modal v-if="showModal">
+  <!-- <modal v-if="showModal">
     <div slot="body">
       <div class="close-tep"><span>请您先登录</span><span class="fr" @click="close">X</span></div>
     </div>
@@ -61,7 +61,42 @@ export default {
     },
     getTemplates () {
       this.setLoading()
-      getTemplates().then((res) =>{
+
+      // var that = this ;
+      // var xmlhttp;
+      // if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+      //     xmlhttp=new XMLHttpRequest();
+      // }else{// code for IE6, IE5
+      //   xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+      // }
+      // application/json;charset=UTF-8
+    
+      // xmlhttp.onreadystatechange=function(res){
+      //   let data = res.data
+      //   if (xmlhttp.readyState==4 && xmlhttp.status==200){
+      //     // document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+      //     console.log(JSON.parse(xmlhttp.responseText));
+      //     // console.log(str)
+      //     let data1 = JSON.parse(xmlhttp.responseText) 
+      //     let data = res.data
+      //     if(data1.code === 'ok') {
+      //       console.log(data1.list)
+      //       let result = that.changeTemplateData(data1.list)
+      //       that.list = result
+      //       that.initLotteryData(result)
+      //       that.loading.close()
+      //       console.log(res)
+      //     }
+      //   }
+      // }
+      // xmlhttp.open("POST","http://192.168.111.114:8888/marketing/templateClient/getTemplates",true);
+      // xmlhttp.withCredentials = true
+      // xmlhttp.send();
+
+      getTemplates().then((res,req) =>{
+        console.log(document.getcookie("Admin-Token"));
+        console.log("telplate",res)
+        console.log("header",res.headers)
         let data = res.data
         if(data.code === 'ok') {
           let result = this.changeTemplateData(data.list)
@@ -80,6 +115,9 @@ export default {
       }).catch((res) =>{
         this.loading.close()
       })
+
+
+
     },
     setLoading () {
       this.loading = this.$loading({

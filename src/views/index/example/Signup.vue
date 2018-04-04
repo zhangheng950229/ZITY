@@ -7,22 +7,40 @@
   <div class="" slot="body">
     <el-form status-icon :model="ruleForm" :rules="rules"  ref="ruleForm"  label-width="80px" label-position ="left">
       <el-form-item label="企业名称" prop="contractName">
-        <el-input v-model="ruleForm.contractName" placeholder="请输入购买合同中的企业名称" auto-complete="off"></el-input>
+        <el-input 
+        v-model="ruleForm.contractName" 
+        placeholder="请输入购买合同中的企业名称" 
+        auto-complete="off"
+        maxlength=20
+        ></el-input>
       </el-form-item>
-       <el-form-item label="联系人" prop="contactName">
-        <el-input v-model="ruleForm.contactName" placeholder="请输入联系人" auto-complete="off"></el-input>
+       <el-form-item label="联系人" prop="contactName" >
+        <el-input 
+        v-model="ruleForm.contactName" 
+        placeholder="请输入联系人" 
+        auto-complete="off" 
+        maxlength=15></el-input>
       </el-form-item>
       <el-form-item label="手机号码" prop="mobileNumber">
-        <el-input v-model="ruleForm.mobileNumber" placeholder="请输入手机号码" auto-complete="off"></el-input>
+        <el-input v-model="ruleForm.mobileNumber" placeholder="请输入手机号码" auto-complete="off" maxlength= 11></el-input>
       </el-form-item>
        <el-form-item label="密码" prop="password">
-        <el-input  type="password" v-model="ruleForm.password" placeholder="请输入密码" auto-complete="off"></el-input>
+        <el-input  
+        type="password" 
+        v-model="ruleForm.password" 
+        placeholder="请不少于8位密码" 
+        auto-complete="off"
+        ></el-input>
       </el-form-item>
        <el-form-item label="确认密码" prop="confirmPassword">
         <el-input type="password" v-model="ruleForm.confirmPassword" placeholder="请确认密码" auto-complete="off"></el-input>
       </el-form-item>
        <el-form-item label="验证码" prop="verifyCode">
-        <el-input class="captcha" v-model="ruleForm.verifyCode" placeholder="请确认验证码"></el-input>
+        <el-input 
+        class="captcha" 
+        v-model="ruleForm.verifyCode" 
+        placeholder="请输入6位验证码" 
+        maxlength=6 ></el-input>
         <captcha @click.native="getCaptcha" :countDown="countDown" @stop="stop"></captcha>
         <!-- <button class="code-btn" @click="getCaptcha">发送验证码</button> -->
       </el-form-item>
@@ -52,7 +70,9 @@
       var validatePass = (rule, value, callback) => {
         if (value === '') {
           callback(new Error('请输入密码'));
-        } else {
+        } else if(value.length < 8) {
+          callback(new Error('请输入不少于8位密码'));
+        }else {
           if (this.ruleForm.confirmPassword !== '') {
             this.$refs.ruleForm.validateField('confirmPassword');
           }
@@ -131,7 +151,6 @@
               this.countDown = true
               //在这里post短信验证码，data mobileNumber
               let data = this.ruleForm.mobileNumber
-              
               loginGetCaptcha(data).then((res)=>{
                 if(res.data && res.data.code==='ok'){
                   // 证实后台已经发送验证码 开始倒计时

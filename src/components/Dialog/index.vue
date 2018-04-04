@@ -24,7 +24,7 @@
           </div>
         </div>
         <div v-if="hasCreated" class="url-item">
-            <input id="url-input" v-model="qrcode.val"></input>
+            <input id="url-input" v-model="qrcode.val">
              <el-tooltip :disabled="disabled" content="链接已复制" placement="bottom">
               <el-button
               type="primary"
@@ -45,8 +45,9 @@
 </template>
 <script>
   import Modal from '../Modal'
-  import { mapGetters} from 'vuex'
+  import { mapGetters,mapMutations} from 'vuex'
   import Qrcode from '@xkeshi/vue-qrcode';
+
 
   export default {
     props:{
@@ -79,6 +80,7 @@
       }
     },
     created () {
+      
     },
     computed: {
     // 使用对象展开运算符将 getter 混入 computed 对象中
@@ -89,6 +91,9 @@
       ])
     },
     methods:{
+      ...mapMutations([
+        'SignUp',
+      ]),
       onCopy: function (e) {
         this.disabled = false
       },
@@ -100,14 +105,18 @@
       createProject () {
         // 判断用户是否已经登录，未登录，弹窗提示登录
         // 首页未注册时候
-        this.showMainPop = false
-        if(this.status ==='noRegister'){
+        this.showMainPop = false;
+        // this.$store.dispatch("SignUp")
+        
+        // console.log("this.status",this.status)
+        if(this.status !== 'login'){ // 没有登陆的状态
           this.showCodePop = false
           this.showLoginPop = true
         }
         if(this.status === 'login'){
           this.showLoginPop = false
           let code = this.code
+          console.log("code",code)
           if(code==='0') {//审核中
             this.codeStr = '审核中'
             this.showCodePop = true

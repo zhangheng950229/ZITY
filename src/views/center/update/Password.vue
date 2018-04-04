@@ -3,14 +3,14 @@
     <div slot="header">
       <span class="fl">更换密码</span>
       <span class="fr cursor" @click="close"><i class="el-icon-close"></i></span>
-    </div>
-    <div class="" slot="body" v-if="showInfo">
+    </div> 
+    <div class="" slot="body" v-if= "showInfo"> <!--  showInfo -->
       <el-form status-icon :model="ruleForm" :rules="rules"  ref="ruleForm"  label-width="80px" label-position ="left">
         <el-form-item label="手机号" prop="contact">
           <el-input v-model="ruleForm.contact" placeholder="请输入手机号" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item label="验证码" prop="captcha">
-          <el-input class="captcha" v-model="ruleForm.captcha" placeholder="请确认验证码"></el-input>
+          <el-input class="captcha" v-model="ruleForm.captcha" placeholder="请输入6位验证码"></el-input>
           <!-- <button class="code-btn">发送验证码</button> -->
          <captcha @click.native="getCaptcha" :countDown="countDown" @stop="stop"></captcha>
         </el-form-item>
@@ -20,7 +20,7 @@
     <div class="" slot="body" v-else>
     <el-form status-icon :model="ruleForm1" :rules="rules1"  ref="ruleForm1"  label-width="80px" label-position ="left">
        <el-form-item label="密码" prop="password">
-        <el-input  type="password" v-model="ruleForm1.password" placeholder="请输入密码" auto-complete="off"></el-input>
+        <el-input  type="password" v-model="ruleForm1.password" placeholder="请输入不少于8位的密码" auto-complete="off"></el-input>
         </el-form-item>
        <el-form-item label="确认密码" prop="confirmPassword">
         <el-input type="password" v-model="ruleForm1.confirmPassword" placeholder="请确认密码" auto-complete="off"></el-input>
@@ -53,6 +53,8 @@
       var validatePass = (rule, value, callback) => {
         if (value === '') {
           callback(new Error('请输入密码'));
+        } else if (value.length < 8) {
+          callback(new Error('请输入不少于8位的密码'));
         } else {
           if (this.ruleForm1.confirmPassword !== '') {
             this.$refs.ruleForm1.validateField('confirmPassword');
@@ -141,6 +143,11 @@
                 else if(res.data.code !== 'ok' && res.data.message == "手机号不正确"){
                   this.countDown = false;
                   this.flag = true;
+                  this.$message({
+                    message: '手机号不正确',
+                    type: 'error',
+                    duration: 2 * 1000
+                  });
                   alert("手机号不正确");
                 }
                 else{

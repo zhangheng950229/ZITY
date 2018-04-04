@@ -11,6 +11,9 @@ import store from './store'
 import './permission' // permission control
 import VueClipboard from 'vue-clipboard2'
 
+// 兼容IE11
+import 'babel-polyfill'
+
 Vue.use(VueClipboard)
 // Vue.component('v-distpicker', VDistpicker)
 Vue.config.productionTip = false

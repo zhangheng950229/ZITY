@@ -64,7 +64,6 @@ export default {
     if(this.token){
       if(typeof this.token === 'string'){
         let obj = JSON.parse(this.token);
-        console.log("headbar",obj)
         this.name = obj.nick_name
       }else{
         this.name = this.token.name

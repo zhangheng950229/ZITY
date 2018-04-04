@@ -3,6 +3,8 @@ import http from 'utils/axios'
 // 获取模板数据
 export function getTemplates() {
   return http({
+    headers: {"userID" : "123456"},
+    maxContentLength: 2000,
     url: `/templateClient/getTemplates`,
     method: 'post',
   })

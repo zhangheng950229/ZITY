@@ -7,13 +7,24 @@
   <div class="" slot="body" v-if="showInfo">
     <el-form status-icon :model="ruleForm" :rules="rules"  ref="ruleForm"  label-width="80px" label-position ="left">
       <el-form-item label="联系人" prop="contact">
-        <el-input v-model="ruleForm.contact" placeholder="请输入联系人" auto-complete="off"></el-input>
+        <el-input 
+        v-model="ruleForm.contact" 
+        placeholder="请输入联系人" 
+        auto-complete="off"
+        maxlength=15
+        ></el-input>
       </el-form-item>
       <el-form-item label="手机号码" prop="tel">
         <el-input v-model="ruleForm.tel" placeholder="请输入手机号码" auto-complete="off"></el-input>
       </el-form-item>
       <el-form-item label="验证码" prop="captcha">
-        <el-input class="captcha" v-model="ruleForm.captcha" placeholder="请确认验证码" auto-complete="off"></el-input>
+        <el-input 
+        class="captcha" 
+        v-model="ruleForm.captcha" 
+        placeholder="请输入6位验证码" 
+        auto-complete="off"
+        maxlength=6
+        ></el-input>
         <captcha @click.native="getCaptcha" :countDown="countDown" @stop="stop"></captcha>
         <!-- <button class="code-btn">发送验证码</button> -->
       </el-form-item>
@@ -29,7 +40,7 @@
   <div class="" slot="body" v-else>
     <el-form status-icon :model="ruleForm1" :rules="rules1"  ref="ruleForm1"  label-width="80px" label-position ="left">
        <el-form-item label="密码" prop="password">
-        <el-input  type="password" v-model="ruleForm1.password" placeholder="请输入密码" auto-complete="off"></el-input>
+        <el-input  type="password" v-model="ruleForm1.password" placeholder="请输入不少于8位密码" auto-complete="off"></el-input>
         </el-form-item>
        <el-form-item label="确认密码" prop="confirmPassword">
         <el-input type="password" v-model="ruleForm1.confirmPassword" placeholder="请确认密码" auto-complete="off"></el-input>
@@ -55,6 +66,8 @@
       var validatePass = (rule, value, callback) => {
         if (value === '') {
           callback(new Error('请输入密码'));
+        } else if(value.length < 8) {
+          callback(new Error('请输入不少于8位的密码'));
         } else {
           if (this.ruleForm1.confirmPassword !== '') {
             this.$refs.ruleForm1.validateField('confirmPassword');
@@ -79,14 +92,9 @@
             callback(new Error(message));
           }else if (value==='') {
             callback(new Error('请输入验证码'))
-          }
-          // else if (this.test === "手机号不正确") {
-          //   callback(new Error('手机号不正确'))
-          // }
-          else if (this.test === "验证码错误") {
+          }else if (this.test === "验证码错误") {
             callback(new Error('验证码错误,请重新输入'))
-          }
-          else {
+          }else {
             callback();
           }
         })
@@ -139,7 +147,7 @@
           if(message === '请输入验证码'){
             if(this.flag){
               this.flag = false
-              this.countDown = true
+              this.countDown = false
               //在这里post短信验证码，data mobileNumber
               // console.log(this.ruleForm.tel);
               let data = "phoneNumber=" +this.ruleForm.tel+"&contactName="+this.ruleForm.contact
@@ -154,7 +162,12 @@
                   this.countDown = false;
                   // this.test = "手机号不正确";
                   // this.message == "手机号不正确";
-                  alert("手机号不正确");
+                  this.countDown = true;
+                  this.$message({
+                    message: '手机号不正确',
+                    type: 'error',
+                    duration: 2* 1000
+                  });
                 }else{
                   this.countDown = false
                   this.$message({
@@ -181,6 +194,11 @@
                 this.$refs[formName].resetFields();
               } else {  // 验证码错误
                 this.test = "验证码错误";
+                this.$message({
+                    message: '验证码错误',
+                    type: 'error',
+                    duration: 2* 1000
+                  });
               }
             })
           } else {

@@ -10,11 +10,15 @@
         <el-input v-model="ruleForm._loginName" placeholder="请输入手机号码" auto-complete="off"></el-input>
       </el-form-item>
        <el-form-item label="密码" prop="_password">
-        <el-input   type="password" v-model="ruleForm._password" placeholder="请输入密码" auto-complete="off"></el-input>
+        <el-input 
+        type="password" 
+        v-model="ruleForm._password" 
+        placeholder="请输入密码" 
+        auto-complete="off"></el-input>
       </el-form-item>
       <div id="f-password"><span @click="$emit('close','password')">忘记密码</span></div>
       <el-form-item label="验证码" prop="_verCode">
-        <el-input class="captcha" v-model="ruleForm._verCode" placeholder="请确认验证码"></el-input>
+        <el-input class="captcha" v-model="ruleForm._verCode" placeholder="请输入6位验证码" maxlength=6></el-input>
         <captcha @click.native="getCaptcha" 
         :countDown="countDown"
         @stop="stop"></captcha>
@@ -47,11 +51,11 @@
         this.$refs.ruleForm.validateField('_loginName' ,message => {
           if (message==='请输入手机号码') {
             callback(new Error('请先输入手机号码'));
-          }else if (message==='手机号码输入不正确') {
+          } else if (message==='手机号码输入不正确') {
             callback(new Error(message));
-          }else if (value==='') {
+          } else if (value==='') {
             callback(new Error('请输入验证码'))
-          }else {
+          } else {
             callback();
           }
         })
@@ -96,7 +100,7 @@
           if(message ==='请输入验证码'){
             if(this.flag){
               this.flag = false
-              this.countDown = true
+              this.countDown = false  //验证码倒计时
               //在这里post短信验证码，data mobileNumber
               let data = this.ruleForm._loginName
               // let data = qs.stringify(phoneNum)
@@ -105,7 +109,7 @@
                   // 证实后台已经发送验证码 开始倒计时
                   this.countDown = true
                 }else{
-                  this.countDown = false
+                  this.flag = true;
                   this.$message({
                     message: '请稍后尝试',
                     type: 'error',
@@ -132,9 +136,18 @@
               // console.log('storeres', res)
               let code = res.data.code
               let message = res.data.message
-              if(code==='ok'){
+              if(code === 'ok'){
                 this.$router.push({ path: '/create-project' });
-              } else if(message==='验证码错误') {
+              } else if(code != "ok" && message==='认证失败') {
+                // alert("验证码错误")
+                this.$message({
+                  message: '手机或密码错误',
+                  type: 'error',
+                  duration: 2* 1000
+                });
+               
+              } else if(code != "ok" && message==='验证码错误') {
+                // alert("验证码错误")
                 this.$message({
                   message: '验证码错误',
                   type: 'error',

@@ -119,7 +119,7 @@
       // console.log('userInfo',this.userInfo) ;
       // console.log("code",this.code)
       // // 拉取信息 确定状态status字段
-      if(this.status==='login' && this.code !== '0'){
+      if(this.status==='login' && this.code === '1'){
         this.showMain = false
       }
     },
