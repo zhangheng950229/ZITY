@@ -8,7 +8,7 @@
     <el-form status-icon :model="ruleForm" :rules="rules"  ref="ruleForm"  label-width="80px" label-position ="left">
       <el-form-item label="企业名称" prop="contractName">
         <el-input 
-        v-model="ruleForm.contractName" 
+        v-model.trim="ruleForm.contractName" 
         placeholder="请输入购买合同中的企业名称" 
         auto-complete="off"
         maxlength=20
@@ -16,29 +16,29 @@
       </el-form-item>
        <el-form-item label="联系人" prop="contactName" >
         <el-input 
-        v-model="ruleForm.contactName" 
+        v-model.trim="ruleForm.contactName" 
         placeholder="请输入联系人" 
         auto-complete="off" 
         maxlength=15></el-input>
       </el-form-item>
       <el-form-item label="手机号码" prop="mobileNumber">
-        <el-input v-model="ruleForm.mobileNumber" placeholder="请输入手机号码" auto-complete="off" maxlength= 11></el-input>
+        <el-input v-model.trim="ruleForm.mobileNumber" placeholder="请输入手机号码" auto-complete="off" maxlength= 11></el-input>
       </el-form-item>
        <el-form-item label="密码" prop="password">
         <el-input  
         type="password" 
-        v-model="ruleForm.password" 
+        v-model.trim="ruleForm.password" 
         placeholder="请不少于8位密码" 
         auto-complete="off"
         ></el-input>
       </el-form-item>
        <el-form-item label="确认密码" prop="confirmPassword">
-        <el-input type="password" v-model="ruleForm.confirmPassword" placeholder="请确认密码" auto-complete="off"></el-input>
+        <el-input type="password" v-model.trim="ruleForm.confirmPassword" placeholder="请确认密码" auto-complete="off"></el-input>
       </el-form-item>
        <el-form-item label="验证码" prop="verifyCode">
         <el-input 
         class="captcha" 
-        v-model="ruleForm.verifyCode" 
+        v-model.trim="ruleForm.verifyCode" 
         placeholder="请输入6位验证码" 
         maxlength=6 ></el-input>
         <captcha @click.native="getCaptcha" :countDown="countDown" @stop="stop"></captcha>
@@ -191,6 +191,7 @@
             this.isDisabled = true
             let data = qs.stringify(this.ruleForm)
             // console.log('注册数据', data)
+            // this.$store.dispatch('LoginByUsername', data)
             createUser(data).then((res) => {
               // console.log('regis res', res)
               let data = res.data
@@ -210,6 +211,13 @@
               }else if(message==='验证码错误'){
                 this.$message({
                   message: '验证码错误',
+                  type: 'error',
+                  duration: 2* 1000
+                });
+
+              }else if(message==='号码已存在'){
+                this.$message({
+                  message: '号码已存在',
                   type: 'error',
                   duration: 2* 1000
                 });

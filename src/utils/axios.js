@@ -1,9 +1,12 @@
 import axios from 'axios';
 import { Message } from 'element-ui';
 // import qs from "qs"
-// import store from '@/store'
+import store from '@/store'
 // import { getToken } from '@/utils/auth'
 import Vue from 'vue';
+// import store from '.././store'
+
+
 // create an axios instance
 var CancelToken = axios.CancelToken;
 var cancel;
@@ -45,15 +48,17 @@ service.interceptors.request.use(config => {
   // pending.push({ u: config.url + '&' + config.method, f: cancel });
   // console.log('pending',pending)
   // console.log('config', config);
-
+  
   config.headers = {
     'Content-Type':'application/x-www-form-urlencoded',
-    // 'userid' : "123456"
   };
+  console.log("Store.userID",store.getters.userID)
   // Do something before request is sent
-  // if (store.getters.token) {
-  //   config.headers['X-Token'] = getToken() // 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
-  // }
+  if (store.getters.userID) {
+    config.headers = {
+      'userID' : store.getters.userID,  // 让每个请求携带userID为自定义key 请根据实际情况自行修改
+    }  
+  }
   return config;
 }, error => {
   // Do something with request error
@@ -61,11 +66,11 @@ service.interceptors.request.use(config => {
   Promise.reject(error);
 });
 
-// respone interceptor
+
 service.interceptors.response.use(
   response => {
-    removePending(response.config);  //在一个ajax响应后再执行一下取消操作，把已经完成的请求从pending中移除 
-    console.log('respone', response)
+    // removePending(response.config);  //在一个ajax响应后再执行一下取消操作，把已经完成的请求从pending中移除 
+    // console.log('respone', response)
     return response;
   },
   error => {
@@ -75,7 +80,7 @@ service.interceptors.response.use(
       type: 'error',
       duration: 2* 1000
     });
-    removePending(res.config);  //在一个ajax响应后再执行一下取消操作，把已经完成的请求从pending中移除 
+    // removePending(res.config);  //在一个ajax响应后再执行一下取消操作，把已经完成的请求从pending中移除 
     return Promise.reject(error);
   });
 

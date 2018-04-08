@@ -17,12 +17,12 @@
         auto-complete="off"></el-input>
       </el-form-item>
       <div id="f-password"><span @click="$emit('close','password')">忘记密码</span></div>
-      <el-form-item label="验证码" prop="_verCode">
+      <!-- <el-form-item label="验证码" prop="_verCode">
         <el-input class="captcha" v-model="ruleForm._verCode" placeholder="请输入6位验证码" maxlength=6></el-input>
         <captcha @click.native="getCaptcha" 
         :countDown="countDown"
         @stop="stop"></captcha>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item class="import-btn">
         <el-button type="primary" class="info-btn" :disabled="isDisabled" :loading="loading" @click="submitForm('ruleForm')">登录</el-button>
       </el-form-item>
@@ -47,19 +47,19 @@
 
   export default {
     data () {
-      var validatePass3 = (rule, value, callback) => {
-        this.$refs.ruleForm.validateField('_loginName' ,message => {
-          if (message==='请输入手机号码') {
-            callback(new Error('请先输入手机号码'));
-          } else if (message==='手机号码输入不正确') {
-            callback(new Error(message));
-          } else if (value==='') {
-            callback(new Error('请输入验证码'))
-          } else {
-            callback();
-          }
-        })
-      };
+      // var validatePass3 = (rule, value, callback) => {
+      //   this.$refs.ruleForm.validateField('_loginName' ,message => {
+      //     if (message==='请输入手机号码') {
+      //       callback(new Error('请先输入手机号码'));
+      //     } else if (message==='手机号码输入不正确') {
+      //       callback(new Error(message));
+      //     } else if (value==='') {
+      //       callback(new Error('请输入验证码'))
+      //     } else {
+      //       callback();
+      //     }
+      //   })
+      // };
       return {
           isDisabled:false,
           countDown:false,
@@ -68,7 +68,7 @@
           ruleForm: {
             _loginName: '',
             _password: '',
-            _verCode: '',
+            _verCode: '111111',
           },
           rules: {
             _loginName: [
@@ -78,9 +78,9 @@
             _password: [
               { required: true,message: '请输入密码', trigger: 'blur' }
             ],
-            _verCode: [
-              { required: true, validator: validatePass3, trigger: 'blur' },
-            ],
+            // _verCode: [
+            //   { required: true, validator: validatePass3, trigger: 'blur' },
+            // ],
           }
       }
     },
@@ -92,42 +92,42 @@
         this.countDown = false
         this.flag = flag
       },
-      getCaptcha () {
-        //判断是否已经填入验证码 才向后台请求
-        // 对表单验证码字段进行验证
-        this.$refs.ruleForm.validateField('_verCode' ,message => {
-          // 说明有错误字段
-          if(message ==='请输入验证码'){
-            if(this.flag){
-              this.flag = false
-              this.countDown = false  //验证码倒计时
-              //在这里post短信验证码，data mobileNumber
-              let data = this.ruleForm._loginName
-              // let data = qs.stringify(phoneNum)
-              getCaptcha(data).then((res)=>{
-                if(res.data && res.data.code==='ok'){
-                  // 证实后台已经发送验证码 开始倒计时
-                  this.countDown = true
-                }else{
-                  this.flag = true;
-                  this.$message({
-                    message: '请稍后尝试',
-                    type: 'error',
-                    duration: 2* 1000
-                  });
-                }
-              })
-            }
-          }
-        })
-      },
+      // getCaptcha () {
+      //   //判断是否已经填入验证码 才向后台请求
+      //   // 对表单验证码字段进行验证
+      //   this.$refs.ruleForm.validateField('_verCode' ,message => {
+      //     // 说明有错误字段
+      //     if(message ==='请输入验证码'){
+      //       if(this.flag){
+      //         this.flag = false
+      //         this.countDown = true  //验证码倒计时
+      //         //在这里post短信验证码，data mobileNumber
+      //         let data = this.ruleForm._loginName
+      //         // let data = qs.stringify(phoneNum)
+      //         getCaptcha(data).then((res)=>{
+      //           if(res.data && res.data.code==='ok'){
+      //             // 证实后台已经发送验证码 开始倒计时
+      //           }else{
+      //             this.$message({
+      //               message: '请稍后尝试',
+      //               type: 'error',
+      //               duration: 2* 1000
+      //             });
+      //             this.flag = true;
+      //             this.countDown = false;
+      //           }
+      //         })
+      //       }
+      //     }
+      //   })
+      // },
       submitForm(formName) {
         // this.$router.push({ path: '/create-project/index' })
         this.$refs.ruleForm.validate(valid => {
           // console.log('rule', this.ruleForm)
           if (valid) {
             //验证码倒数 取消
-            this.countDown = false
+            this.countDown = true
             this.loading = true
             this.isDisabled = true
             let init = this.ruleForm
@@ -145,20 +145,15 @@
                   type: 'error',
                   duration: 2* 1000
                 });
-               
-              } else if(code != "ok" && message==='验证码错误') {
-                // alert("验证码错误")
-                this.$message({
-                  message: '验证码错误',
-                  type: 'error',
-                  duration: 2* 1000
-                });
+                this.isDisabled = false;
               } else {
                 this.$message({
                   message: '请稍后尝试',
                   type: 'error',
                   duration: 2* 1000
                 });
+                this.isDisabled = false;
+                this.loading = false
               }
               this.isDisabled = false
               this.loading = false

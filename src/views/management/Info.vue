@@ -17,7 +17,7 @@
           <el-table :data="list" v-loading="listLoading" element-loading-text="拼命加载中" border fit highlight-current-row height="550">
             <el-table-column align="center" label='Id' width="95">
               <template slot-scope="scope">
-                {{scope.$index}}
+                {{scope.row.id}}
               </template>
             </el-table-column>
             <el-table-column align="center" label='用户手机号' width="95">
@@ -99,7 +99,7 @@ export default {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['Id', '用户手机号','中奖时间', '是否支付成功', '奖品类别', '奖品面额', '奖券费用', '是否充值成功']
-        const filterVal = ['id','tel', 'name', 'contact', 'password', 'createdAt', 'createdAt']
+        const filterVal = ['id','mobile', 'updateTime', 'payStatus', 'priceType', 'priceDenomination', 'priceMoney','chargeStatus']
         const list = this.list
         const data = this.formatJson(filterVal, list)
         excel.export_json_to_excel(tHeader, data, this.filename)

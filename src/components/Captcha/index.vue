@@ -22,7 +22,9 @@ export default {
   },
   watch: {
     countDown: function (val) {
+      clearInterval(timer);
       if(val){
+        console.log(val)
         var timer = setInterval(()=>{
           if(this.time >0){
             this.time--
@@ -33,7 +35,8 @@ export default {
             this.$emit('stop',true)
             clearInterval(timer)
           }
-        },1000)
+        },1000);
+        this.time = 60;
       }else{
         clearInterval(timer)
       }

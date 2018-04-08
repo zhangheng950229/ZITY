@@ -3,7 +3,6 @@ import { getToken, setToken, removeToken , handleCookie} from 'utils/auth'
 import { stringify } from 'querystring';
 
 
-
 // setToken({name:'cui',code:'1',status:'login',roles:['de']})
 // let data = {
 //         "id": "7317106a-b6f6-4193-81a3-bf5b1b3aa081",
@@ -34,7 +33,8 @@ const user = {
     name: handleCookie('name'),
     roles: handleCookie('roles') || [],
     // flag: true,
-    info:{}
+    info:{},
+    userID : handleCookie('id')
   },
 
   mutations: {
@@ -51,15 +51,11 @@ const user = {
       state.name = name
     },
     SET_ROLES: (state, roles) => {
-      // let arr = [];
-      // arr.push(roles);
-      // console.log("rolseARR",roles);
-      // state.roles = arr;
       state.roles = roles;
     },
-    // SET_FLAG: (state, flag) => {
-    //   state.flag = flag
-    // }
+    SET_ID: (state, ID) => {
+      state.userID = ID;
+    }
   },
 
   actions: {
@@ -68,7 +64,9 @@ const user = {
     // },
     setRouters({ commit }, role){
       commit('SET_ROLES', role)
+
     },
+    
     // 用户名登录
     LoginByUsername({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
@@ -79,6 +77,7 @@ const user = {
               let data = result.data
               // 获取token 如果token 中code的值是1正常，那么
               // 用户登录之后获取status  设置
+              console.log(data);
               commit('SET_STATUS', 'login')
               commit('SET_CODE', data.status)
               // let  initRole = authorities[0].authority
@@ -93,7 +92,8 @@ const user = {
               }
               setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:role})
               localStorage.setItem('USER_INFO', JSON.stringify(data));
-              commit('SET_TOKEN', {id:data.id,name:data.contact_name})
+              commit('SET_TOKEN', {id:data.id,name:data.contact_name});
+              commit('SET_ID',data.id)
             } else {
               this.loading = false
             }

@@ -50,6 +50,7 @@ export default {
   methods:{
     signUpSuccess() {
       this.showSignUp = false
+      // 原型跳到登陆弹框
       this.showLogin = true
     },
     close (item) {

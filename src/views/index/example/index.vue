@@ -61,46 +61,15 @@ export default {
     },
     getTemplates () {
       this.setLoading()
-
-      // var that = this ;
-      // var xmlhttp;
-      // if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
-      //     xmlhttp=new XMLHttpRequest();
-      // }else{// code for IE6, IE5
-      //   xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-      // }
-      // application/json;charset=UTF-8
-    
-      // xmlhttp.onreadystatechange=function(res){
-      //   let data = res.data
-      //   if (xmlhttp.readyState==4 && xmlhttp.status==200){
-      //     // document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
-      //     console.log(JSON.parse(xmlhttp.responseText));
-      //     // console.log(str)
-      //     let data1 = JSON.parse(xmlhttp.responseText) 
-      //     let data = res.data
-      //     if(data1.code === 'ok') {
-      //       console.log(data1.list)
-      //       let result = that.changeTemplateData(data1.list)
-      //       that.list = result
-      //       that.initLotteryData(result)
-      //       that.loading.close()
-      //       console.log(res)
-      //     }
-      //   }
-      // }
-      // xmlhttp.open("POST","http://192.168.111.114:8888/marketing/templateClient/getTemplates",true);
-      // xmlhttp.withCredentials = true
-      // xmlhttp.send();
-
-      getTemplates().then((res,req) =>{
-        console.log(document.getcookie("Admin-Token"));
-        console.log("telplate",res)
-        console.log("header",res.headers)
+      
+      getTemplates().then((res) =>{
+        
         let data = res.data
         if(data.code === 'ok') {
+          
           let result = this.changeTemplateData(data.list)
-          this.list = result
+          this.list = result;
+          console.log("result",result)
           // 将异步获取的数据 放到vuex全局
           this.initLotteryData(result)
           console.log('template', result)
@@ -109,14 +78,12 @@ export default {
         } else {
           let timer = setInterval(function() {
             this.loading.close();
-          })
+          },2000)
           clearInterval(timer);
         }
       }).catch((res) =>{
         this.loading.close()
       })
-
-
 
     },
     setLoading () {

@@ -10,6 +10,7 @@ const getters = {
   hasClickSave: state => state.globalSave.hasClickSave,
   barActive: state => state.globalSave.barActive,
   token: state => state.user.token,
+  userID: state => state.user.userID,
   // avatar: state => state.user.avatar,
   code: state => state.user.code,
   name: state => state.user.name,
