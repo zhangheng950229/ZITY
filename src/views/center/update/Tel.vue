@@ -122,7 +122,6 @@
         this.flag = flag
       },
       getCaptcha () {
-        
         this.$refs.ruleForm.validateField('captcha' ,message => {
           // 说明有错误字段
           // clearInterval(timer);
@@ -138,21 +137,38 @@
                   // 密码输入正确，手机号输入正确，后台已经发送验证码
                   // 证实后台已经发送验证码 开始倒计时
                   this.countDown = true;
-                }else if(res.data.code !== "ok" && res.data.message == "号码已存在") {   // 手机号已存在
-                  alert("手机号已存在！！")
-                  this.countDown = false;
-                  this.flag = true;
-                }else if(res.data.code !== "ok" && res.data.message == "旧密码输入不正确") {   // 手机号已存在
-                  alert("旧密码输入不正确")
-                  this.falsePW = "旧密码输入不正确";
-                  this.countDown = false;
-                  this.flag == true;
-                }else{
+                }
+                // else if(res.data.code != "ok" && res.data.message == "号码已存在") {   // 手机号已存在
+                //   alert("手机号已存在！！")
+                //   this.countDown = false;
+                //   this.flag = true;
+                // }
+                // else if(res.data.code != "ok" && res.data.message == "旧密码输入不正确") {   // 手机号已存在
+                //   alert("旧密码输入不正确")
+                //   this.$message({
+                //     message: '旧密码输入不正确',
+                //     type: 'error',
+                //     duration: 2* 1000
+                //   });
+                //   this.flag = true;
+                //   // this.falsePW = "旧密码输入不正确";
+                //   // this.countDown = false;
+                //   // this.flag == true;
+                // }
+                else if(res.data.code == "remote call failed") {
                   this.countDown = false
                   this.$message({
-                    message: '请稍后尝试',
+                    message: '系统维护请稍后尝试',
                     type: 'error',
-                    duration: 2* 1000
+                    duration:3* 1000
+                  });
+                  this.flag = true;
+                }
+                else{
+                  this.$message({
+                    message: res.data.message,
+                    type: 'error',
+                    duration: 3* 1000
                   });
                   this.flag = true;
                 }
@@ -175,16 +191,20 @@
           if (valid) {
             this.countDown = false
             this.loading = true
-            let data = "mobileNumber="+this.ruleForm.tel+"&verifyCode="+this.ruleForm.captcha + "&id=" + this.INFO.id;
+            let data = "mobileNumber="+this.ruleForm.tel+"&verifyCode="+this.ruleForm.captcha + "&id=" + this.INFO.id + "&password=" + this.ruleForm.password + "&oldMobile=" + this.INFO.mobile_number;
             updateTel(data).then((res) =>{
               // 重新获取一遍用户数据
               // console.log("udateTel",res);
-              if(res.data.code === 'ok'){
+              if(res.data.code === 'ok' ){
                 this.loading = false;
                 this.$emit("change_INFO",res.data.data);
                 this.close();
-              }else if(res.data.code !== "ok" && res.data.message == "验证码错误"){
-                this.test = "验证码错误"
+              } else {
+                this.$message({
+                  message: res.data.message,
+                  type: 'error',
+                  duration: 3 * 1000
+                });
               }
             }).catch(() =>{
               this.loading = false

@@ -53,10 +53,10 @@
     </div>
     <zi-dialog
       v-if="showModal"
-      :currentActivity="{}"
+      :currentActivity="currentLotteryItem"
       @close="showModal = false" 
       >
-  </zi-dialog>
+    </zi-dialog>
   </div>
 </template>
 <script>
@@ -106,9 +106,9 @@ export default {
     changeTemplateData (arr) {
       let result = []
       arr.forEach((item,index) =>{
-        if(item.template_no === '123456') {
+        if(item.template_name === "测试模板") {
           result[index] = {num:'01',text:'超级大转盘',type:'slyder',templateNo:item.template_no}
-        }else if(item.template_no === '234567'){
+        }else if(item.template_name === "测试模板2"){
           result[index] = {num:'02',text:'抽红包',type:'envelope',templateNo:item.template_no}
         }
       })
@@ -118,17 +118,18 @@ export default {
       this.setLoading()
       getTemplates().then((res) =>{
         let data = res.data
+        console.log("data",data)
         if(data.code === 'ok') {
           let result = this.changeTemplateData(data.list)
           // this.lotteryData = result
           // 将异步获取的数据 放到vuex全局
           this.initLotteryData(result)
-          console.log('template', result)
+          // console.log('template', result)
           this.loading.close()
         } else {
           let timer = setInterval(function() {
             this.loading.close();
-          })
+          },3000)
           clearInterval(timer);
         }
       }).catch((res) =>{
@@ -136,7 +137,8 @@ export default {
       })
     },
     openModel(item) {
-      this.showModal = true
+      this.showModal = true;
+      console.log("item",item)
       this.setCurrentLottery(item)
     },
     setLoading () {

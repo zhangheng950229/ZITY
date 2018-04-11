@@ -140,9 +140,9 @@
         //item携带了项目的所有信息 获取id -》获取全部信息到 创建活动页面 展示该项目的全部数据
         //（根据后台接口）
         //根据携带的 templateNo获得需要跳转的路由，根据路由的query  created 函数获取数据
-        
+        // console.log("item",item)
         let templateNo = item.templateNo
-        let types
+        let type
         if(templateNo==='123456'){
           type='slyder'
         }else if(templateNo==='234567'){
@@ -150,7 +150,7 @@
         }
         let ID = item.id;
         // this.$router.push({ path: `/create-project/envelope/234567?id=${item.id}`,})
-        this.$router.push({ path: `/create-project/${type}/${templateNo}?id=${ID}`,})
+        this.$router.push({ path: `/create-project/${type}/${templateNo}?id=${ID}` })
       },
       changeStatus (val) {
         let result

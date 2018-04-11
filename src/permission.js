@@ -16,7 +16,7 @@ function hasPermission(roles, permissionRoles) {
   return roles.some(role => permissionRoles.indexOf(role) >= 0)
 }
 let flag = true
-const whiteList = ['/login']// no redirect whitelist
+const whiteList = ['/login']   // no redirect whitelist
 router.beforeEach((to, from, next) => {
 
   NProgress.start() // start progress bar
@@ -51,7 +51,7 @@ router.beforeEach((to, from, next) => {
       if (hasPermission(store.getters.roles, to.meta.roles)) {
         next()//
       } else {
-          next({ path: '/create-project' });
+        next({ path: '/create-project' });
       }
     }
   } else {

@@ -19,8 +19,7 @@
     </div>
   </modal> -->
   <zi-dialog
-  :imgUrl=currentLotteryItem.num
-  :title=currentLotteryItem.text
+  :currentActivity="currentLotteryItem"
   v-if="showModal"
   @close="showModal = false" 
   >
@@ -63,16 +62,15 @@ export default {
       this.setLoading()
       
       getTemplates().then((res) =>{
-        
         let data = res.data
         if(data.code === 'ok') {
           
           let result = this.changeTemplateData(data.list)
           this.list = result;
-          console.log("result",result)
+          // console.log("result",result)
           // 将异步获取的数据 放到vuex全局
           this.initLotteryData(result)
-          console.log('template', result)
+          // console.log('template', result)
 
           this.loading.close()
         } else {

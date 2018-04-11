@@ -7,7 +7,7 @@
       <div v-show="activeName==='second'" class="rule-area">
         <ul class="lottery-area">
           <li v-for="(item,index) in lotteryList" v-show="item.price && item.category" :key=index>
-              <p class="lottery-deno"><span>{{item.price}}</span></p><p class="lottery-category">{{item.category}}</p>
+            <p class="lottery-deno"><span>{{item.price}}</span></p><p class="lottery-category">{{item.category}}</p>
           </li>
         </ul>
       </div>
@@ -17,7 +17,12 @@
         <el-tabs v-model="activeName2" type="card">
           <el-tab-pane label="基础设置" name="first" class="tag-base">
                 <el-form-item label="活动名称">
-                 <el-input v-model="ruleForm.activityName" placeholder="请输入活动名称" auto-complete="off"></el-input>
+                 <el-input 
+                 v-model="ruleForm.activityName" 
+                 placeholder="请输入活动名称" 
+                 auto-complete="off"
+                 maxlength="10"
+                 ></el-input>
                 </el-form-item>
                 <el-form-item label="开始时间">
                   <el-date-picker type="date" placeholder="选择日期" 
@@ -34,7 +39,13 @@
                   ></el-date-picker>
                 </el-form-item>
                 <el-form-item label="活动规则">
-                  <el-input :autosize='{ minRows: 5}' resize='none' type="textarea"  v-model="ruleForm.activityRule"></el-input>
+                  <el-input 
+                  :autosize='{ minRows: 5}' 
+                  resize='none' 
+                  type="textarea"  
+                  v-model="ruleForm.activityRule"
+                  maxlength="200"
+                  ></el-input>
                 </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="限制条件" name="second" class="mytag">
@@ -53,7 +64,7 @@
                 <span>手机号次数</span>
                 <div class="mobile">
                   <span id="reduce" @click="reduce">-</span>
-                  <input class="input-self" v-model="ruleForm.settings[1].value" id="input-self" />
+                  <input class="input-self" v-model="ruleForm.settings[1].value"  id="input-self" maxlength="3" />
                   <span id="plus" @click="plus">+</span>
                 </div>
               </div>
@@ -75,7 +86,13 @@
                   {{index===0 ? '' : '删除'}}
                   </td>
                   <td class="spc-width-select">
-                    <el-input v-if="autoDefinie" class="td-six" placeholder="奖项名称" v-model="item['name']" >
+                    <el-input 
+                    v-if="autoDefinie" 
+                    class="td-six" 
+                    placeholder="奖项名称" 
+                    v-model="item['name']"
+                    maxlength="5" 
+                    >
                     </el-input>
                     <span v-else>{{item.name}}</span>
                   </td>
@@ -84,7 +101,7 @@
                       v-show="item.name!=='谢谢参与'" 
                       v-model="item['category']"  
                       placeholder="请选择" 
-                      @change="change">
+                      @change="change($event,index)">
                       <el-option
                         v-for="item1 in tableData.type"
                         :key="item1.value"
@@ -287,11 +304,11 @@ export default {
         this.middle = true //开启省市变化
       }
       this.select.province = value
-      console.log('province', value)
+      // console.log('province', value)
     },
     selectCity(value) {
       this.select.city = value
-      console.log('city', value)
+      // console.log('city', value)
     },
     getAllCities (cities) {
       for (let key in cities) {
@@ -363,15 +380,19 @@ export default {
       this.setTepData(len)
       this.validate(len, item)
     },
-    change (value) {
+    change (value,index) {
       console.log('vale', value)
+      this.position = index;
       // 根据种类 设置奖品面额 的type
       // 每次点击种类，清空 面额数据 重新选择面额
       // this.position 索引
-      this.ruleForm.prizeSettings[this.position].price = ''
+      if(this.position) {
+        this.ruleForm.prizeSettings[this.position].price = '';
+      }
       // 根据选择的key 值 找出索引
 
       this.currentSelectOption[this.position] = value
+      console.log("position",this.position)
       console.log('cu', this.currentSelectOption)
       if(value){
         //在这里处理奖品 种类
@@ -384,6 +405,8 @@ export default {
       this.showLottery()
     },
     setPosition (index,name) {
+      console.log("inde",index)
+      console.log("name",name)
       // 确定是几等奖
       this.position = index
     },
@@ -512,24 +535,33 @@ export default {
             let code
             let province
             let city
-            if(!this.queryId || this.start || (this.start && this.middle) ) {
+            if(!this.queryId || this.start || (this.start && this.middle) ) {  // 有省有市
               if(this.select.province.code && this.select.city.code){
                 // console.log('省 + 市')
+                code = this.select.province.code + ',' + this.select.city.code
+                // 只有市的code
+                // code = this.select.city.code
 
-                 code = this.select.province.code + ',' + this.select.city.code
-                 province = this.select.province.value
-                 city = this.select.city.value
+                province = this.select.province.value
+                city = this.select.city.value
               }
-              if(this.select.province.code && !this.select.city.code){//没有选择城市的时候，this.select.city是undefined
+              if(this.select.province.code && !this.select.city.code){  // 有省没市
+                //没有选择城市的时候，this.select.city是undefined
                 // console.log('省')
-                let cityString = this.cityArr.join(',')
-                code = this.select.province.code + ',' + cityString
+
+                // let cityString = this.cityArr.join(',') // 省下的是市code
+                // 省code + 市code
+                // code = this.select.province.code + ',' + cityString
+                code = this.select.province.code
+                // 只有市code
+                // code =  cityString
+
                 province = this.select.province.value
                 city = ''
               }
               // 说明是全国
               if(!this.select.province.code){
-                code = '0'
+                code = ''
                 province = ''
                 city = ''
               }
@@ -548,7 +580,9 @@ export default {
             object.prizeSettings = JSON.stringify(object.prizeSettings)
             // 处理模板标号 templateNo
             let data = qs.stringify(object)
-            console.log('创建活动数据', object)
+
+            // console.log('创建活动数据', object)
+            // console.log("data",data)
             // 判断是新建还是更新用
             if(this.queryId) {
               this.handle(updateActivity,data,formName)
@@ -584,6 +618,7 @@ export default {
   created () {
     // 如果路由有query参数 那么是编辑活动
     this.queryId = this.$route.query.id
+    // console.log("id",this.queryId)
     if(this.queryId){
       this.start = true
       let type = this.$route.meta.type
@@ -596,11 +631,11 @@ export default {
       let activityId = this.queryId
       this.setLoading('正在拉取数据中...')
       let initData
-      activityEdit().then((res) =>{
+      activityEdit(activityId).then((res) =>{
         let data = res.data
         if(data.code ==='ok'){
           initData = data.data
-          console.log('id init', initData)
+          // console.log('id init', initData)
           // 处理settings 格式
           initData.settings = JSON.parse(initData.settings)
           initData.prizeSettings = JSON.parse(initData.prizeSettings)
@@ -671,7 +706,7 @@ export default {
           let psLen = arr.length
           this.setTepData(psLen)
 
-          console.log('change', this.ruleForm)
+          // console.log('change', this.ruleForm)
         }else{// 如果数据请求不成功,返回活动管理标签
           this.setIsSubmit(true)
           this.setPass(true)

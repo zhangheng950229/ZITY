@@ -42,7 +42,7 @@ export default {
     ])
   },
   activated () {
-    console.log(this.jsIndex)
+
   },
   methods:{
     // ...mapMutations([

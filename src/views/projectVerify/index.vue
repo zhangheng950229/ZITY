@@ -82,7 +82,7 @@
                   <span
                       class="look"
                       @click="goToInfo(scope.row)"
-                      :class="{active: scope.row.status==='3' || scope.row.status==='6'}"
+                      :class="{active: scope.row.status ==='3' || scope.row.status==='6'}"
                       >查看</span>
                   </template>
                 </el-table-column>
@@ -396,9 +396,9 @@
         this.pause = false
       },
       goToInfo (item) {//这里应该是带着活动的id的
-        if(item.status==='3' || item.status ==='6'){
+        if(item.status==='2' || item.status ==='6'){
           let ID = item.id;
-         this.$router.push({ path: `/management/info/${ID}` })
+          this.$router.push({ path: `/management/info/${ID}` })
         }
       },
       openChange(flag, item) {

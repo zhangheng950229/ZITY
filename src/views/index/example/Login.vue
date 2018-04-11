@@ -133,7 +133,7 @@
             let init = this.ruleForm
             let data = qs.stringify(init) //测试不用
           this.$store.dispatch('LoginByUsername', data).then((res) => {
-              // console.log('storeres', res)
+              console.log('useINFO', res)
               let code = res.data.code
               let message = res.data.message
               if(code === 'ok'){
@@ -143,7 +143,7 @@
                 this.$message({
                   message: '手机或密码错误',
                   type: 'error',
-                  duration: 2* 1000
+                  duration: 4* 1000
                 });
                 this.isDisabled = false;
               } else {

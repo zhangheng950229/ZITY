@@ -72,12 +72,11 @@
               <el-table-column label="操作" align="center" width="90">
                 <template slot-scope="scope">
                 <el-button
-                    size="mini"
-                    type="primary"
-                    plain
-                    @click="startEdit(scope.row.id, scope.row.status,scope.row.start_time)"
-                    :disabled="scope.row.status!== '1'"
-                    >编辑</el-button>
+                  size="mini"
+                  type="primary"
+                  plain
+                  @click="startEdit(scope.row.id, scope.row.status,scope.row.start_time,scope.row.expired_time)"
+                  :disabled="scope.row.status == '3'">编辑</el-button>
                 </template>
               </el-table-column>
           </el-table>
@@ -114,26 +113,35 @@
         <span class="fr cursor" @click="close"><i class="el-icon-close"></i></span>
       </div>
       <div slot="body">
-        <el-form status-icon :model="ruleForm1" :rules="rules1"  ref="ruleForm1"  label-width="80px" label-position ="left">
-            <el-form-item label="状态编辑" prop="status" >
-              <el-select v-model="ruleForm1.status" style="width:100%" placeholder="请选择状态">
-                <el-option
-                  v-for="item in filters"
-                  :key="item.value"
-                  :label="item.text"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="有效期" prop="time">
-              <el-date-picker type="date"
-               placeholder="选择日期" 
-               v-model="ruleForm1.time"
-               :picker-options="pickerBeginDateBefore" 
-               style="width: 100%;"></el-date-picker>
-            </el-form-item>
-            <el-button type="primary"  class="info-btn" :loading="loading" @click="submitEditForm('ruleForm1')">确定</el-button>
-          </el-form>
+        <el-form 
+          status-icon 
+          :model="ruleForm1" 
+          :rules="rules1"  
+          ref="ruleForm1"  
+          label-width="80px" 
+          label-position ="left">
+          <el-form-item label="状态编辑" prop="status" >
+            <el-select 
+              v-model="ruleForm1.status" 
+              style="width:100%" 
+              placeholder="请选择状态">
+            <el-option
+                v-for="item in filters1"
+                :key="item.value"
+                :label="item.text"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="有效期" prop="time" v-show='this.ruleForm1.status !== "2"' >
+            <el-date-picker type="date"
+              placeholder="选择日期" 
+              v-model="ruleForm1.time"
+              :picker-options="pickerBeginDateBefore" 
+              style="width: 100%;"></el-date-picker>
+          </el-form-item>
+          <el-button type="primary"  class="info-btn" :loading="loading" @click="submitEditForm('ruleForm1')">确定</el-button>
+        </el-form>
       </div>
     </modal>
     <modal v-if="dialogVisible">
@@ -194,29 +202,31 @@
           time: ''
         },
         rules: {
-            startTime: [
-              { required: true, message: '请输入日期', trigger: 'change' },
-              // { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确' }
-            ],
-            endTime: [
-              { required: true,message: '请输入日期', trigger: 'change' }
-            ]
-          },
+          startTime: [
+            { required: true, message: '请输入日期', trigger: 'change' },
+            // { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确' }
+          ],
+          endTime: [
+            { required: true,message: '请输入日期', trigger: 'change' }
+          ]
+        },
         rules1: {
-            status: [
-              { required: true, message: '请编辑状态', trigger: 'change' }
-              // { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确' }
-            ],
-            time: [
-              { required: true,message: '请输入日期', trigger: 'change' }
-            ]
-          },
+          status: [
+            { required: true, message: '请编辑状态', trigger: 'change' }
+            // { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确' }
+          ],
+          time: [
+            { required: true,message: '请输入日期', trigger: 'change' }
+          ]
+        },
         pass:false,
         edit:false,
         activeName:'first',
         //注意此处的value设置为数字，对应的是后台返回数据的status字段
-        filters: [{text: '正常',value: '1'}, {text: '禁用',value: '2'}
-        ,{text: '未通过',value: '3'}],
+        // filters: [{text: '正常',value: '1'}, {text: '禁用',value: '2'}
+        // ,{text: '未通过',value: '3'}],
+        filters:[{text: '已启用',value: '1'}, {text: '暂停',value: '2'},{text: '已拒绝',value: '3'},{text: '已到期', value: '4'}],
+        filters1:[{text: '已启用',value: '1'}, {text: '暂停',value: '2'}],
         // value: '',
         // value1:'',
         dialogVisible: false
@@ -258,14 +268,17 @@
         switch(val)
           {
           case '1':
-            result = '正常'
+            result = '已启用'
             break;
           case '2':
-            result = '禁用'
+            result = '暂停'
             break;
           case '3':
-            result = '未通过'
+            result = '已拒绝'
             break;
+          case '4':
+            result = '已到期'
+            break;  
           default:
             result = ''
           }
@@ -307,7 +320,7 @@
         this.pass = true;
         status = "1";
         // 客户通过，待审核通过操作
-        this.submitData  = {id, status}
+        this.submitData  = {id, status};
       },
       reject (id) {
         this.dialogVisible = true
@@ -356,18 +369,28 @@
         if(this.ruleForm.startTime && this.ruleForm.endTime) {
           this.$refs.ruleForm.resetFields();
         }
-        if(this.ruleForm1.status && this.ruleForm1.time){
+        if(this.ruleForm1.status || this.ruleForm1.time){
           this.$refs.ruleForm1.resetFields();
         }
       },
-      startEdit (id, status, time) {
+      startEdit (id, status,stTime, edTime) {
+        // console.log("id",id)
+        // console.log("status",status)
+        // console.log("stTime",stTime)  
+        // console.log("edTime",edTime)                     
         this.edit = true
-        let startTime = new Date(time).getTime()
+        let startTime = new Date(stTime).getTime()
         // 默认的startTime是现在
-        if(!time){
+        // console.log('startTime',startTime)
+        if(!stTime){
           startTime = Date.now()
         }
-        this.submitData = {id,  startTime}
+        // if(status == "1") {
+        //   console.log(2222)
+        this.ruleForm1.time = edTime;
+        this.ruleForm1.status = status;
+        // }
+        this.submitData = {id,startTime}
       },
       setAlert(text) {
         this.$alert(text,'提示', {
@@ -391,15 +414,15 @@
         this.$set(this.submitData, 'expiredTime', time2)
       },
       submitEditForm(formName) {
+        console.log(this.ruleForm1.time)
+
         this.$refs[formName].validate(valid => {
           if(valid) {
             this.loading = true
             let status = this.ruleForm1.status
-            let expiredTime = this.ruleForm1.time.getTime()
+            let expiredTime = new Date(this.ruleForm1.time).getTime()
             this.$set(this.submitData, 'expiredTime', expiredTime)
             this.$set(this.submitData, 'status', status)
-            // let data = this.submitData
-            // console.log('编辑=== ', this.submitData)
             let data = qs.stringify(this.submitData)
             userEdit(data).then((res) =>{
               let result = res.data

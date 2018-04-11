@@ -14,7 +14,6 @@ function hasPermission(roles, route) {
     return true
   }
 }
-
 /**
  * 递归过滤异步路由表，返回符合用户角色权限的路由表
  * @param asyncRouterMap
@@ -53,12 +52,14 @@ const permission = {
     GenerateRoutes({ commit }, data) {
       return new Promise(resolve => {
         const { roles } = data
+        // console.log("roles",roles)
         let accessedRouters
         if (roles.indexOf('admin') >= 0) {
           accessedRouters = asyncRouterMap
         } else {
           accessedRouters = filterAsyncRouter(asyncRouterMap, roles)
         }
+        // console.log("accessedRouters",accessedRouters)
         commit('SET_ROUTERS', accessedRouters)
         resolve()
       })

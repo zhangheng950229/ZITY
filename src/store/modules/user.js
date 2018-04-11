@@ -3,7 +3,7 @@ import { getToken, setToken, removeToken , handleCookie} from 'utils/auth'
 import { stringify } from 'querystring';
 
 
-// setToken({name:'cui',code:'1',status:'login',roles:['de']})
+// setToken({name:'cui',code:'1',status:'login',roles:['admin'],nick_name: 'zity_123456',})
 // let data = {
 //         "id": "7317106a-b6f6-4193-81a3-bf5b1b3aa081",
 //         "login_name": "18863025806",
@@ -11,18 +11,18 @@ import { stringify } from 'querystring';
 //         "contract_name": "天津支行",
 //         "contact_name": "张霄峰",
 //         "status": "1",
-//         "password": "",
+//         "password": "123456",
 //         "start_time": "2018-03-03 14:38:30",
 //         "expired_time": "2018-03-14 00:00:00",
 //         "authorities": [
 //             {
-//                 "authority": "AUTHORITY_DEFAULT"
+//                 "authority": "AUTHORITY_ADMIN"
 //             }
 //         ]
 //     }
 // localStorage.setItem('USER_INFO', JSON.stringify(data))
 
-// handleCookie()
+handleCookie()
 const user = {
   state: {
     user: '',
@@ -77,7 +77,7 @@ const user = {
               let data = result.data
               // 获取token 如果token 中code的值是1正常，那么
               // 用户登录之后获取status  设置
-              console.log(data);
+              console.log("userINfo",data);
               commit('SET_STATUS', 'login')
               commit('SET_CODE', data.status)
               // let  initRole = authorities[0].authority

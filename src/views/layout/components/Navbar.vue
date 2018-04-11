@@ -1,7 +1,7 @@
 <template>
   <header class="navbar">
     <div class="fl">
-        <a href="/login"><img id="background" src="../../../common/images/logo.png"></a>
+        <a href="/#/login"><img id="background" src="../../../common/images/logo.png"></a>
     </div>
     <div class="fr client-management">
       <span class="client-name"><svg-icon style="color:#1aadf0" :icon-class="iconName.user"></svg-icon><i>{{name}}</i></span>

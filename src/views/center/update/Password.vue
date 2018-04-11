@@ -139,14 +139,14 @@
                 if(res.data.code === 'ok'&& res.data.data==='true'){
                   // 证实后台已经发送验证码 开始倒计时
                   this.countDown = true
-                } 
+                }
                 else if(res.data.code !== 'ok' && res.data.message == "手机号不正确"){
                   this.countDown = false;
                   this.flag = true;
                   this.$message({
-                    message: '手机号不正确',
+                    message: "手机号不正确",
                     type: 'error',
-                    duration: 2 * 1000
+                    duration: 3 * 1000
                   });
                   alert("手机号不正确");
                 }
@@ -154,9 +154,9 @@
                   this.countDown = false;
                   this.flag = true;
                   this.$message({
-                    message: '请稍后尝试',
+                    message: '系统维护请稍后尝试',
                     type: 'error',
-                    duration: 2 * 1000
+                    duration: 3 * 1000
                   });
                 }
               })

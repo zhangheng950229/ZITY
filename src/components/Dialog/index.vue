@@ -14,8 +14,8 @@
           <div class="index-title">活动名称：{{detail ? list.activityName : list.text}}</div>
           <div class="qrcode">
             <qrcode
-                  :value="qrcode.val"
-                  :options="{ size: 130 }">
+              :value="qrcode.val"
+              :options="{ size: 130 }">
             </qrcode>
             <div class="qrcode-text">微信扫一扫体验活动</div>
           </div>
@@ -79,9 +79,6 @@
         detail:false
       }
     },
-    created () {
-      
-    },
     computed: {
     // 使用对象展开运算符将 getter 混入 computed 对象中
       ...mapGetters([
@@ -140,17 +137,18 @@
         }
     },
     created () {
-        if(this.currentActivity.url){
-          this.detail = true
-          this.list = this.currentActivity
-          this.qrcode.val = this.list.url
-        }else{
-          this.list = this.currentLotteryItem
-        }
-        // 拉取用户信息 判断当前的code 代码
-        if(this.code !==1){
-          // 获取用户信息
-        }
+      console.log("dailog",this.currentActivity)
+      if(this.currentActivity.url){
+        this.detail = true
+        this.list = this.currentActivity
+        this.qrcode.val = this.list.url
+      }else{
+        this.list = this.currentLotteryItem
+      }
+      // 拉取用户信息 判断当前的code 代码
+      if(this.code !==1){
+        // 获取用户信息
+      }
     },
     activated () {
     },
