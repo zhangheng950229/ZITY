@@ -34,6 +34,7 @@
     },
     computed:{
       transNum () {
+        console.log("tab_this.jsindex", this.jsIndex)
         return 'translateX(' + this.jsIndex * 85 + 'px)'
       }
     },
