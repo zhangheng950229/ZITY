@@ -396,8 +396,8 @@ export default {
       // 根据选择的key 值 找出索引
 
       this.currentSelectOption[this.position] = value
-      console.log("position",this.position)
-      console.log('cu', this.currentSelectOption)
+      // console.log("position",this.position)
+      // console.log('cu', this.currentSelectOption)
       if(value){
         //在这里处理奖品 种类
         this.category = value
@@ -600,12 +600,12 @@ export default {
           let data = res.data
           if(data.code==='ok'){
             this.setIsSubmit(true)
-            alert('创建成功')
+            // alert('创建成功')
             this.resetForm(formName)
             this.loading.close()
             this.$router.push({ path: `/management/`,})
           }else{
-            alert('请稍后处理')
+            // alert('请稍后处理')
             this.loading.close()
           }
       })

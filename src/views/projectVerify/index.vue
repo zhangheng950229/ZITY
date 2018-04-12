@@ -7,10 +7,24 @@
       <div class="verify-content">
         <el-tabs v-model="activeName" @tab-click="tabChange">
           <el-tab-pane label="待审核" name="first">
-            <el-table fit highlight-current-row 
-            v-loading="listLoading" element-loading-text="拼命加载中"
+            <el-table 
+            fit 
+            highlight-current-row 
+            v-loading="listLoading" 
+            element-loading-text="拼命加载中"
             height="600"
-            :data="aciByStatus" style="width: 100%">
+            :data="aciByStatus" 
+            style="width: 100%"
+            >
+                <el-table-column
+                  label="发布时间"
+                  align="center"
+                  width="180"
+                  >
+                   <template slot-scope="scope">
+                    <p >{{ scope.row.publishTime }}</p>
+                  </template> 
+                </el-table-column>
                 <el-table-column align="center"
                   v-for="{ prop, label, width } in colConfigs"
                   :key="prop"
@@ -18,6 +32,7 @@
                   :width="width"
                   :label="label">
                 </el-table-column>
+
                 <el-table-column
                   label="活动时间"
                   align="center"
@@ -57,6 +72,15 @@
             v-loading="listLoading" element-loading-text="拼命加载中" 
             height="600"
             :data="aciList" style="width: 100%">
+                <el-table-column
+                  label="发布时间"
+                  align="center"
+                  width="180"
+                  >
+                   <template slot-scope="scope">
+                    <p >{{ scope.row.publishTime }}</p>
+                  </template> 
+                </el-table-column>
               <el-table-column align="center"
                   v-for="{ prop, label, width } in colConfigs"
                   :key="prop"
@@ -80,10 +104,10 @@
                   align="center" width="100">
                   <template slot-scope="scope">
                   <span
-                      class="look"
-                      @click="goToInfo(scope.row)"
-                      :class="{active: scope.row.status ==='3' || scope.row.status==='6'}"
-                      >查看</span>
+                    class="look"
+                    @click="goToInfo(scope.row)"
+                    :class="{active: scope.row.status ==='3' || scope.row.status==='6'}"
+                    >查看</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="操作" align="center" width="220">
@@ -182,7 +206,7 @@
     data () {
       return {
         colConfigs:[
-          { prop: 'publishTime', label: '发布时间',width: '180'},
+          // { prop: 'publishTime', label: '发布时间',width: '180'},
           { prop: 'customer', label: '客户名称',width: '90' },
           { prop: 'contact', label: '用户名',width: '90' },
           { prop: 'mobile', label: '手机号' ,width: '140'},
@@ -228,7 +252,8 @@
         showModal:false,
         hasCreated:true,
         // tabHelp: true,
-        filters: [{text: '未发布',value: '0'},{text: '未开始',value: '2'},{text: '进行中',value: '3'},{text: '暂停',value: '4'},{text: '未通过',value: '5'},{text: '已结束',value: '6'}]
+        filters: [{text: '未发布',value: '0'},{text: '未开始',value: '2'},{text: '进行中',value: '3'},{text: '暂停',value: '4'},{text: '未通过',value: '5'},{text: '已结束',value: '6'}],
+        filters:[],
       }
     },
     computed: {
@@ -255,9 +280,11 @@
           // console.log('e', res)
           // this.userList = res.data.list
           // 使用vuex 管理
+          // console.log('待审核',res)
           let result = res.data
           if(result.code ==='ok'){
-            let list = result.list
+            let list = result.list;
+            // console.log("list", list)
             this.setAciStatusList(list)
           }
           this.listLoading = false
@@ -322,11 +349,13 @@
         // 第一次拉取客户列表
         if(tab.name === 'first') {
           this.$router.push({path:'/project-verify/index?tab=first'})
-          this.fetchVerfityList()
+          this.fetchVerfityList()   // 拉取待审核活动列表
         }else if(tab.name === 'second') {
           this.$router.push({path:'/project-verify/index?tab=second'})
           this.listLoading = true
           fetchActivityListAll().then((res) =>{
+            
+            // console.log("活动列表", res)
             let result = res.data
             if(result.code==='ok'){
               let list = result.list
@@ -396,7 +425,7 @@
         this.pause = false
       },
       goToInfo (item) {//这里应该是带着活动的id的
-        if(item.status==='2' || item.status ==='6'){
+        if(item.status==='3' || item.status ==='6'){
           let ID = item.id;
           this.$router.push({ path: `/management/info/${ID}` })
         }
@@ -412,7 +441,7 @@
           this.start = true
         }
           this.currentItem = item
-      }
+      },
     },
     activated () {
       // 获取活动审核 待审核列表
