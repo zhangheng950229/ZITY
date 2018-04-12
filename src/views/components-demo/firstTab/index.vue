@@ -3,8 +3,12 @@
     <div class="tab-img">
       <!-- <img :src=" '/static/images/slyder-' + activeName + '.jpg' "> -->
       <img :src=" '/static/images/' + currentItemFromRouter + '-' + activeName + '.png' ">
-      <pre v-show="activeName==='second' || activeName==='first'" class="rule-content" v-html="ruleForm.activityRule" ></pre>
-      <div v-show="activeName==='second'" class="rule-area">
+      <pre 
+      v-show=" this.$route.meta.type == 'slyder' && activeName==='second' || activeName==='first'" 
+      class="rule-content" v-html="ruleForm.activityRule" 
+      >
+      </pre>
+      <div v-show="this.$route.meta.type == 'slyder' ? activeName==='second' : ''" class="rule-area">
         <ul class="lottery-area">
           <li v-for="(item,index) in lotteryList" v-show="item.price && item.category" :key=index>
             <p class="lottery-deno"><span>{{item.price}}</span></p><p class="lottery-category">{{item.category}}</p>
@@ -203,21 +207,21 @@ export default {
   data() {
     return {
       // 日期 控制之后，只差一种情况，即当开始时间大于 结束时间
-       pickerBeginDateBefore:{
-            disabledDate: (time) => {
-              return time.getTime() < Date.now();
-            }
-        },
-        pickerBeginDateAfter:{
-            disabledDate: (time) => {
-                let beginDateVal = this.ruleForm.startTime;
-                if (beginDateVal) {
-                    return time.getTime() < beginDateVal;
-                }else{
-                   return time.getTime() < Date.now();
-                }
-            }
-        },
+      pickerBeginDateBefore:{
+          disabledDate: (time) => {
+            return time.getTime() < Date.now();
+          }
+      },
+      pickerBeginDateAfter:{
+          disabledDate: (time) => {
+              let beginDateVal = this.ruleForm.startTime;
+              if (beginDateVal) {
+                  return time.getTime() < beginDateVal;
+              }else{
+                  return time.getTime() < Date.now();
+              }
+          }
+      },
       ruleForm: {
           activityName: '',
           templateNo:'',
