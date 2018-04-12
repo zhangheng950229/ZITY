@@ -7,7 +7,7 @@
         </span>
       <div class="index-tep">
         <div class="index-img">
-          <img class="item-img" :src="'/static/images/' + list.num + '-scan.jpg' ">
+          <img class="item-img" :src="'/static/images/' + Num + '-scan.jpg' ">
           <img class="arrow" src="/static/images/arrow.jpg ">
         </div>
         <div class="qrcode-wrapper">
@@ -85,7 +85,15 @@
         'currentLotteryItem',
         'status',
         'code'
-      ])
+      ]),
+      Num () {    // 线下测试用的计算属性
+        // return this.currentActivity.templateNo
+        if(this.currentActivity.templateNo == "234567") {
+          return "02"
+        } else {
+          return "01"
+        }
+      }
     },
     methods:{
       ...mapMutations([
@@ -145,6 +153,7 @@
       }else{
         this.list = this.currentLotteryItem
       }
+      console.log('dailog-list',this.list)
       // 拉取用户信息 判断当前的code 代码
       if(this.code !==1){
         // 获取用户信息

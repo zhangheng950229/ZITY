@@ -12,7 +12,7 @@ var CancelToken = axios.CancelToken;
 var cancel;
 
 const service = axios.create({
-  baseURL: 'http://192.168.111.127:8888/marketing', // api的base_url
+  baseURL: 'http://47.93.236.101:8888/marketing', // api的base_url
   // http://192.168.111.119:8888  李明接口
   // http://192.168.111.114:8888  张扬接口
 
