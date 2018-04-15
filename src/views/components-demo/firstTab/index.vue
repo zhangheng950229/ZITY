@@ -238,8 +238,8 @@ export default {
       tableData:tableData,
       activeName2: 'first',
       textarea: '',
-      currentSelectOption: [],
-      lotteryList:null,
+      currentSelectOption: [],  // 奖品种类数组
+      lotteryList:null,  // 自定义奖品所有字段数组
       position:0,//默认从一等奖开始选择
       help:0,
       tep :[],//因为“奖项设置行数是不固定的，所以tep的长度不要固定住”
@@ -329,7 +329,8 @@ export default {
       }
     },
     showLottery () {
-      this.lotteryList = this.ruleForm.prizeSettings
+      this.lotteryList = this.ruleForm.prizeSettings;
+      console.log('lotteryList',this.lotteryList)
       let item = this.lotteryList[this.position]
       let {category,price} = item
       if(this.aid[this.position]) {
@@ -396,8 +397,8 @@ export default {
       // 根据选择的key 值 找出索引
 
       this.currentSelectOption[this.position] = value
-      // console.log("position",this.position)
-      // console.log('cu', this.currentSelectOption)
+      // console.log("index",this.position)
+      console.log('奖品数组', this.currentSelectOption)
       if(value){
         //在这里处理奖品 种类
         this.category = value
@@ -409,8 +410,8 @@ export default {
       this.showLottery()
     },
     setPosition (index,name) {
-      console.log("inde",index)
-      console.log("name",name)
+      // console.log("inde",index)
+      // console.log("name",name)
       // 确定是几等奖
       this.position = index
     },
@@ -464,13 +465,16 @@ export default {
       if(index===0) {
         return
       }
-      this.ruleForm.prizeSettings && this.ruleForm.prizeSettings.splice(index, 1)
+      this.ruleForm.prizeSettings && this.ruleForm.prizeSettings.splice(index,1)
       // 删除数据之后重新获取 tep的值
       this.setlotteryData()
     },
     resetForm(formName) {
-      this.$refs[formName].resetFields()
-      // Object.assign(this[formName], this.$options.data()[formName])
+      alert("asdas")
+      // this.$refs[formName].resetFields();
+      Object.assign(this[formName], this.$options.data()[formName])
+      // this[formName] = {};
+      console.log("离开时表单空置",this[formName])
     },
     submitForm(formName) {
         let valid = false
@@ -585,7 +589,7 @@ export default {
             // 处理模板标号 templateNo
             let data = qs.stringify(object)
 
-            // console.log('创建活动数据', object)
+            console.log('创建活动数据', object)
             // console.log("data",data)
             // 判断是新建还是更新用
             if(this.queryId) {
@@ -636,7 +640,8 @@ export default {
       this.setLoading('正在拉取数据中...')
       let initData
       activityEdit(activityId).then((res) =>{
-        let data = res.data
+        let data = res.data;
+        // console.log("activityEdit",res)
         if(data.code ==='ok'){
           initData = data.data
           // console.log('id init', initData)
@@ -655,7 +660,7 @@ export default {
             }
           })
           // // // 全国
-          if(pData.code==='0'){
+          if(pData.code===''){
             console.log('')
           }else if(pData.province && pData.city ){//省+市
             this.select.province.value = pData.province
@@ -734,22 +739,26 @@ export default {
             });
       })
 
-    }
-    else{
-        let type = this.$route.meta.type
-        this.currentItemFromRouter = type
-        if(this.currentItemFromRouter !== 'slyder'){
+    }else{  // 创建活动 非活动编辑事件进入配置奖品
+      console.log('this.rform',this.ruleForm)
+      let type = this.$route.meta.type
+      this.currentItemFromRouter = type 
+      if(this.currentItemFromRouter !== 'slyder'){   // 不是大转盘类型的活动模板创建
         let baseData = JSON.parse( JSON.stringify(lotteryBaseLine))
         this.ruleForm.prizeSettings.push(baseData)
-          this.autoDefinie = true
-        }else{
-          this.ruleForm.prizeSettings.concat(slyderData)
-          for(let i in slyderData){
-            this.$set(this.ruleForm.prizeSettings, i , slyderData[i]);
-          }
-          this.autoDefinie = false
-        }
-        this.change('')
+        this.autoDefinie = true
+      }else{  // 大转盘的模板创建 
+
+        // this.ruleForm.prizeSettings.concat(slyderData)
+        // for(let i in slyderData){
+        //   this.$set(this.ruleForm.prizeSettings, i , slyderData[i]);
+        // }
+        let baseData = JSON.parse( JSON.stringify(slyderData));
+        this.ruleForm.prizeSettings = baseData
+        this.autoDefinie = false;
+        
+      }
+      this.change('')
     }
   },
   components:{
