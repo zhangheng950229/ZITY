@@ -142,7 +142,7 @@
             this.close()
           }
         }
-        }
+      }
     },
     created () {
       // console.log("dailog",this.currentActivity)
@@ -153,7 +153,7 @@
       }else{
         this.list = this.currentLotteryItem
       }
-      console.log('dailog-list',this.list)
+      // console.log('dailog-list',this.list)
       // 拉取用户信息 判断当前的code 代码
       if(this.code !==1){
         // 获取用户信息

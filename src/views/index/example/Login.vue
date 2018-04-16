@@ -152,7 +152,7 @@
                   type: 'error',
                   duration: 2* 1000
                 });
-                this.isDisabled = false;
+                this.isDisabled = true;
                 this.loading = false
               }
               this.isDisabled = false

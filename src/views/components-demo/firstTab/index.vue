@@ -641,7 +641,7 @@ export default {
       let initData
       activityEdit(activityId).then((res) =>{
         let data = res.data;
-        // console.log("activityEdit",res)
+        console.log("activityEdit",res)  
         if(data.code ==='ok'){
           initData = data.data
           // console.log('id init', initData)
@@ -706,8 +706,11 @@ export default {
           ]
           // 处理prize settings 中的数据
           let arr = []
+          var that = this;
           initData.prizeSettings.forEach(function(item) {
-            let {id,name,category,price,number,weight} = item
+            console.log(item)
+            let {id,name,category,price,number,weight} = item;
+            that.currentSelectOption.push(category);
             let obj = {id,name,category,price,number,weight}
             arr.push(obj)
           })
