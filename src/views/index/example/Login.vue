@@ -29,6 +29,9 @@
     </el-form>
     <div class="skip">没有账号,<span href="" @click="$emit('close','signup')">点击注册</span></div>
   </div>
+  <div slot="body" v-if="showCodePop">
+    <div class="close-tep"><span>{{codeStr}}</span><span class="fr" @click="close"><i class="el-icon-close"></i></span></div>
+  </div>
 <!--   <div slot="footer">
   <el-button  type="primary" class="login-btn info-btn">
     登录
@@ -65,6 +68,8 @@
           countDown:false,
           loading:false,
           flag:true,
+          showCodePop:false,
+          codeStr: '',
           ruleForm: {
             _loginName: '',
             _password: '',
@@ -133,11 +138,22 @@
             let init = this.ruleForm
             let data = qs.stringify(init) //测试不用
           this.$store.dispatch('LoginByUsername', data).then((res) => {
-              console.log('useINFO', res)
+              // console.log('useINFO', res)
               let code = res.data.code
               let message = res.data.message
               if(code === 'ok'){
-                this.$router.push({ path: '/create-project' });
+                // console.log(res.data.data.start_time);
+                let _ST = res.data.data.start_time;
+                let d = new Date()
+                if(_ST > d) { // 不在用户有效时间内
+                  this.codeStr = "您未在有效期时间，请联系管理员";
+                  this.showCodePop = true;
+                } else { // 在用户有效时间内
+                  
+                  this.$router.push({ path: '/create-project' });
+                }
+                // if( _St)
+                
               } else if(code != "ok" && message==='认证失败') {
                 // alert("验证码错误")
                 this.$message({
@@ -176,4 +192,7 @@
 </script>
 <style lang="stylus" scoped>
 @import "~common/stylus/modal"
+.close-tep
+  height:25px
+  line-height:35px
 </style>

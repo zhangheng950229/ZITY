@@ -123,13 +123,13 @@
           let code = this.code
           console.log("code",code)
           if(code==='0') {//审核中
-            this.codeStr = '审核中'
+            this.codeStr = '您的账户未经管理员审核，请审核后进行操作'
             this.showCodePop = true
-          }else if(this.code ==='2'){
-            this.codeStr = '禁用'
+          }else if(this.code ==='2'){  // 禁用
+            this.codeStr = '您账户已被禁用，请联系管理员'
             this.showCodePop = true
-          }else if(this.code ==='3'){
-            this.codeStr = '未通过'
+          }else if(this.code ==='3'){  //您的账户未经管理员通过，请联系管理员   // 未通过
+            this.codeStr = '您的账户未经管理员通过，请联系管理员'
             this.showCodePop = true
           }else{
             this.showCodePop = false

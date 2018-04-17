@@ -285,7 +285,7 @@
           return result
       },
       tabChange (tab) {
-        console.log('cha e')
+        // console.log('cha e')
         // tab 切换的时候不需要 每次都拉取列表，只在待审核列表处理数据的情况下，第一次切换到”客户列表“ 才需要重新拉取
         // 第一次拉取客户列表
         //添加路由
@@ -353,7 +353,6 @@
             });
           }
         }).catch(()=>{
-          console.log('kkk')
           this.loading = false
           // this.dialogVisible = false
           this.close()
@@ -464,19 +463,19 @@
               // 2. 重新拉取最新的待审核列表 fetchUserList
               let data = qs.stringify(this.submitData)
               // let data = this.submitData
-              console.log('待审核通过form', this.submitData)
-              console.log('待审核通过', data)
+              // console.log('待审核通过form', this.submitData)
+              // console.log('待审核通过', data)
               // console.log("data1111",data)
               userEdit(data).then((res) =>{
-                console.log('测试res', res)
+                // console.log('测试res', res)
                 let data = res.data
                 if(data.code === 'ok') {
                   let newObj = data.data
                   let id = newObj.id
-                  console.log('id', id)
+                  // console.log('id', id)
                   // this.fetchUserList1() 不再使用ajax 使用vuex
                   this.handleRemove(id)
-                  console.log('clientList', this.ListByStatus)
+                  // console.log('clientList', this.ListByStatus)
                   this.$refs[formName].resetFields();
                   // 重新拉取待审核列表 此处不用table 加载图标，
                   // 开启 客户列表拉取数据 开关
@@ -515,7 +514,7 @@
           tabObj = {active:true,name:'first'}
           this.activeName = 'first'
         }
-        console.log('tbo', tabObj)
+        // console.log('tbo', tabObj)
         this.tabChange(tabObj)
       }else{
         this.fetchUserList()
