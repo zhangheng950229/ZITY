@@ -14,6 +14,7 @@ const getters = {
   // avatar: state => state.user.avatar,
   code: state => state.user.code,
   name: state => state.user.name,
+  start_time: state => state.user.start_time,
   // introduction: state => state.user.introduction,
   status: state => state.user.status,
   roles: state => state.user.roles,

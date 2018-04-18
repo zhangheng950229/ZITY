@@ -34,7 +34,8 @@ const user = {
     roles: handleCookie('roles') || [],
     // flag: true,
     info:{},
-    userID : handleCookie('id')
+    userID : handleCookie('id'),
+    start_time : handleCookie('start_time'),
   },
 
   mutations: {
@@ -55,6 +56,9 @@ const user = {
     },
     SET_ID: (state, ID) => {
       state.userID = ID;
+    },
+    SET_START_TIME : (state, start_time) => {
+      state.start_time = start_time
     }
   },
 
@@ -66,18 +70,18 @@ const user = {
       commit('SET_ROLES', role)
 
     },
-    
+
     // 用户名登录
     LoginByUsername({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
           login(userInfo).then(res => {
-            // console.log('userres', res) 
+            console.log('userres', res) 
             let result = res.data
             if(result.code === 'ok') {
               let data = result.data
               // 获取token 如果token 中code的值是1正常，那么
               // 用户登录之后获取status  设置
-              console.log("userINfo",data);
+              console.log("userINfo_store/user.js",data);
               commit('SET_STATUS', 'login')
               commit('SET_CODE', data.status)
               // let  initRole = authorities[0].authority
@@ -92,8 +96,10 @@ const user = {
               }
               setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:role})
               localStorage.setItem('USER_INFO', JSON.stringify(data));
-              commit('SET_TOKEN', {id:data.id,name:data.contact_name});
-              commit('SET_ID',data.id)
+              commit('SET_TOKEN', {id:data.id,name:data.contact_name,nick_name:data.nick_name});
+              commit('SET_ID',data.id);
+              console.log(data.start_time)
+              commit('SET_START_TIME',data.start_time);
             } else {
               this.loading = false
             }

@@ -84,7 +84,8 @@
       ...mapGetters([
         'currentLotteryItem',
         'status',
-        'code'
+        'code',
+        'start_time'
       ]),
       Num () {    // 线下测试用的计算属性
         // return this.currentActivity.templateNo
@@ -121,7 +122,14 @@
         if(this.status === 'login'){
           this.showLoginPop = false
           let code = this.code
-          console.log("code",code)
+          // console.log("code",code)
+          let _ST = this.start_time;
+          let d = new Date();
+          if(_ST > d) { // 不在用户有效时间内,用户有效期时间没有到
+            this.codeStr = "您未在有效期时间，请联系管理员";
+            this.showCodePop = true;
+          }
+          // console.log(this.start_time)
           if(code==='0') {//审核中
             this.codeStr = '您的账户未经管理员审核，请审核后进行操作'
             this.showCodePop = true
@@ -131,7 +139,7 @@
           }else if(this.code ==='3'){  //您的账户未经管理员通过，请联系管理员   // 未通过
             this.codeStr = '您的账户未经管理员通过，请联系管理员'
             this.showCodePop = true
-          }else{
+          } else{
             this.showCodePop = false
             this.codeStr = '正常'
             let name = this.currentLotteryItem.type

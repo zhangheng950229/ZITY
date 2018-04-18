@@ -29,9 +29,9 @@
     </el-form>
     <div class="skip">没有账号,<span href="" @click="$emit('close','signup')">点击注册</span></div>
   </div>
-  <div slot="body" v-if="showCodePop">
+  <!-- <div slot="body" v-if="showCodePop">
     <div class="close-tep"><span>{{codeStr}}</span><span class="fr" @click="close"><i class="el-icon-close"></i></span></div>
-  </div>
+  </div> -->
 <!--   <div slot="footer">
   <el-button  type="primary" class="login-btn info-btn">
     登录
@@ -68,8 +68,8 @@
           countDown:false,
           loading:false,
           flag:true,
-          showCodePop:false,
-          codeStr: '',
+          // showCodePop:false,
+          // codeStr: '',
           ruleForm: {
             _loginName: '',
             _password: '',
@@ -143,15 +143,15 @@
               let message = res.data.message
               if(code === 'ok'){
                 // console.log(res.data.data.start_time);
-                let _ST = res.data.data.start_time;
-                let d = new Date()
-                if(_ST > d) { // 不在用户有效时间内
-                  this.codeStr = "您未在有效期时间，请联系管理员";
-                  this.showCodePop = true;
-                } else { // 在用户有效时间内
+                // let _ST = res.data.data.start_time;
+                // let d = new Date()
+                // if(_ST > d) { // 不在用户有效时间内
+                //   this.codeStr = "您未在有效期时间，请联系管理员";
+                //   this.showCodePop = true;
+                // } else { // 在用户有效时间内
                   
                   this.$router.push({ path: '/create-project' });
-                }
+                // }
                 // if( _St)
                 
               } else if(code != "ok" && message==='认证失败') {
