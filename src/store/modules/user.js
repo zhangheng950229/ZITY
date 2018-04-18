@@ -94,9 +94,9 @@ const user = {
                 arr.push(role);
                 commit('SET_ROLES',arr);
               }
-              setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:role})
+              setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:role,start_time:data.start_time})
               localStorage.setItem('USER_INFO', JSON.stringify(data));
-              commit('SET_TOKEN', {id:data.id,name:data.contact_name,nick_name:data.nick_name});
+              commit('SET_TOKEN', {id:data.id,name:data.contact_name,nick_name:data.nick_name,start_time:data.start_time});
               commit('SET_ID',data.id);
               console.log(data.start_time)
               commit('SET_START_TIME',data.start_time);
