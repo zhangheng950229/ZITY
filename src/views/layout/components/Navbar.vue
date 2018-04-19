@@ -63,7 +63,7 @@ export default {
   created () {
     if(this.token){
       // console.log()
-      console.log("NAVbar_token",this.token)
+      // console.log("NAVbar_token",this.token)
       if(typeof this.token === 'string'){
         let obj = JSON.parse(this.token);
         this.name = obj.nick_name
