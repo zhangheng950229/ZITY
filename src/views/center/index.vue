@@ -1,6 +1,6 @@
 <template>
 <div>
-  <div class="container" v-if="showMain">
+  <div class="container" v-if="showMain && this.code !== '3'">
     <div class="verify-header">
     <span><i class="el-icon-arrow-left"></i></span>
     <span>个人中心</span></div>
@@ -22,7 +22,7 @@
       </div>
     </div>
   </div>
-  <div class="container center-wrapper" v-if="!showMain">
+  <div class="container center-wrapper" v-if="!showMain && this.code !== '3'">
     <div class="verify-header"><span><i class="el-icon-arrow-left"></i></span>
     <span>个人中心</span></div>
     <div class="center-lay">
@@ -58,6 +58,13 @@
       <tel v-show="showModalTel" @close="close" :INFO='userInfo' @change_INFO="changeStorage"></tel>
       <contact v-show="showModalContact" @close="close" :INFO='userInfo' @change_INFO="changeStorage"></contact>
       <password v-show="showModalPassword" @close="close" :INFO='userInfo' @change_INFO="changeStorage"></password>
+    </div>
+  </div>
+  <div class="container" v-if="this.code === '3'">
+    <div class='circle-warning'>
+        <img src="../../../static/images/warning.png" alt="">
+        <p>您账户审核未通过，请尽快联系管理员!</p>
+        <span>请您尽快联系管理员以免耽误您的工作</span>
     </div>
   </div>
 </div>  
@@ -119,7 +126,7 @@
       // console.log('userInfo',this.userInfo) ;
       // console.log("code",this.code)
       // // 拉取信息 确定状态status字段
-      if(this.status==='login' && this.code === '1'){
+      if(this.status ==='login' && this.code === '1'){
         this.showMain = false
       }
     },
@@ -132,6 +139,17 @@
 </script>
 <style scoped lang="stylus">
 @import "~common/stylus/table"
+.circle-warning img
+  width: 180px;
+  margin: 48px auto;
+.circle-warning p
+  font-size: 20px;
+  margin-bottom: 15px;
+.circle-warning span 
+  font-size: 13px;
+  color: #575757;
+
+
 .center-wrapper
   text-align:left
 .center-lay

@@ -137,7 +137,7 @@
             this.codeStr = '您账户已被禁用，请联系管理员'
             this.showCodePop = true
           }else if(this.code ==='3'){  //您的账户未经管理员通过，请联系管理员   // 未通过
-            this.codeStr = '您的账户未经管理员通过，请联系管理员'
+            this.codeStr = '您的账户审核未通过，请尽快联系管理员'
             this.showCodePop = true
           } else{
             this.showCodePop = false

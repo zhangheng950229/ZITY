@@ -50,9 +50,9 @@ export default {
     changeTemplateData (arr) {
       let result = []
       arr.forEach((item,index) =>{
-        if(item.template_no === '123456') {
+        if(item.template_name === "测试模板") {
           result[index] = {num:'01',text:'超级大转盘',type:'slyder',templateNo:item.template_no}
-        }else if(item.template_no === '234567'){
+        }else if(item.template_name === "测试模板2"){
           result[index] = {num:'02',text:'抽红包',type:'envelope',templateNo:item.template_no}
         }
       })
