@@ -68,7 +68,7 @@ export default {
         let obj = JSON.parse(this.token);
         this.name = obj.nick_name
       }else{
-        this.name = this.token.nick_name
+        this.name = this.token.contact_name
       }
     }
   },

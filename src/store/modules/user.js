@@ -87,14 +87,17 @@ const user = {
               // let  initRole = authorities[0].authority
               let  initRole = data.authorities[0].authority
               let role
+              let arr
               if(initRole) {
                 role = initRole.split('_')[1].toLowerCase();//测试
                 // console.log("role",role)
-                let arr = [];
+                arr = [];
                 arr.push(role);
+                console.log(arr)
                 commit('SET_ROLES',arr);
+                // console.log("roles login",arr)
               }
-              setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:role,start_time:data.start_time})
+              setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:arr,start_time:data.start_time})
               localStorage.setItem('USER_INFO', JSON.stringify(data));
               commit('SET_TOKEN', {id:data.id,name:data.contact_name,nick_name:data.nick_name,start_time:data.start_time});
               commit('SET_ID',data.id);
