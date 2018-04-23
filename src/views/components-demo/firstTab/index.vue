@@ -589,7 +589,7 @@ export default {
             // 处理模板标号 templateNo
             let data = qs.stringify(object)
 
-            console.log('创建活动数据', object)
+            // console.log('创建活动数据', object)
             // console.log("data",data)
             // 判断是新建还是更新用
             if(this.queryId) {
@@ -717,7 +717,6 @@ export default {
           this.ruleForm.prizeSettings = arr
           let psLen = arr.length
           this.setTepData(psLen)
-
           // console.log('change', this.ruleForm)
         }else{// 如果数据请求不成功,返回活动管理标签
           this.setIsSubmit(true)

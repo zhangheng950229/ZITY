@@ -207,7 +207,8 @@
         this.showModal = false
       },
       openDialog (item) {
-        // console.log('ite', item)
+        console.log('management/item', item)
+
         this.showModal = true
         this.currentActivity  = item
       },

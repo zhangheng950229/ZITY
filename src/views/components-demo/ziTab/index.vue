@@ -52,33 +52,5 @@ export default {
 .zi-content
   background:#fff
   min-height:610px
-// .zitab
-//   text-align:left
-//   position:relative
-// .zitab-bar
-//   position :absolute
-//   left:0
-//   bottom:0
-//   border:1px solid #409EFF
-//   width:85px
-//   transition:0.3s all
-// .zitab-item
-//   padding: 0 20px;
-//   height: 40px;
-//   -webkit-box-sizing: border-box;
-//   box-sizing: border-box;
-//   line-height: 40px;
-//   display: inline-block;
-//   list-style: none;
-//   font-size: 14px;
-//   font-weight: 500;
-//   color: #303133;
-//   position: relative;
-//   width:85px
-//   text-align :center
-//   cursor :pointer
-// .zitab-item:hover
-//   color:rgb(64, 158, 255)
-// .zitab-item.active
-//   color:rgb(64, 158, 255)
+
 </style>

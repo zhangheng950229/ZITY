@@ -58,7 +58,10 @@
           } else {
               if(value === "") {
                 callback(new Error("请输入手机号"))
-              } else {
+              } else if(this.test == "号码已存在") {
+                callback(new Error("新手机号已存在"));
+                this.test = '';
+              }else {
                 callback()
               }
           }
@@ -161,13 +164,8 @@
                     // alert()
                     console.log(res.data.message);
                     this.test = res.data.message;
-                    console.log(this.test)
                     this.$refs.ruleForm.validateField('password');
-                    // this.$message({
-                    //   message: res.data.message,
-                    //   type: 'error',
-                    //   duration: 3* 1000
-                    // });
+                    this.$refs.ruleForm.validateField('tel');
                     this.flag = true;
                   }
                 })

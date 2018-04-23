@@ -87,9 +87,10 @@
         'code',
         'start_time'
       ]),
+      
       Num () {    // 线下测试用的计算属性
         // return this.currentActivity.templateNo
-        if(this.currentActivity.num == "01" && this.currentActivity.templateNo == "123456") {
+        if( this.currentActivity.templateNo == "123456") {
           return "01"
         } else {
           return "02"
