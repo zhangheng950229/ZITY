@@ -114,7 +114,7 @@
         title:'超级大转盘',
         num:'01',
         hasCreated:true,
-        filters: [{text: '暂停',value: '4'},{text: '未发布',value: '0'}, {text: '审核中',value: '1'}, {text: '未开始',value: '2'},{text: '进行中',value: '3'},{text: '未通过',value: '5'},{text: '已结束',value: '6'}],
+        filters: [{text: '未发布',value: '0'}, {text: '审核中',value: '1'}, {text: '未开始',value: '2'},{text: '进行中',value: '3'},{text: '暂停',value: '4'},{text: '未通过',value: '5'},{text: '已结束',value: '6'}],
         value: '',
         listLoading:false,
         loading:false,
@@ -172,10 +172,10 @@
             result = '已暂停'
             break;
           case '5':
-            result = '已结束'
+            result = '未通过'
             break;
           case '6':
-            result = '未通过'
+            result = '已结束'
             break;
           default:
             result = ''

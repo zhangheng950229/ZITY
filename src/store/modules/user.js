@@ -93,7 +93,7 @@ const user = {
                 // console.log("role",role)
                 arr = [];
                 arr.push(role);
-                console.log(arr)
+                // console.log(arr)
                 commit('SET_ROLES',arr);
                 // console.log("roles login",arr)
               }

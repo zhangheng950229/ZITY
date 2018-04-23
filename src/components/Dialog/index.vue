@@ -153,7 +153,7 @@
       }
     },
     created () {
-      // console.log("dailog",this.currentActivity)
+      console.log("dailog",this.currentActivity)
       if(this.currentActivity.url){
         this.detail = true
         this.list = this.currentActivity
