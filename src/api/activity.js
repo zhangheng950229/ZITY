@@ -1,5 +1,13 @@
 import http from 'utils/axios'
 
+
+// 初始化活动 奖品设置的 下拉选项数据
+export function initPrizeSet() {
+  return http({
+    url: `/activityClient/getPrizeCategory`,
+    method: 'post',
+  })
+}
 // 获取模板数据
 export function getTemplates() {
   return http({

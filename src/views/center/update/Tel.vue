@@ -108,7 +108,7 @@
             ],
             tel: [
               { required: true, validator: validatePass1, trigger: 'blur' },
-              { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur'}
+              { pattern: /^1[345678]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur'}
             ],
             captcha: [
               { required: true,validator: validatePass3, trigger: 'blur' }

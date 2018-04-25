@@ -13,7 +13,7 @@
         <span class="fr cursor" @click="close"><i class="el-icon-close"></i></span>
       </div>
       <div slot="body">
-        <div class="confirm">您确定离开昂？</div>
+        <div class="confirm">您确定离开吗？</div>
         <div>
            <el-button @click="close">取消</el-button>
            <el-button type="primary" @click="layOut" :loading="loading">确定</el-button>

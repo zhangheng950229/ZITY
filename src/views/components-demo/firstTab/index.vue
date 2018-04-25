@@ -29,14 +29,14 @@
                  ></el-input>
                 </el-form-item>
                 <el-form-item label="开始时间">
-                  <el-date-picker type="date" placeholder="选择日期" 
+                  <el-date-picker type="datetime" placeholder="选择日期" 
                     v-model="ruleForm.startTime" 
                     style="width: 100%;"
                    :picker-options="pickerBeginDateBefore"
                     ></el-date-picker>
                 </el-form-item>
                 <el-form-item label="结束时间">
-                  <el-date-picker type="date" placeholder="选择日期" 
+                  <el-date-picker type="datetime" placeholder="选择日期" 
                   v-model="ruleForm.expiredTime" 
                   style="width: 100%;"
                   :picker-options="pickerBeginDateAfter"
@@ -55,7 +55,7 @@
           <el-tab-pane label="限制条件" name="second" class="mytag">
               <div class="input-item">
                 <span>手机号地域</span>
-                <distpicker 
+                <distpicker
                 hide-area id="distpicker"
                 :province="select.province.value" 
                 :city="select.city.value"
@@ -83,7 +83,7 @@
                   <th>奖品面额</th>
                   <th>奖品数量</th>
                   <th>中奖概率</th>
-                  <th>奖品估算</th>
+                  <!-- <th>奖品估算</th> -->
                 </tr>
                 <tr v-for="(item,index) in ruleForm.prizeSettings" :key="index" @click="setPosition(index,item.name)">
                   <td class="spc-width-select" v-if="autoDefinie" @click="deleteLottery(index)">
@@ -133,7 +133,7 @@
                   <td class="spc-width">
                       <el-input  type="number" min="0" v-model="item['weight']" class="td-six" placeholder="概率"></el-input>
                   </td>
-                  <td class="spc-width"><span class="estimate"></span></td>
+                  <!-- <td class="spc-width"><span class="estimate"></span></td> -->
                 </tr>
                 <tr>
                   <td v-if="autoDefinie"></td>
@@ -142,7 +142,7 @@
                   <td></td>
                   <td></td>
                   <td>100%</td>
-                  <td><span class="estimate"></span></td>
+                  <!-- <td><span class="estimate"></span></td> -->
                 </tr>
               </table>
           </el-tab-pane>
@@ -169,28 +169,30 @@ import Distpicker from 'components/Distpicker/src/Distpicker'
 import { mapGetters,mapMutations} from 'vuex'
 import Tab from 'components/Tab'
 import Modal from 'components/Modal'
-import {  createActivity,updateActivity } from 'api/activity'
+import {  createActivity,updateActivity, initPrizeSet} from 'api/activity'
 import {activityEdit} from 'api/manage_activity'
 import qs from 'qs'
 
 
-let tableData = {
-  type:[{value: '流量'}, {value: '话费'}, {value: '视频券'}],
-  denomination:{
-    '视频券': [{value: '200元'},{value: '180元'},{value: '100元'}],
-    '话费': [{value: '10元'},{value: '2元'},{value: '1元'}],
-    '流量': [{value: '10M'},{value: '2M'},{value: '1M'}]
-  }
-}
+// let tableData = {
+//   type:[{value: '流量'}, {value: '话费'}
+//   // {value: '视频券'}
+//   ],
+//   denomination:{
+//     // '视频券': [{value: '200元'},{value: '180元'},{value: '100元'}],
+//     '话费': [{value: '1元'},{value: '2元'},{value: '5元'},{value: '10元'},{value: '20元'},{value: '30元'},{value: '50元'},{value: '100元'}],
+//     '流量': [{value: '10M'},{value: '20M'},{value: '30M'},{value: '50M'},{value: '100M'},{value: '200M'},{value: '500M'},{value: '1024M'}]
+//   }
+// }
 let slyderData = [
-            {name:'奖项一',category:'',price:'',number:'',weight:'',value:''},
-            {name:'奖项二',category:'',price:'',number:'',weight:'',value:''},
-            {name:'奖项三',category:'',price:'',number:'',weight:'',value:''},
-            {name:'奖项四',category:'',price:'',number:'',weight:'',value:''},
-            {name:'奖项五',category:'',price:'',number:'',weight:'',value:''},
-            {name:'谢谢参与',category:'',price:'',number:'',weight:'',value:''}
+            {name:'奖项一',category:'',price:'',number:'',weight:'',sort:1},
+            {name:'奖项二',category:'',price:'',number:'',weight:'',sort:2},
+            {name:'奖项三',category:'',price:'',number:'',weight:'',sort:3},
+            {name:'奖项四',category:'',price:'',number:'',weight:'',sort:4},
+            {name:'奖项五',category:'',price:'',number:'',weight:'',sort:5},
+            {name:'谢谢参与',category:'',price:'',number:'',weight:'',sort:6}
           ]
-let lotteryBaseLine =  {name:'',category:'',price:'',number:'',weight:'',value:''}
+let lotteryBaseLine =  {name:'',category:'',price:'',number:'',weight:''}
 
 export default {
   // name: 'slyderAPP',
@@ -235,7 +237,7 @@ export default {
           ],
           prizeSettings:[]
       },
-      tableData:tableData,
+      tableData:{type:[], denomination:{}},
       activeName2: 'first',
       textarea: '',
       currentSelectOption: [],  // 奖品种类数组
@@ -330,7 +332,6 @@ export default {
     },
     showLottery () {
       this.lotteryList = this.ruleForm.prizeSettings;
-      console.log('lotteryList',this.lotteryList)
       let item = this.lotteryList[this.position]
       let {category,price} = item
       if(this.aid[this.position]) {
@@ -386,19 +387,16 @@ export default {
       this.validate(len, item)
     },
     change (value,index) {
-      console.log('vale', value)
       this.position = index;
       // 根据种类 设置奖品面额 的type
       // 每次点击种类，清空 面额数据 重新选择面额
       // this.position 索引
-      if(this.position) {
+      if(this.position || this.position===0) {
         this.ruleForm.prizeSettings[this.position].price = '';
       }
       // 根据选择的key 值 找出索引
 
       this.currentSelectOption[this.position] = value
-      // console.log("index",this.position)
-      console.log('奖品数组', this.currentSelectOption)
       if(value){
         //在这里处理奖品 种类
         this.category = value
@@ -410,8 +408,6 @@ export default {
       this.showLottery()
     },
     setPosition (index,name) {
-      // console.log("inde",index)
-      // console.log("name",name)
       // 确定是几等奖
       this.position = index
     },
@@ -470,11 +466,9 @@ export default {
       this.setlotteryData()
     },
     resetForm(formName) {
-      alert("asdas")
       // this.$refs[formName].resetFields();
       Object.assign(this[formName], this.$options.data()[formName])
       // this[formName] = {};
-      console.log("离开时表单空置",this[formName])
     },
     submitForm(formName) {
         let valid = false
@@ -515,22 +509,31 @@ export default {
         let changeAll = 0
         for(let i=0; i<len ;i++){
           if(!this.tep[i]){
-            this.setAlert(`奖项设置第${i+1}行未填写完整======`)
+            this.setAlert(`"奖项设置"第${i+1}行未填写完整======`)
             return
           }
           // changeAll += parseInt(changeData[i].weight)
         }
         // 填写完整了，验证数量是否输入负数，数量最小值为1
         for(let i=0; i<len ;i++){
-          if(this.tep[i] && changeData[i].number<1){
-            this.setAlert(`奖项设置第${i+1}行数量必须大于0`)
+          if(this.tep[i] && !(/^\+?[1-9][0-9]*$/.test(changeData[i].number)))  {
+            this.setAlert(`奖项设置第${i+1}行"奖品数量"必须为大于0的整数`)
             return
           }
-          changeAll += parseInt(changeData[i].weight)
+          // 验证概率是否是正数并且可以是小数
+          if(this.tep[i] && changeData[i].weight <=0)  {
+            this.setAlert(`奖项设置第${i+1}行"中奖概率"必须大于0`)
+            return
+          }
+          // if(this.tep[i] && !((changeData[i].number)%1===0)){
+          //   this.setAlert(`奖项设置第${i+1}行奖品数量必须为整数`)
+          //   return
+          // }
+          changeAll += parseFloat(changeData[i].weight)
         }
         //验证概率之和
         if(changeAll!==100){
-          this.setAlert(`中奖概率之和必须是100`)
+          this.setAlert(`"中奖概率"之和必须是100`)
           return
         }
         //验证数据完毕，开始提交数据
@@ -577,15 +580,27 @@ export default {
             }
             //处理时间区域数据
             if(this.once) {
+              console.log('==========', new Date(this.ruleForm.startTime))
+              console.log('start', this.ruleForm.startTime)
+              console.log('expiredTime', this.ruleForm.expiredTime)
               this.ruleForm.startTime = this.ruleForm.startTime.getTime()
               this.ruleForm.expiredTime = this.ruleForm.expiredTime.getTime()
+              console.log('start after',  this.ruleForm.startTime )
+              console.log('expiredTime after', this.ruleForm.expiredTime)
               this.once = false
             }
 
             // 将settings, prizeSettings 数组转化为字符串
             const object = Object.assign({}, this.ruleForm);
             object.settings = JSON.stringify(object.settings)
-            object.prizeSettings = JSON.stringify(object.prizeSettings)
+            // 在字符串化之前先对prizeSettings的sort进行处理 ，如果类型不是slyder的话
+            let addSortArr = object.prizeSettings
+            if(this.currentItemFromRouter !== 'slyder') {
+              addSortArr.forEach((item, index) =>{
+                item.sort = index + 1
+              })
+            }
+            object.prizeSettings = JSON.stringify(addSortArr)
             // 处理模板标号 templateNo
             let data = qs.stringify(object)
 
@@ -607,7 +622,7 @@ export default {
             // alert('创建成功')
             this.resetForm(formName)
             this.loading.close()
-            this.$router.push({ path: `/management/`,})
+            // this.$router.push({ path: `/management/`,})
           }else{
             // alert('请稍后处理')
             this.loading.close()
@@ -624,9 +639,36 @@ export default {
     }
   },
   created () {
+    // 初始话tableData 和
+    
+
+    // initPrizeSet().then((res) =>{
+    //   let typeArr//[]
+    //   let denoObj//{}
+    //    if(res.data === 'ok') {
+    //     let list = res.list
+    //     list.forEach((item) =>{
+    //       if(item.id && item.id !== 3) {
+    //         //处理第一层key
+    //         typeArr.push({value:item.name})
+    //         let sublist = item.priceList
+    //         let arrHelp
+    //         sublist.forEach((subItem) =>{
+    //            arrHelp.push({value: subItem.name})
+    //         })
+    //         if(!deno[item.name]){
+    //           deno[item.name] = arrHelp
+    //         }
+    //       }
+    //     })
+    //     this.tableData.type = typeArr
+    //     this.tableData.denomination = denoObj
+    //    }
+    // }).catch(()=>{
+    //   this.loading = false
+    // })
     // 如果路由有query参数 那么是编辑活动
     this.queryId = this.$route.query.id
-    // console.log("id",this.queryId)
     if(this.queryId){
       this.start = true
       let type = this.$route.meta.type
@@ -641,15 +683,15 @@ export default {
       let initData
       activityEdit(activityId).then((res) =>{
         let data = res.data;
-        console.log("activityEdit",res)  
         if(data.code ==='ok'){
           initData = data.data
-          // console.log('id init', initData)
           // 处理settings 格式
           initData.settings = JSON.parse(initData.settings)
           initData.prizeSettings = JSON.parse(initData.prizeSettings)
           // 更改时间格式
+          console.log('init startTime', initData.startTime)
           initData.startTime = new Date(initData.startTime)
+          console.log('after', initData.startTime)
           initData.expiredTime = new Date(initData.expiredTime)
           // // 处理省市数据
           let settings = initData.settings
@@ -708,7 +750,6 @@ export default {
           let arr = []
           var that = this;
           initData.prizeSettings.forEach(function(item) {
-            console.log(item)
             let {id,name,category,price,number,weight} = item;
             that.currentSelectOption.push(category);
             let obj = {id,name,category,price,number,weight}
@@ -718,7 +759,6 @@ export default {
           let psLen = arr.length
           this.setTepData(psLen)
 
-          // console.log('change', this.ruleForm)
         }else{// 如果数据请求不成功,返回活动管理标签
           this.setIsSubmit(true)
           this.setPass(true)
@@ -743,7 +783,224 @@ export default {
       })
 
     }else{  // 创建活动 非活动编辑事件进入配置奖品
-      console.log('this.rform',this.ruleForm)
+      // 测试处理数据
+      let res = {
+    "code":"ok",
+    "list":[
+        {
+            "id":1,
+            "name":"话费",
+            "category":"话费",
+            "parentId":0,
+            "priceList":[
+                {
+                    "id":4,
+                    "name":"1元",
+                    "category":"话费",
+                    "price":1,
+                    "parentId":1
+                },
+                {
+                    "id":5,
+                    "name":"2元",
+                    "category":"话费",
+                    "price":2,
+                    "parentId":1
+                },
+                {
+                    "id":6,
+                    "name":"5元",
+                    "category":"话费",
+                    "price":5,
+                    "parentId":1
+                },
+                {
+                    "id":7,
+                    "name":"10元",
+                    "category":"话费",
+                    "price":10,
+                    "parentId":1
+                },
+                {
+                    "id":8,
+                    "name":"20元",
+                    "category":"话费",
+                    "price":20,
+                    "parentId":1
+                },
+                {
+                    "id":9,
+                    "name":"30元",
+                    "category":"话费",
+                    "price":30,
+                    "parentId":1
+                },
+                {
+                    "id":10,
+                    "name":"50元",
+                    "category":"话费",
+                    "price":50,
+                    "parentId":1
+                },
+                {
+                    "id":11,
+                    "name":"100元",
+                    "category":"话费",
+                    "price":100,
+                    "parentId":1
+                }
+            ]
+        },
+        {
+            "id":2,
+            "name":"流量",
+            "category":"流量",
+            "parentId":0,
+            "priceList":[
+                {
+                    "id":12,
+                    "name":"10M",
+                    "category":"流量",
+                    "price":0,
+                    "parentId":2
+                },
+                {
+                    "id":13,
+                    "name":"20M",
+                    "category":"流量",
+                    "price":0,
+                    "parentId":2
+                },
+                {
+                    "id":14,
+                    "name":"30M",
+                    "category":"流量",
+                    "price":0,
+                    "parentId":2
+                },
+                {
+                    "id":15,
+                    "name":"50M",
+                    "category":"流量",
+                    "price":0,
+                    "parentId":2
+                },
+                {
+                    "id":16,
+                    "name":"100M",
+                    "category":"流量",
+                    "price":0,
+                    "parentId":2
+                },
+                {
+                    "id":17,
+                    "name":"200M",
+                    "category":"流量",
+                    "price":0,
+                    "parentId":2
+                },
+                {
+                    "id":18,
+                    "name":"500M",
+                    "category":"流量",
+                    "price":0,
+                    "parentId":2
+                },
+                {
+                    "id":19,
+                    "name":"1G",
+                    "category":"流量",
+                    "price":0,
+                    "parentId":2
+                }
+            ]
+        },
+        {
+            "id":3,
+            "name":"视频券",
+            "category":"视频券",
+            "parentId":0,
+            "priceList":[
+                {
+                    "id":20,
+                    "name":"爱奇艺",
+                    "category":"视频券",
+                    "parentId":3,
+                    "priceList":[
+                        {
+                            "id":23,
+                            "name":"爱奇艺黄金会员（月卡）",
+                            "category":"视频券",
+                            "price":20,
+                            "parentId":20
+                        },
+                        {
+                            "id":24,
+                            "name":"爱奇艺黄金会员（季卡）",
+                            "category":"视频券",
+                            "price":58,
+                            "parentId":20
+                        }
+                    ]
+                },
+                {
+                    "id":21,
+                    "name":"优酷",
+                    "category":"视频券",
+                    "parentId":3,
+                    "priceList":[
+                        {
+                            "id":25,
+                            "name":"优酷会员（月卡）",
+                            "category":"视频券",
+                            "price":20,
+                            "parentId":21
+                        }
+                    ]
+                },
+                {
+                    "id":22,
+                    "name":"腾讯",
+                    "category":"视频券",
+                    "parentId":3,
+                    "priceList":[
+                        {
+                            "id":26,
+                            "name":"腾讯视频VIP月卡",
+                            "category":"视频券",
+                            "price":20,
+                            "parentId":22
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+    }
+
+    let typeArr = []//[]
+    let denoObj = {}//{}
+     if(res.code === 'ok') {
+      let list = res.list
+      list.forEach((item) =>{
+        if(item.id && item.id !== 3) {
+          //处理第一层key
+          typeArr.push({value:item.name})
+          let sublist = item.priceList
+          let arrHelp = []
+          sublist.forEach((subItem) =>{
+             arrHelp.push({value: subItem.name})
+          })
+          if(!denoObj[item.name]){
+            denoObj[item.name] = arrHelp
+          }
+        }
+      })
+      this.tableData.type = typeArr
+      this.tableData.denomination = denoObj
+     }
+     console.log('tableData', this.tableData)
+     // 处理奖品设置下拉选项初始化完成
       let type = this.$route.meta.type
       this.currentItemFromRouter = type 
       if(this.currentItemFromRouter !== 'slyder'){   // 不是大转盘类型的活动模板创建
@@ -802,14 +1059,11 @@ export default {
   color:#606266
   width:80px
   -webkit-appearance: none;
-  // -webkit-box-sizing: border-box;
-  // box-sizing: border-box;
   color: #606266;
   display: inline-block;
   vertical-align:middle
   height: 39px;
   line-height: 39px;
-  // outline: 0;
   padding: 0 15px;
   border:1px solid #ccc
   text-align:center
@@ -833,9 +1087,6 @@ export default {
   vertical-align :middle
 .mobile
   display:inline-block
-  // -webkit-box-sizing: border-box;
-  // box-sizing: border-box;
-  // border:1px solid #ccc
   height:40px
 .mobile span
   width:30px
@@ -897,7 +1148,6 @@ export default {
     height:510px
   .rule-content
     position :absolute
-    // background:rgba(0,0,0,0.5)
     padding:5px
     top: 350px;
     width: 190px;
