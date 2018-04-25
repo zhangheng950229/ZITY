@@ -88,18 +88,45 @@
           callback();
         }
       };
+      // 验证码
       var validatePass3 = (rule, value, callback) => {
-        this.$refs.ruleForm.validateField('mobileNumber' ,message => {
-          if (message==='请输入手机号码') {
-            callback(new Error('请先输入手机号码'));
-          }else if (message==='手机号码输入不正确') {
-            callback(new Error(message));
-          }else if (value==='') {
-            callback(new Error('请输入验证码'))
-          }else {
-            callback();
-          }
-        })
+        if (value==='') {
+          callback(new Error('请输入验证码'))
+        }else if(this.wrongCaptha){
+          callback(new Error('验证码错误'))
+        }else{
+          callback()
+        }
+        // this.$refs.ruleForm.validateField('mobileNumber' ,message => {
+        //   if (message) {
+
+        //     callback('');
+        //   }
+        //   if (message==='请输入手机号码') {
+        //     callback(new Error('请先输入手机号码'));
+        //   }else if (message==='手机号码输入不正确') {
+        //     callback(new Error(''));
+        //   }else if (value==='') {
+        //     if(this.helpBtn) {
+        //       callback(new Error('请输入验证码'))
+        //     }
+        //     callback(new Error(''))
+        //   }else {
+        //     callback();
+        //   }
+        // })
+      };
+      // 手机号码
+      var validatePass4 = (rule, value, callback) => {
+        if (this.telHasExist) {
+          callback(new Error('号码已存在'));
+        } else if (value === "") {
+          callback(new Error('请输入手机号码'));
+        } else if(!/^1(3|4|5|6|7|8)\d{9}$/.test(value)){
+            callback(new Error('手机号码输入不正确'));
+        }else {
+          callback();
+        }
       };
       return {
         countDown:false,
@@ -123,8 +150,9 @@
             { required: true, message: '请输入联系人', trigger: 'blur' },
           ],
           mobileNumber: [
-            { required: true, message: '请输入手机号码', trigger: 'blur' },
-            { pattern: /^1[345678]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur' }
+            // { required: true, message: '请输入手机号码', trigger: 'blur' },
+            { required: true, validator: validatePass4, trigger: 'blur' },
+            // { pattern: /^1[345678]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur' }
           ],
           password: [
             { required: true,validator: validatePass, trigger: 'blur' }
@@ -144,8 +172,10 @@
         this.flag = flag
       },
       getCaptcha () {
-        this.$refs.ruleForm.validateField('verifyCode' ,message => {
-          if(message === '请输入验证码'){
+        this.telHasExist = false;
+        this.wrongCaptha  = false;
+        this.$refs.ruleForm.validateField('mobileNumber' ,message => {
+          if(!message){
             if(this.flag){
               this.flag = false
               this.countDown = true
@@ -172,28 +202,19 @@
         this.$emit('close')
       },
       submitForm(formName) {
+        this.telHasExist = false;
+        this.wrongCaptha  = false;
+        this.countDown = false
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            //  let loading = this.$loading({
-            //   lock: true,
-            //   text: '注册成功,跳转到登录页面',
-            //   spinner: 'el-icon-loading',
-            //   background: 'rgba(0, 0, 0, 0.7)'
-            // });
-            // setTimeout(()=> {
-            //   loading.close()
-            //   this.$emit('signUpSuccess')
-            // },1000)
-            this.countDown = false
+            // this.countDown = false
             // console.log('valid', this.$refs[formName].model)
             this.loading = true
             // 按钮禁止，防止重复提交
             this.isDisabled = true
             let data = qs.stringify(this.ruleForm)
-            // console.log('注册数据', data)
             // this.$store.dispatch('LoginByUsername', data)
             createUser(data).then((res) => {
-              // console.log('regis res', res)
               let data = res.data
               let message = res.data.message
               if(data.code === 'ok') {
@@ -208,19 +229,30 @@
                 // 跳转到创建活动页面
                 // 发出事件， 注册成功
                 this.$emit('signUpSuccess')
-              }else if(message==='验证码错误'){
-                this.$message({
-                  message: '验证码错误',
-                  type: 'error',
-                  duration: 2* 1000
-                });
+              }else if(message==='验证码错误'){//message===验证码错误
+                this.wrongCaptha = true
+                this.$refs.ruleForm.validateField('verifyCode' ,message => {
+                  if(message==='验证码错误'){
+                  }
+                })
+                // this.$message({
+                //   message: '验证码错误',
+                //   type: 'error',
+                //   duration: 2* 1000
+                // });
 
-              }else if(message==='号码已存在'){
-                this.$message({
-                  message: '号码已存在',
-                  type: 'error',
-                  duration: 2* 1000
-                });
+              }else if(true){//message==='号码已存在'
+                alert(1)
+                this.telHasExist = true
+                this.$refs.ruleForm.validateField('mobileNumber' ,message => {
+                if(message==='号码已存在'){
+                }
+              })
+                // this.$message({
+                //   message: '号码已存在',
+                //   type: 'error',
+                //   duration: 2* 1000
+                // });
 
               }else{
                 this.$message({

@@ -142,20 +142,9 @@
               let code = res.data.code
               let message = res.data.message
               if(code === 'ok'){
-                // console.log(res.data.data.start_time);
-                // let _ST = res.data.data.start_time;
-                // let d = new Date()
-                // if(_ST > d) { // 不在用户有效时间内
-                //   this.codeStr = "您未在有效期时间，请联系管理员";
-                //   this.showCodePop = true;
-                // } else { // 在用户有效时间内
-                  
                   this.$router.push({ path: '/create-project' });
-                // }
-                // if( _St)
                 
               } else if(code != "ok" && message==='认证失败') {
-                // alert("验证码错误")
                 this.$message({
                   message: '手机或密码错误',
                   type: 'error',
