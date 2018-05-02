@@ -44,7 +44,7 @@ export default {
   computed: {
     // 使用对象展开运算符将 getter 混入 computed 对象中
       ...mapGetters([
-        'token'
+        'userInfo'
       ])
   },
   methods:{
@@ -61,16 +61,17 @@ export default {
     }
   },
   created () {
-    if(this.token){
-      // console.log()
-      // console.log("NAVbar_token",this.token)
-      if(typeof this.token === 'string'){
-        let obj = JSON.parse(this.token);
-        this.name = obj.nick_name
-      }else{
-        this.name = this.token.contact_name
-      }
-    }
+    this.name = this.userInfo.contact_name
+    // if(this.token){
+    //   // console.log()
+    //   // console.log("NAVbar_token",this.token)
+    //   if(typeof this.token === 'string'){
+    //     let obj = JSON.parse(this.token);
+    //     this.name = obj.nick_name
+    //   }else{
+    //     this.name = this.token.contact_name
+    //   }
+    // }
   },
   components:{
     svgIcon,

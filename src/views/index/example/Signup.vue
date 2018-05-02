@@ -64,6 +64,8 @@
   import { createUser, getCaptcha } from 'api/user'
   import { loginGetCaptcha } from 'api/login'
   import qs from 'qs'
+  // import md5 from 'js-md5';
+  import {setPassMd5} from 'utils/help'
 
   export default {
     data() {
@@ -212,13 +214,21 @@
             this.loading = true
             // 按钮禁止，防止重复提交
             this.isDisabled = true
-            let data = qs.stringify(this.ruleForm)
+            // let pass1 = md5(this.ruleForm.password)
+            // let pass2 = md5(this.ruleForm.confirmPassword)
+            // var newObj = Object.assign({}, this.ruleForm);
+            // newObj.password = pass1
+            // newObj.confirmPassword = pass2
+            let init = setPassMd5(['password','confirmPassword'], this.ruleForm)
+            let data = qs.stringify(init)
+            console.log('data', init)
+
             // this.$store.dispatch('LoginByUsername', data)
             createUser(data).then((res) => {
               let data = res.data
               let message = res.data.message
               if(data.code === 'ok') {
-                this.$store.dispatch('SignUp')
+                // this.$store.dispatch('SignUp')
                 this.$notify({
                   title: '成功',
                   message: '注册成功',
@@ -241,8 +251,7 @@
                 //   duration: 2* 1000
                 // });
 
-              }else if(true){//message==='号码已存在'
-                alert(1)
+              }else if(message==='号码已存在'){//message==='号码已存在'
                 this.telHasExist = true
                 this.$refs.ruleForm.validateField('mobileNumber' ,message => {
                 if(message==='号码已存在'){

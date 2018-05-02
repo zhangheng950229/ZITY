@@ -47,6 +47,7 @@
   import Modal from '../Modal'
   import { mapGetters,mapMutations} from 'vuex'
   import Qrcode from '@xkeshi/vue-qrcode';
+  import { getToken, setToken} from 'utils/auth'
 
 
   export default {
@@ -76,16 +77,17 @@
         showCodePop:false,
         codeStr:'',
         list:[],
-        detail:false
+        detail:false,
       }
     },
     computed: {
     // 使用对象展开运算符将 getter 混入 computed 对象中
       ...mapGetters([
         'currentLotteryItem',
-        'status',
-        'code',
-        'start_time'
+        // 'status',
+        // 'code',
+        // 'start_time',
+        'userInfo'
       ]),
       Num () {    // 线下测试用的计算属性
         // return this.currentActivity.templateNo
@@ -99,6 +101,7 @@
     methods:{
       ...mapMutations([
         'SignUp',
+        'SET_USERINTO'
       ]),
       onCopy: function (e) {
         this.disabled = false
@@ -111,32 +114,72 @@
       createProject () {
         // 判断用户是否已经登录，未登录，弹窗提示登录
         // 首页未注册时候
+        const TokenKey = 'Admin-Token'
+        // let userInfo = getToken(TokenKey)
+        let userList = this.userInfo
+        let {isLogin, status, mobile_number} = userList
         this.showMainPop = false;
-        // this.$store.dispatch("SignUp")
         
-        // console.log("this.status",this.status)
-        if(this.status !== 'login'){ // 没有登陆的状态
+        if(isLogin !== 'login'){ // 没有登陆的状态
           this.showCodePop = false
           this.showLoginPop = true
         }
-        if(this.status === 'login'){
+        if(isLogin=== 'login'){
           this.showLoginPop = false
-          let code = this.code
-          // console.log("code",code)
-          let _ST = this.start_time;
+          // 判断是否是正常状态
+          if(status !== '1') {
+            let data = `_{loginName=${mobile_number}`
+            this.setLoading()
+            getUserInfo(data).then((res) => {
+                let result = res.data
+                if(result.code === 'ok') {
+                  let data = result.data
+                  this.newStatus = data.status
+                  // this.userList  = data.data
+                  userList = data.data
+                  // 将最新个人数据写到cookie 中 
+                  // 更新到vuex 中
+                  let obj = Object.assign(data)
+                  setToken(TokenKey, obj)
+                  this.SET_USERINTO(obj)
+                  this.loading.close()
+                }else{
+                  this.loading.close()
+                  this.$message({
+                    message: '请稍后尝试',
+                    type: 'error',
+                    duration: 2* 1000
+                  });
+                }
+              }).catch((err) =>{
+                  this.loading.close()
+                  this.$message({
+                    message: '请稍后尝试',
+                    type: 'error',
+                    duration: 2* 1000
+                  });
+              })
+          }else{
+            // this.newStatus = status
+            // this.userList = this.userInfo;
+          }
+      //
+          // let code = this.code
+          let {newStatus, newStart_time} = userList
+          let _ST = newStart_time;
           let d = new Date();
           if(_ST > d) { // 不在用户有效时间内,用户有效期时间没有到
             this.codeStr = "您未在有效期时间，请联系管理员";
             this.showCodePop = true;
           }
           // console.log(this.start_time)
-          if(code==='0') {//审核中
+          if(newStatus==='0') {//审核中
             this.codeStr = '您的账户未经管理员审核，请审核后进行操作'
             this.showCodePop = true
-          }else if(this.code ==='2'){  // 禁用
+          }else if(newStatus==='2'){  // 禁用
             this.codeStr = '您账户已被禁用，请联系管理员'
             this.showCodePop = true
-          }else if(this.code ==='3'){  //您的账户未经管理员通过，请联系管理员   // 未通过
+          }else if(newStatus==='3'){  //您的账户未经管理员通过，请联系管理员   // 未通过
             this.codeStr = '您的账户审核未通过，请尽快联系管理员'
             this.showCodePop = true
           } else{
@@ -153,6 +196,7 @@
       }
     },
     created () {
+      console.log(1)
       // console.log("dailog",this.currentActivity)
       if(this.currentActivity.url){
         this.detail = true

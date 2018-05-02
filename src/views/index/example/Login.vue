@@ -29,15 +29,6 @@
     </el-form>
     <div class="skip">没有账号,<span href="" @click="$emit('close','signup')">点击注册</span></div>
   </div>
-  <!-- <div slot="body" v-if="showCodePop">
-    <div class="close-tep"><span>{{codeStr}}</span><span class="fr" @click="close"><i class="el-icon-close"></i></span></div>
-  </div> -->
-<!--   <div slot="footer">
-  <el-button  type="primary" class="login-btn info-btn">
-    登录
-  </el-button>
-  <div class="skip">没有账号,<span href="" @click="$emit('close','signup')">点击注册</span></div>
-  </div> -->
 </modal>
 </template>
 <script>
@@ -47,6 +38,8 @@
   import { login } from 'api/login'
   import {getCaptcha} from 'api/login'
   import qs from 'qs'
+  import {setPassMd5} from 'utils/help'
+
 
   export default {
     data () {
@@ -73,7 +66,7 @@
           ruleForm: {
             _loginName: '',
             _password: '',
-            _verCode: '111111',
+            // _verCode: '111111',
           },
           rules: {
             _loginName: [
@@ -127,33 +120,38 @@
       //   })
       // },
       submitForm(formName) {
-        // this.$router.push({ path: '/create-project/index' })
+
         this.$refs.ruleForm.validate(valid => {
-          // console.log('rule', this.ruleForm)
           if (valid) {
             //验证码倒数 取消
             this.countDown = true
             this.loading = true
             this.isDisabled = true
-            let init = this.ruleForm
+            // md5对密码加密
+            // let pass = md5(this.ruleForm._password)
+            // let init = {
+            //   _loginName:this.ruleForm._loginName,
+            //   _password:pass
+            // }
+            let init = setPassMd5(['_password'], this.ruleForm)
+            // this.ruleForm._password = md5(this.ruleForm._password)
+            // let init = this.ruleForm
             let data = qs.stringify(init) //测试不用
           this.$store.dispatch('LoginByUsername', data).then((res) => {
-              // console.log('useINFO', res)
               let code = res.data.code
               let message = res.data.message
               if(code === 'ok'){
                   this.$router.push({ path: '/create-project' });
-                
-              } else if(code != "ok" && message==='认证失败') {
+              } else if(code != "ok" && message==='手机号未注册') {
                 this.$message({
-                  message: '手机或密码错误',
+                  message: '手机号未注册',
                   type: 'error',
                   duration: 4* 1000
                 });
                 this.isDisabled = false;
               } else {
                 this.$message({
-                  message: '请稍后尝试',
+                  message: '密码错误',
                   type: 'error',
                   duration: 2* 1000
                 });
@@ -162,7 +160,7 @@
               }
               this.isDisabled = false
               this.loading = false
-            }).catch(() => {
+            }).catch((err) => {
               this.isDisabled = false
               this.loading = false
             })

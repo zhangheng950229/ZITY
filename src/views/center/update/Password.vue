@@ -36,6 +36,8 @@
   import  Captcha from 'components/Captcha'
   import {getCaptcha} from 'api/user'
   import {updatePassword,checkSMSCode} from 'api/user'
+  import {setPassMd5} from 'utils/help'
+
   export default {
     props:{
       INFO: Object
@@ -196,8 +198,12 @@
           if (valid) {
             this.countDown = false;
             this.loading = true;
+            //md5密码加密
+            let init = setPassMd5(['password,confirmPassword'], this.ruleForm1)
+
             // 后台需要的字段
-            let data = "password=" +this.ruleForm1.password+"&confirmPassword="+this.ruleForm1.confirmPassword+"&id="+this.INFO.id;
+            let data = "password=" +init.password+"&confirmPassword="+init.confirmPassword+"&id="+this.INFO.id;
+            // let data = "password=" +this.ruleForm1.password+"&confirmPassword="+this.ruleForm1.confirmPassword+"&id="+this.INFO.id;
             updatePassword(data).then((res) =>{
               // 重新获取一遍用户数据 
             
