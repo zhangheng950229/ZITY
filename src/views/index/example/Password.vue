@@ -61,6 +61,7 @@
   import  Captcha from 'components/Captcha'
   import {getCaptchaForget,surePassword} from 'api/login'
   import {checkSMSCode} from "api/user"
+  import {setPassMd5} from 'utils/help'
   export default {
     data () {
       var validatePass = (rule, value, callback) => {
@@ -185,8 +186,12 @@
         this.$refs[formName].validate((valid) => {
           this.test = ""
           if (valid) {
+            let init = setPassMd5(['tel'], this.ruleForm);
 
-            let data = "phoneNumber=" +this.ruleForm.tel+"&verCode="+this.ruleForm.captcha;
+            let data = "phoneNumber=" +init.tel+"&verCode="+init.captcha;
+            console.log('ruleForm',this.ruleForm)
+            console.log('wangj',init)
+            // let data = "phoneNumber=" +this.ruleForm.tel+"&verCode="+this.ruleForm.captcha;
             checkSMSCode(data).then((res) => {   // 验证手机号验证码是否正确请求
               // console.log(res);
               if(res.data.data === true && res.data.code=== "ok"){   //验证码正确

@@ -1,6 +1,6 @@
 <template>
 <div>
-  <div class="container" v-if="showMain && this.code !== '3'">
+  <div class="container" v-if="newStatus === '0'">
     <div class="verify-header">
     <span><i class="el-icon-arrow-left"></i></span>
     <span>个人中心</span></div>
@@ -22,28 +22,28 @@
       </div>
     </div>
   </div>
-  <div class="container center-wrapper" v-if="!showMain && this.code !== '3'">
+  <div class="container center-wrapper" v-if="newStatus === '1'">
     <div class="verify-header"><span><i class="el-icon-arrow-left"></i></span>
     <span>个人中心</span></div>
     <div class="center-lay">
       <div class="center-info">
         <span class="center-label">企业名称</span>
-        <span class="label-text">{{userInfo.contractName || userInfo.contract_name }}</span>
+        <span class="label-text">{{userList.contractName || userList.contract_name }}</span>
       </div>
       <div class="center-info">
         <span class="center-label">联系人</span>
-        <span class="label-text">{{userInfo.contactName || userInfo.contact_name }}</span>
+        <span class="label-text">{{userList.contactName || userList.contact_name }}</span>
         <span class="may-change" @click="change('contact')">修改联系人</span>
       </div>
       <div class="center-info">
         <span class="center-label">手机号</span>
-        <span class="label-text">{{userInfo.loginName || userInfo.login_name}}</span>
+        <span class="label-text">{{userList.loginName || userList.login_name}}</span>
         <span class="may-change" @click="change('tel')">更换手机号</span>
       </div>
       <div class="center-info">
         <span class="center-label label-tep">账号有效期</span>
         <div class="time-item">
-          <div class="time">{{userInfo.startTime || userInfo.start_time}}</div><div class="time">{{userInfo.expiredTime || userInfo.expired_time}}</div>
+          <div class="time">{{userList.startTime || userList.start_time}}</div><div class="time">{{userList.expiredTime || userList.expired_time}}</div>
         </div>
       </div>
       <div class="center-info">
@@ -55,12 +55,12 @@
         <span class="label-text">安全</span>
         <span class="may-change" @click="change('password')">修改登录密码</span>
       </div>
-      <tel v-show="showModalTel" @close="close" :INFO='userInfo' @change_INFO="changeStorage"></tel>
-      <contact v-show="showModalContact" @close="close" :INFO='userInfo' @change_INFO="changeStorage"></contact>
-      <password v-show="showModalPassword" @close="close" :INFO='userInfo' @change_INFO="changeStorage"></password>
+      <tel v-show="showModalTel" @close="close" :INFO='userList' @change_INFO="changeStorage"></tel>
+      <contact v-show="showModalContact" @close="close" :INFO='userList' @change_INFO="changeStorage"></contact>
+      <password v-show="showModalPassword" @close="close" :INFO='userList' @change_INFO="changeStorage"></password>
     </div>
   </div>
-  <div class="container" v-if="this.code === '3'">
+  <div class="container" v-if="newStatus === '3'">
     <div class='circle-warning'>
         <img src="../../../static/images/warning.png" alt="">
         <p>您账户审核未通过，请尽快联系管理员!</p>
@@ -73,7 +73,9 @@
   import Tel from './update/Tel'
   import Contact from './update/Contact'
   import Password from './update/Password'
-  import { mapGetters } from 'vuex'
+  import { mapGetters,mapMutations } from 'vuex'
+  import { getUserInfo } from 'api/user'
+  import { getToken, setToken} from 'utils/auth'
 
 
   export default {
@@ -85,10 +87,14 @@
         showModalTel:false,
         showModalPassword:false,
         showMain:true,
-        userInfo:{}
+        userList:{},
+        newStatus:''
       };
     },
     methods: {
+      ...mapMutations([
+        'SET_USERINTO',
+      ]),
       close () {
         this.showModalContact = false
         this.showModalTel = false
@@ -104,31 +110,89 @@
         }
       },
       changeStorage(obj) {
-        // console.log("father",obj)
-        let data = JSON.stringify(obj);
-        localStorage.setItem('USER_INFO',data);
-        this.userInfo = obj;
-        // console.log("localstorage",localStorage.getItem("USER_INFO"))
-      }
+        // let data = JSON.stringify(obj);
+        // localStorage.setItem('USER_INFO',data);
+        const TokenKey = 'Admin-Token'
+        setToken(TokenKey, obj)
+        this.SET_USERINTO(obj)
+        // 将更新数据 更新到cookie和 vuex 中
+        this.userList = obj;
+      },
+      setLoading () {
+        this.loading = this.$loading({
+          lock: true,
+          text: '数据加载中...',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+    },
     },
     computed: {
   // 使用对象展开运算符将 getter 混入 computed 对象中
-    ...mapGetters([
-      'status',
-      'code'
-    ])
+      ...mapGetters([
+        'userInfo',
+      ])
   },
     activated () {
-      // console.log("localStorage",localStorage.getItem('USER_INFO'))
-      let userInfo = JSON.parse(localStorage.getItem('USER_INFO')); 
-      // console.log("USER_INFO",userInfo)
-      this.userInfo = userInfo;
-      // console.log('userInfo',this.userInfo) ;
-      // console.log("code",this.code)
-      // // 拉取信息 确定状态status字段
-      if(this.status ==='login' && this.code === '1'){
-        this.showMain = false
+      let data = {
+        "id": "7317106a-b6f6-4193-81a3-bf5b1b3aa081",
+        "login_name": "18863025806",
+        "mobile_number": "18863025806",
+        "contract_name": "天津支行",
+        "contact_name": "哇哈哈",
+        "status": "1",
+        "password": "123456",
+        "start_time": "2018-03-03 14:38:30",
+        "expired_time": "2018-03-14 00:00:00",
+        "authorities": ['admin']
+    }
+      this.SET_USERINTO(data)
+      const TokenKey = 'Admin-Token'
+      // let userList = getToken(TokenKey)
+      // console.log('userList', userList)
+      // 如果用户状态不正常的话，需要拉取用户个人信息，重新获取状态，查看是否状态变化
+      let {mobile_number, status } = this.userInfo
+      if(status !== '1') {
+        // this.newStatus = '3' //测试用
+        let data = `_loginName=${mobile_number}`
+        this.setLoading()
+         getUserInfo(data).then((res) => {
+            let result = res.data
+            if(result.code === 'ok') {
+              let data = result.data
+              this.newStatus = data.status
+              this.userList  = data.data
+              // 将最新个人数据写到cookie 中 
+              // 更新到vuex 中
+              let obj = Object.assign(data)
+              setToken(TokenKey, obj)
+              this.SET_USERINTO(obj)
+              this.loading.close()
+            }else{
+              this.loading.close()
+              this.$message({
+                message: '请稍后尝试',
+                type: 'error',
+                duration: 2* 1000
+              });
+            }
+          }).catch((err) =>{
+              this.loading.close()
+              this.$message({
+                message: '请稍后尝试',
+                type: 'error',
+                duration: 2* 1000
+              });
+          })
+      }else{
+        this.newStatus = status
+        this.userList = this.userInfo;
       }
+
+      // //拉取信息 确定状态status字段
+      // if(this.status ==='login' && this.code === '1'){
+      //   this.showMain = false
+      // }
     },
     components:{
       Tel,
