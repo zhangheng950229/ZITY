@@ -14,7 +14,7 @@
           <!-- <button class="code-btn">发送验证码</button> -->
          <captcha @click.native="getCaptcha" :countDown="countDown" @stop="stop"></captcha>
         </el-form-item>
-        <el-button type="primary"  class="info-btn" @click="goToConfirmPassword('ruleForm')">下一步</el-button>
+        <el-button type="primary"  class="info-btn" :disabled="isDisabled" :loading="loading" @click="goToConfirmPassword('ruleForm')">下一步</el-button>
       </el-form>
     </div>
     <div class="" slot="body" v-else>
@@ -25,7 +25,7 @@
        <el-form-item label="确认密码" prop="confirmPassword">
         <el-input type="password" v-model="ruleForm1.confirmPassword" placeholder="请确认密码" auto-complete="off"></el-input>
       </el-form-item>
-        <el-button type="primary" class="info-btn" @click="submitForm('ruleForm1')">完成</el-button>
+        <el-button type="primary" class="info-btn" :disabled="isDisabled" :loading="loading" @click="submitForm('ruleForm1')">完成</el-button>
     </el-form>
   </div>
   </modal>
@@ -58,9 +58,9 @@
         } else if (value.length < 8) {
           callback(new Error('请输入不少于8位的密码'));
         } else {
-          if (this.ruleForm1.confirmPassword !== '') {
-            this.$refs.ruleForm1.validateField('confirmPassword');
-          }
+          // if (this.ruleForm1.confirmPassword !== '') {
+          //   this.$refs.ruleForm1.validateField('confirmPassword');
+          // }
           callback();
         }
       };
@@ -74,25 +74,44 @@
         }
       };
       var validatePass3 = (rule, value, callback) => {
-        this.$refs.ruleForm.validateField('contact' ,message => {
-          if (message==='请输入手机号码') {
-            callback(new Error('请先输入手机号码'));
-          }else if (message==='手机号码输入不正确') {
-            callback(new Error(message));
-          }else if (this.test == "验证码错误") {
-            callback(new Error('验证码不正确，请重新输入'))
-          }else if (value==='') {
-            callback(new Error('请输入验证码'));
-          }else {
-            callback();
+          if (value==='') {
+            callback(new Error('请输入验证码'))
+          }else if(this.wrongCaptha){
+            callback(new Error('验证码错误'))
+          }else{
+            callback()
           }
-        })
+        // this.$refs.ruleForm.validateField('contact' ,message => {
+        //   if (message==='请输入手机号码') {
+        //     callback(new Error('请先输入手机号码'));
+        //   }else if (message==='手机号码输入不正确') {
+        //     callback(new Error(message));
+        //   }else if (this.test == "验证码错误") {
+        //     callback(new Error('验证码不正确，请重新输入'))
+        //   }else if (value==='') {
+        //     callback(new Error('请输入验证码'));
+        //   }else {
+        //     callback();
+        //   }
+        // })
+      };
+      var validatePass4 = (rule, value, callback) => {
+        if (this.wrongTel) {
+          callback(new Error('手机号不正确'));
+        } else if (value === "") {
+          callback(new Error('请输入手机号码'));
+        } else if(!/^1(3|4|5|6|7|8)\d{9}$/.test(value)){
+            callback(new Error('手机号码输入不正确'));
+        }else {
+          callback();
+        }
       };
       return {
         countDown:false,
         showInfo:true,
         flag:true,
         loading:false,
+        isDisabled: false,
         // isTrue: false,  // 更改手机号验证码错误
         // showPassword:false
           ruleForm: {
@@ -105,8 +124,10 @@
           },
           rules: {
             contact: [
-              { required: true,validator: validatePass0, trigger: 'blur' },
-              { pattern: /^1[34578]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur'}
+              // { required: true,validator: validatePass0, trigger: 'blur' },
+              // { pattern: /^1[345678]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur'}
+              { required: true, validator: validatePass4, trigger: 'blur' },
+
             ],
             captcha: [
               { required: true,validator: validatePass3, trigger: 'blur' }
@@ -127,30 +148,29 @@
         this.countDown = false
         this.flag = flag
       },
-      getCaptcha () {      
-        this.$refs.ruleForm.validateField('captcha' ,message => {
-          // 说明有错误字段
-          if(message ==='请输入验证码'){
-            if(this.flag){
+      getCaptcha () {
+        this.wrongTel = false
+         this.$refs.ruleForm.validateField('contact' ,message => {
+          if(!message) {
+              if(this.flag){
               this.flag = false;
               this.countDown = false;
               //在这里post短信验证码，data mobileNumber
               let data = this.ruleForm.contact  //手机号
               getCaptcha(data).then((res)=>{
+                console.log('pas res===', res)
                 // console.log("更改密码验证码请求", res)
-                if(res.data.code === 'ok'&& res.data.data==='true'){
+                if(res.data.code === 'ok'&& res.data.data){
                   // 证实后台已经发送验证码 开始倒计时
                   this.countDown = true
                 }
-                else if(res.data.code !== 'ok' && res.data.message == "手机号不正确"){
+                else if(res.data.code === 'bad request' && res.data.message == "手机号不正确"){
                   this.countDown = false;
                   this.flag = true;
-                  this.$message({
-                    message: "手机号不正确",
-                    type: 'error',
-                    duration: 3 * 1000
-                  });
-                  alert("手机号不正确");
+                  this.wrongTel = true
+                  this.$refs.ruleForm.validateField('contact' ,message => {
+
+                  })
                 }
                 else{
                   this.countDown = false;
@@ -164,22 +184,70 @@
               })
             }
           }
-        })
+         })
+        // this.$refs.ruleForm.validateField('captcha' ,message => {
+        //   // 说明有错误字段
+        //   if(message ==='请输入验证码'){
+        //     if(this.flag){
+        //       this.flag = false;
+        //       this.countDown = false;
+        //       //在这里post短信验证码，data mobileNumber
+        //       let data = this.ruleForm.contact  //手机号
+        //       getCaptcha(data).then((res)=>{
+        //         console.log('pas res===', res)
+        //         // console.log("更改密码验证码请求", res)
+        //         if(res.data.code === 'ok'&& res.data.data){
+        //           // 证实后台已经发送验证码 开始倒计时
+        //           this.countDown = true
+        //         }
+        //         else if(res.data.code === 'bad request' && res.data.message == "手机号不正确"){
+        //           this.countDown = false;
+        //           this.flag = true;
+        //           // this.$message({
+        //           //   message: "手机号不正确",
+        //           //   type: 'error',
+        //           //   duration: 3 * 1000
+        //           // });
+        //           this.wrongTel = true
+        //           this.$refs.ruleForm.validateField('contact' ,message => {
+
+        //           })
+        //         }
+        //         else{
+        //           this.countDown = false;
+        //           this.flag = true;
+        //           this.$message({
+        //             message: '系统维护请稍后尝试',
+        //             type: 'error',
+        //             duration: 3 * 1000
+        //           });
+        //         }
+        //       })
+        //     }
+        //   }
+        // })
       },
       goToConfirmPassword(formName) {
+        this.wrongCaptha = false
         let data = "phoneNumber="+this.ruleForm.contact+"&verCode="+this.ruleForm.captcha;
-        this.test = "";
         this.$refs[formName].validate((valid) => {
           if(valid) {
+          this.loading = true
+          this.isDisabled = true
             checkSMSCode(data).then((res) => {   // 验证手机号验证码是否正确请求
-              if(res.data.data === true && res.data.code=== "ok"){   //验证码正确
-                // alert(111)
+              if(res.data.data && res.data.code=== "ok"){   //验证码正确
                 this.showInfo = false;
                 this.$refs[formName].resetFields();
               } else {  // 验证码错误
-                alert("验证码错误")
-                this.test = "验证码错误";
+                this.wrongCaptha = true
+                this.$refs.ruleForm.validateField('captcha' ,message => {
+                  })
               }
+              this.isDisabled = false
+              this.loading = false
+            }).catch(()=>{
+              this.isDisabled = false
+              this.loading = false
             })
           }
         })
@@ -192,12 +260,10 @@
       },
       submitForm(formName) {
         // this.$router.push({ path: '/create-project/index' })
-        
         this.$refs[formName].validate(valid => {
-          
           if (valid) {
-            this.countDown = false;
             this.loading = true;
+            this.isDisabled = true
             //md5密码加密
             let init = setPassMd5(['password,confirmPassword'], this.ruleForm1)
 
@@ -206,18 +272,21 @@
             // let data = "password=" +this.ruleForm1.password+"&confirmPassword="+this.ruleForm1.confirmPassword+"&id="+this.INFO.id;
             updatePassword(data).then((res) =>{
               // 重新获取一遍用户数据 
-            
+               console.log('更改数据密码',res.data.data)
               if(res.data.code === 'ok'){
                 // 通知父组件更改localstorage
+                this.countDown = false;
                 this.$emit("change_INFO",res.data.data)
                 this.loading = false;
+                this.isDisabled = false
                 this.close();
               }else{
                 this.loading = false
-                alert(222)
+                this.isDisabled = false
               }
             }).catch(() =>{
               this.loading = false
+              this.isDisabled = false
             })
           } else {
             console.log('error submit!!')

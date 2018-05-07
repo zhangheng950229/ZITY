@@ -65,7 +65,6 @@
 
 <script>
 import { fetchInfoList } from 'api/manage_activity'
-// import { parseTime } from '@/utils'
 
 export default {
   name: 'exportExcel',
@@ -88,7 +87,6 @@ export default {
       this.listLoading = true;
       let data = this.templateId;
       fetchInfoList(data).then(res => {
-        console.log('templateRES', res.data.list)
         this.list = res.data.list
         this.listLoading = false
       }).catch(()=>{

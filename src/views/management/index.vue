@@ -141,16 +141,18 @@
         //（根据后台接口）
         //根据携带的 templateNo获得需要跳转的路由，根据路由的query  created 函数获取数据
         // console.log("item",item)
-        let templateNo = item.templateNo
-        let type
-        if(templateNo==='123456'){
-          type='slyder'
-        }else if(templateNo==='234567'){
-          type='envelope'
-        }
-        let ID = item.id;
+        console.log('bianji ', item)
+        // let templateNo = item.templateNo
+        // let type
+        // if(templateNo==='123456'){
+        //   type='slyder'
+        // }else if(templateNo==='234567'){
+        //   type='envelope'
+        // }
+        // let ID = item.id;
         // this.$router.push({ path: `/create-project/envelope/234567?id=${item.id}`,})
-        this.$router.push({ path: `/create-project/${type}/${templateNo}?id=${ID}` })
+        let {templateCode, templateNo, id} = item
+        this.$router.push({ path: `/create-project/${templateCode}/${templateNo}?id=${id}` })
       },
       changeStatus (val) {
         let result
@@ -207,7 +209,7 @@
         this.showModal = false
       },
       openDialog (item) {
-        // console.log('ite', item)
+        console.log('ite', item)
         this.showModal = true
         this.currentActivity  = item
       },
@@ -258,7 +260,6 @@
     activated () {
       // 获取活动审核 待审核列表
       if(!this.pass){
-        // console.log(1111)
         this.activityManageList()
       }else{
         this.setPass(false)

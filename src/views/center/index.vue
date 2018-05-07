@@ -60,6 +60,13 @@
       <password v-show="showModalPassword" @close="close" :INFO='userList' @change_INFO="changeStorage"></password>
     </div>
   </div>
+  <div class="container" v-if="newStatus === '2'">
+    <div class='circle-warning'>
+        <img src="../../../static/images/warning.png" alt="">
+        <p>您账户已经暂停，请尽快联系管理员!</p>
+        <span>请您尽快联系管理员以免耽误您的工作</span>
+    </div>
+  </div>
   <div class="container" v-if="newStatus === '3'">
     <div class='circle-warning'>
         <img src="../../../static/images/warning.png" alt="">
@@ -112,11 +119,19 @@
       changeStorage(obj) {
         // let data = JSON.stringify(obj);
         // localStorage.setItem('USER_INFO',data);
-        const TokenKey = 'Admin-Token'
-        setToken(TokenKey, obj)
-        this.SET_USERINTO(obj)
+        // let newobj = Object.assign(obj, this.userInfo)
+        let middObj = Object.assign({}, this.userInfo)
+        let newobj = Object.assign({}, obj)
+        newobj.authorities = middObj.authorities
+        newobj.isLogin = middObj.isLogin
+        // console.log('mi', middObj)
+        // console.log('obj', obj)
+        // console.log('newobj', newobj)
+        // const TokenKey = 'Admin-Token'
+        setToken(newobj)
+        this.SET_USERINTO(newobj)
         // 将更新数据 更新到cookie和 vuex 中
-        this.userList = obj;
+          this.userList = newobj;
       },
       setLoading () {
         this.loading = this.$loading({
@@ -132,40 +147,29 @@
       ...mapGetters([
         'userInfo',
       ])
-  },
+    },
     activated () {
-      let data = {
-        "id": "7317106a-b6f6-4193-81a3-bf5b1b3aa081",
-        "login_name": "18863025806",
-        "mobile_number": "18863025806",
-        "contract_name": "天津支行",
-        "contact_name": "哇哈哈",
-        "status": "1",
-        "password": "123456",
-        "start_time": "2018-03-03 14:38:30",
-        "expired_time": "2018-03-14 00:00:00",
-        "authorities": ['admin']
-    }
-      this.SET_USERINTO(data)
-      const TokenKey = 'Admin-Token'
-      // let userList = getToken(TokenKey)
-      // console.log('userList', userList)
       // 如果用户状态不正常的话，需要拉取用户个人信息，重新获取状态，查看是否状态变化
+      const TokenKey = 'Admin-Token'
       let {mobile_number, status } = this.userInfo
       if(status !== '1') {
         // this.newStatus = '3' //测试用
         let data = `_loginName=${mobile_number}`
         this.setLoading()
-         getUserInfo(data).then((res) => {
+        getUserInfo(data).then((res) => {
             let result = res.data
             if(result.code === 'ok') {
+              console.log('res大袋的等', res)
               let data = result.data
               this.newStatus = data.status
-              this.userList  = data.data
+              this.userList  = data
+              // 最新拉取的authorities 字段需要处理，用之前的
               // 将最新个人数据写到cookie 中 
               // 更新到vuex 中
-              let obj = Object.assign(data)
-              setToken(TokenKey, obj)
+              let obj = Object.assign(data, this.userInfo)
+              // console.log('userInfo',this.userInfo)
+              // console.log('newobj',obj)
+              setToken(obj)
               this.SET_USERINTO(obj)
               this.loading.close()
             }else{
@@ -188,7 +192,6 @@
         this.newStatus = status
         this.userList = this.userInfo;
       }
-
       // //拉取信息 确定状态status字段
       // if(this.status ==='login' && this.code === '1'){
       //   this.showMain = false

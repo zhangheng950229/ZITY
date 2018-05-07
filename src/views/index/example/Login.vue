@@ -56,6 +56,26 @@
       //     }
       //   })
       // };
+      var validatePass = (rule, value, callback) => {
+        if (this.telNoRegister) {
+          callback(new Error('手机号未注册'));
+        } else if (value === "") {
+          callback(new Error('请输入手机号码'));
+        } else if(!/^1(3|4|5|6|7|8)\d{9}$/.test(value)){
+            callback(new Error('手机号码输入不正确'));
+        }else {
+          callback();
+        }
+      };
+      var validatePass1 = (rule, value, callback) => {
+        if (this.wrongPass) {
+          callback(new Error('密码错误'));
+        } else if (value === "") {
+          callback(new Error('请输入密码'));
+        } else {
+          callback();
+        }
+      };
       return {
           isDisabled:false,
           countDown:false,
@@ -70,11 +90,12 @@
           },
           rules: {
             _loginName: [
-              { required: true, message: '请输入手机号码', trigger: 'blur' },
-              { pattern: /^1[345678]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur'}
+              // { required: true, message: '请输入手机号码', trigger: 'blur' },
+              // { pattern: /^1[345678]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur'}
+              { required: true, validator: validatePass, trigger: 'blur' },
             ],
             _password: [
-              { required: true,message: '请输入密码', trigger: 'blur' }
+              { required: true,validator: validatePass1,  trigger: 'blur' }
             ],
             // _verCode: [
             //   { required: true, validator: validatePass3, trigger: 'blur' },
@@ -90,37 +111,9 @@
         this.countDown = false
         this.flag = flag
       },
-      // getCaptcha () {
-      //   //判断是否已经填入验证码 才向后台请求
-      //   // 对表单验证码字段进行验证
-      //   this.$refs.ruleForm.validateField('_verCode' ,message => {
-      //     // 说明有错误字段
-      //     if(message ==='请输入验证码'){
-      //       if(this.flag){
-      //         this.flag = false
-      //         this.countDown = true  //验证码倒计时
-      //         //在这里post短信验证码，data mobileNumber
-      //         let data = this.ruleForm._loginName
-      //         // let data = qs.stringify(phoneNum)
-      //         getCaptcha(data).then((res)=>{
-      //           if(res.data && res.data.code==='ok'){
-      //             // 证实后台已经发送验证码 开始倒计时
-      //           }else{
-      //             this.$message({
-      //               message: '请稍后尝试',
-      //               type: 'error',
-      //               duration: 2* 1000
-      //             });
-      //             this.flag = true;
-      //             this.countDown = false;
-      //           }
-      //         })
-      //       }
-      //     }
-      //   })
-      // },
       submitForm(formName) {
-
+        this.telNoRegister = false
+        this.wrongPass = false
         this.$refs.ruleForm.validate(valid => {
           if (valid) {
             //验证码倒数 取消
@@ -128,35 +121,26 @@
             this.loading = true
             this.isDisabled = true
             // md5对密码加密
-            // let pass = md5(this.ruleForm._password)
-            // let init = {
-            //   _loginName:this.ruleForm._loginName,
-            //   _password:pass
-            // }
             let init = setPassMd5(['_password'], this.ruleForm)
-            // this.ruleForm._password = md5(this.ruleForm._password)
-            // let init = this.ruleForm
+            // init._verCode = '111111'
             let data = qs.stringify(init) //测试不用
           this.$store.dispatch('LoginByUsername', data).then((res) => {
               let code = res.data.code
               let message = res.data.message
               if(code === 'ok'){
                   this.$router.push({ path: '/create-project' });
-              } else if(code != "ok" && message==='手机号未注册') {
-                this.$message({
-                  message: '手机号未注册',
-                  type: 'error',
-                  duration: 4* 1000
-                });
-                this.isDisabled = false;
-              } else {
-                this.$message({
-                  message: '密码错误',
-                  type: 'error',
-                  duration: 2* 1000
-                });
-                this.isDisabled = true;
-                this.loading = false
+              } else if(code = "bad request" && message==='手机号未注册') {
+                this.telNoRegister = true
+                this.$refs.ruleForm.validateField('_loginName' ,message => {
+
+                })
+                // this.isDisabled = false;
+              } else if(code = "unauthorized" && message==='认证失败'){
+                this.wrongPass = true
+                 this.$refs.ruleForm.validateField('_password' ,message => {
+                  })
+                // this.isDisabled = true;
+                // this.loading = false
               }
               this.isDisabled = false
               this.loading = false

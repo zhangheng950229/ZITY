@@ -16,7 +16,7 @@
         <el-input class="captcha" v-model="ruleForm.captcha" placeholder="请确认验证码"></el-input>
         <captcha @click.native="getCaptcha" :countDown="countDown" @stop="stop"></captcha>
       </el-form-item> -->
-        <el-button type="primary" class="info-btn" :loading="loading" @click="submitForm">确认</el-button>
+        <el-button type="primary" class="info-btn" :disabled="isDisabled" :loading="loading" @click="submitForm">确认</el-button>
     </el-form>
   </div>
   </modal>
@@ -38,6 +38,7 @@
           // countDown:false,
           flag:true,
           loading:false,
+          isDisabled:false,
           ruleForm: {
             name: '',
             // captcha: ''
@@ -114,22 +115,25 @@
           if (valid) {
             // this.countDown = false
             this.loading = true
+            this.isDisabled = true
 
             let init = this.ruleForm
             let data = "contactName=" + init.name + "&id=" + this.INFO.id
-            
             updateContact(data).then((res) =>{
               // 重新获取一遍用户数据
-              let data = res.data;
-              if(data.code === 'ok'){
+              let resData = res.data;
+              if(resData.code === 'ok'){
                 this.loading = false;
+                this.isDisabled = false
                 this.close();
-                this.$emit("change_INFO",data.data)
+                this.$emit("change_INFO",resData.data)
               }else{
                 this.loading = false
+                this.isDisabled = false
               }
             }).catch(() =>{
               this.loading = false
+              this.isDisabled = false
             })
           } else {
             console.log('error submit!!')

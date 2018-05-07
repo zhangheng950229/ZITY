@@ -1,4 +1,5 @@
 <template>
+<div>
   <header class="navbar">
     <div class="fl">
         <a href="/#/login"><img id="background" src="../../../common/images/logo.png"></a>
@@ -7,7 +8,9 @@
       <span class="client-name"><svg-icon style="color:#1aadf0" :icon-class="iconName.user"></svg-icon><i>{{name}}</i></span>
       <span @click="logOut" class="client-out"><svg-icon style="color:#ccc" :icon-class="iconName.tuichu"></svg-icon><i>退出</i></span>
     </div>
-    <modal v-if="isPublish">
+    
+  </header>
+  <modal v-if="isPublish">
        <div slot="header">
         <span class="fl">提示</span>
         <span class="fr cursor" @click="close"><i class="el-icon-close"></i></span>
@@ -20,7 +23,7 @@
         </div>
       </div>
     </modal>
-  </header>
+</div>
   
 </template>
 <script>
@@ -39,6 +42,14 @@ export default {
       name:'',
       isPublish:false,
       loading: false,
+    }
+  },
+  watch: {
+    userInfo: function(val, oldVal) {
+      // 名称改变
+     if(val.contact_name !== oldVal.contact_name) {
+        this.name = val.contact_name
+     }
     }
   },
   computed: {
@@ -80,7 +91,9 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
-.fl,.confirm{
+@import "~common/stylus/modal"
+
+.fl{
   color : #666666;
 }
 .navbar

@@ -1,17 +1,17 @@
 <template>
   <modal :styleObject="styleObject">
-    <div slot="header"></div>
+    <!-- <div slot="header"></div> -->
     <div slot="body" class="index-dialog" v-if="showMainPop">
         <span class="close-icon" @click="close">
           <i class="el-icon-close"></i>
         </span>
       <div class="index-tep">
         <div class="index-img">
-          <img class="item-img" :src="'/static/images/' + Num + '-scan.jpg' ">
+          <img class="item-img" :src="'/static/images/' + (detail? list.templateCode :list.template_name) + '-scan.jpg' ">
           <img class="arrow" src="/static/images/arrow.jpg ">
         </div>
         <div class="qrcode-wrapper">
-          <div class="index-title">活动名称：{{detail ? list.activityName : list.text}}</div>
+          <div class="index-title">活动名称：{{detail ? list.activityName : list.template_label}}</div>
           <div class="qrcode">
             <qrcode
               :value="qrcode.val"
@@ -20,7 +20,7 @@
             <div class="qrcode-text">微信扫一扫体验活动</div>
           </div>
           <div v-if="!hasCreated">
-            <el-button  id="create-btn" type="primary" @click='createProject'>创建活动</el-button>
+            <el-button  id="create-btn" type="primary" :loading="loading" @click='createProject'>创建活动</el-button>
           </div>
         </div>
         <div v-if="hasCreated" class="url-item">
@@ -48,6 +48,7 @@
   import { mapGetters,mapMutations} from 'vuex'
   import Qrcode from '@xkeshi/vue-qrcode';
   import { getToken, setToken} from 'utils/auth'
+  import {getUserInfo} from 'api/user'
 
 
   export default {
@@ -78,6 +79,7 @@
         codeStr:'',
         list:[],
         detail:false,
+        loading:false
       }
     },
     computed: {
@@ -88,15 +90,7 @@
         // 'code',
         // 'start_time',
         'userInfo'
-      ]),
-      Num () {    // 线下测试用的计算属性
-        // return this.currentActivity.templateNo
-        if(this.currentActivity.num == "01" && this.currentActivity.templateNo == "123456") {
-          return "01"
-        } else {
-          return "02"
-        }
-      }
+      ])
     },
     methods:{
       ...mapMutations([
@@ -114,37 +108,65 @@
       createProject () {
         // 判断用户是否已经登录，未登录，弹窗提示登录
         // 首页未注册时候
+        this.showCodePop = false
+        this.showLoginPop = false
         const TokenKey = 'Admin-Token'
         // let userInfo = getToken(TokenKey)
         let userList = this.userInfo
         let {isLogin, status, mobile_number} = userList
-        this.showMainPop = false;
-        
+          console.log('isLogin', isLogin)
         if(isLogin !== 'login'){ // 没有登陆的状态
-          this.showCodePop = false
           this.showLoginPop = true
+          this.showMainPop = false
         }
         if(isLogin=== 'login'){
-          this.showLoginPop = false
           // 判断是否是正常状态
           if(status !== '1') {
-            let data = `_{loginName=${mobile_number}`
-            this.setLoading()
+            let data = `_loginName=${mobile_number}`
+            this.loading = true
             getUserInfo(data).then((res) => {
                 let result = res.data
                 if(result.code === 'ok') {
                   let data = result.data
-                  this.newStatus = data.status
-                  // this.userList  = data.data
-                  userList = data.data
+                  userList = data
+                  let {status, start_time} = userList
+                  let _ST = start_time;
+                  let d = new Date();
+                  if(_ST > d) { // 不在用户有效时间内,用户有效期时间没有到
+                    this.codeStr = "您未在有效期时间，请联系管理员";
+                    this.showCodePop = true;
+                    this.showMainPop = false
+                  }
+                  if(status==='0') {//审核中
+                    this.codeStr = '您的账户未经管理员审核，请审核后进行操作'
+                    this.showCodePop = true
+                    this.showMainPop = false
+                  }else if(status==='2'){  // 禁用
+                    this.codeStr = '您账户已被禁用，请联系管理员'
+                    this.showCodePop = true
+                    this.showMainPop = false
+                  }else if(status==='3'){  //您的账户未经管理员通过，请联系管理员   // 未通过
+                    this.codeStr = '您的账户审核未通过，请尽快联系管理员'
+                    this.showCodePop = true
+                    this.showMainPop = false
+                  } else if(status ==='1'){
+                    this.showCodePop = false
+                    this.codeStr = '正常'
+                    let name = this.currentLotteryItem.template_name
+                    let templateNo = this.currentLotteryItem.template_no
+                    if(name){
+                      this.$router.push({ path: `/create-project/${name}/${templateNo}`,})
+                    }
+                    this.close()
+                  }
+                  this.loading = false
                   // 将最新个人数据写到cookie 中 
                   // 更新到vuex 中
-                  let obj = Object.assign(data)
-                  setToken(TokenKey, obj)
+                  let obj = Object.assign(data, this.userInfo)
+                  setToken(obj)
                   this.SET_USERINTO(obj)
-                  this.loading.close()
                 }else{
-                  this.loading.close()
+                  this.loading = false
                   this.$message({
                     message: '请稍后尝试',
                     type: 'error',
@@ -152,7 +174,7 @@
                   });
                 }
               }).catch((err) =>{
-                  this.loading.close()
+                  this.loading = false
                   this.$message({
                     message: '请稍后尝试',
                     type: 'error',
@@ -160,56 +182,63 @@
                   });
               })
           }else{
-            // this.newStatus = status
-            // this.userList = this.userInfo;
+                this.codeStr = '正常'
+                let name = this.currentLotteryItem.template_name
+                let templateNo = this.currentLotteryItem.template_no
+                if(name){
+                  this.$router.push({ path: `/create-project/${name}/${templateNo}`,})
+                }
+                this.close()
           }
-      //
-          // let code = this.code
-          let {newStatus, newStart_time} = userList
-          let _ST = newStart_time;
-          let d = new Date();
-          if(_ST > d) { // 不在用户有效时间内,用户有效期时间没有到
-            this.codeStr = "您未在有效期时间，请联系管理员";
-            this.showCodePop = true;
-          }
-          // console.log(this.start_time)
-          if(newStatus==='0') {//审核中
-            this.codeStr = '您的账户未经管理员审核，请审核后进行操作'
-            this.showCodePop = true
-          }else if(newStatus==='2'){  // 禁用
-            this.codeStr = '您账户已被禁用，请联系管理员'
-            this.showCodePop = true
-          }else if(newStatus==='3'){  //您的账户未经管理员通过，请联系管理员   // 未通过
-            this.codeStr = '您的账户审核未通过，请尽快联系管理员'
-            this.showCodePop = true
-          } else{
-            this.showCodePop = false
-            this.codeStr = '正常'
-            let name = this.currentLotteryItem.type
-            let templateNo = this.currentLotteryItem.templateNo
-            if(name){
-              this.$router.push({ path: `/create-project/${name}/${templateNo}`,})
-            }
-            this.close()
-          }
+            // let {status, start_time} = userList
+            // let _ST = start_time;
+            // let d = new Date();
+            // if(_ST > d) { // 不在用户有效时间内,用户有效期时间没有到
+            //   this.codeStr = "您未在有效期时间，请联系管理员";
+            //   this.showCodePop = true;
+            // }
+            // if(status==='0') {//审核中
+            //   console.log('hh')
+            //   this.codeStr = '您的账户未经管理员审核，请审核后进行操作'
+            //   this.showCodePop = true
+            // }else if(status==='2'){  // 禁用
+            //   this.codeStr = '您账户已被禁用，请联系管理员'
+            //   this.showCodePop = true
+            // }else if(status==='3'){  //您的账户未经管理员通过，请联系管理员   // 未通过
+            //   this.codeStr = '您的账户审核未通过，请尽快联系管理员'
+            //   this.showCodePop = true
+            // } else{
+            //   this.showCodePop = false
+            //   this.codeStr = '正常'
+            //   let name = this.currentLotteryItem.template_name
+            //   console.log('nr', status)
+            //   let templateNo = this.currentLotteryItem.template_no
+            //   if(name){
+            //     this.$router.push({ path: `/create-project/${name}/${templateNo}`,})
+            //   }
+            //   this.close()
+            // }
         }
       }
     },
     created () {
-      console.log(1)
-      // console.log("dailog",this.currentActivity)
-      if(this.currentActivity.url){
+      // console.log('uuu', this.currentActivity)
+      // console.log('uuu=====', this.currentLotteryItem)
+      // 预览已经创建的活动
+      if(this.hasCreated){
         this.detail = true
         this.list = this.currentActivity
         this.qrcode.val = this.list.url
       }else{
         this.list = this.currentLotteryItem
+        this.qrcode.val = this.list.category_path
       }
+      console.log('lis', this.list)
       // console.log('dailog-list',this.list)
       // 拉取用户信息 判断当前的code 代码
-      if(this.code !==1){
-        // 获取用户信息
-      }
+      // if(this.code !==1){
+      //   // 获取用户信息
+      // }
     },
     activated () {
     },

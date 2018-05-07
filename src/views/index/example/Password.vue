@@ -33,7 +33,7 @@
         <button class="code-btn">发送验证码</button>
       </el-form-item> -->
       <el-form-item class="import-btn">
-        <el-button type="primary"  class="info-btn" @click="goToConfirmPassword('ruleForm')">下一步</el-button>
+        <el-button type="primary"  class="info-btn" :disabled="isDisabled" :loading="loading" @click="goToConfirmPassword('ruleForm')">下一步</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -45,7 +45,7 @@
        <el-form-item label="确认密码" prop="confirmPassword">
         <el-input type="password" v-model="ruleForm1.confirmPassword" placeholder="请确认密码" auto-complete="off"></el-input>
       </el-form-item>
-        <el-button type="primary" class="info-btn" :loading="loading" @click="submitForm('ruleForm1')">完成</el-button>
+        <el-button type="primary" class="info-btn" :disabled="isDisabled" :loading="loading" @click="submitForm('ruleForm1')">完成</el-button>
     </el-form>
   </div>
 <!--   <div slot="footer" class="next">
@@ -62,6 +62,8 @@
   import {getCaptchaForget,surePassword} from 'api/login'
   import {checkSMSCode} from "api/user"
   import {setPassMd5} from 'utils/help'
+  import qs from 'qs'
+
   export default {
     data () {
       var validatePass = (rule, value, callback) => {
@@ -70,9 +72,9 @@
         } else if(value.length < 8) {
           callback(new Error('请输入不少于8位的密码'));
         } else {
-          if (this.ruleForm1.confirmPassword !== '') {
-            this.$refs.ruleForm1.validateField('confirmPassword');
-          }
+          // if (this.ruleForm1.confirmPassword !== '') {
+          //   this.$refs.ruleForm1.validateField('confirmPassword');
+          // }
           callback();
         }
       };
@@ -85,26 +87,41 @@
           callback();
         }
       };
-      var validatePass3 = (rule, value, callback) => {
-        this.$refs.ruleForm.validateField('tel' ,message => {
-          if (message==='请输入手机号码') {
-            callback(new Error('请先输入手机号码'));
-          }else if (message==='手机号码输入不正确') {
-            callback(new Error(message));
-          }else if (value==='') {
-            callback(new Error('请输入验证码'))
-          }else if (this.test === "验证码错误") {
-            callback(new Error('验证码错误,请重新输入'))
-          }else {
-            callback();
+      var validatePass1 = (rule, value, callback) => {
+        if (value==='') {
+            callback(new Error('请输入联系人'))
+          }else if(this.wrongContact){
+            callback(new Error('联系人姓名不正确'))
+          }else{
+            callback()
           }
-        })
+      };
+      var validatePass3 = (rule, value, callback) => {
+        if (value==='') {
+            callback(new Error('请输入验证码'))
+          }else if(this.wrongCaptha){
+            callback(new Error('验证码错误'))
+          }else{
+            callback()
+          }
+      };
+      var validatePass4 = (rule, value, callback) => {
+        if (this.wrongTel) {
+          callback(new Error('手机号不正确'));
+        } else if (value === "") {
+          callback(new Error('请输入手机号码'));
+        } else if(!/^1(3|4|5|6|7|8)\d{9}$/.test(value)){
+            callback(new Error('手机号码输入不正确'));
+        }else {
+          callback();
+        }
       };
       return {
         countDown:false,
         showInfo:true,
         flag:true,
         loading:false,
+        isDisabled: false,
         mobileNumber:"",
         // showPassword:false
           ruleForm: {
@@ -118,11 +135,14 @@
           },
           rules: {
             contact: [
-              { required: true, message: '请输入联系人', trigger: 'blur' },
+              // { required: true, message: '请输入联系人', trigger: 'blur' },
+              { required: true, validator: validatePass1, trigger: 'blur' },
+
             ],
             tel: [
-              { required: true, message: '请输入手机号码', trigger: 'blur' },
-              { pattern: /^1[345678]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur' }
+              // { required: true, message: '请输入手机号码', trigger: 'blur' },
+              // { pattern: /^1[345678]\d{9}$/, message: '手机号码输入不正确',trigger: 'blur' }
+              { required: true, validator: validatePass4, trigger: 'blur' },
             ],
             captcha: [
               { required: true, validator: validatePass3, trigger: 'blur' },
@@ -144,67 +164,89 @@
         this.flag = flag
       },
       getCaptcha () {
-        this.$refs.ruleForm.validateField('captcha' ,message => {
-          if(message === '请输入验证码'){
-            if(this.flag){
-              this.flag = false
-              this.countDown = false
-              //在这里post短信验证码，data mobileNumber
-              // console.log(this.ruleForm.tel);
-              let data = "phoneNumber=" +this.ruleForm.tel+"&contactName="+this.ruleForm.contact
-              // console.log(data);
-              getCaptchaForget(data).then((res)=>{
-                // console.log(res);
-                if(res.data && res.data.code==='ok'){
-                  // 证实后台已经发送验证码 开始倒计时
-                  this.countDown = true;
-                  this.mobileNumber = this.ruleForm.tel;
-                }else if(res.data.code != 'ok'){  // 手机号码不正确
-                  this.countDown = false;
-                  // this.test = "手机号不正确";
-                  // this.message == "手机号不正确";
-                  this.countDown = true;
-                  this.$message({
-                    message: '手机号不正确',
-                    type: 'error',
-                    duration: 2* 1000
-                  });
-                }else{
-                  this.countDown = false
-                  this.$message({
-                    message: '请稍后尝试',
-                    type: 'error',
-                    duration: 2* 1000
-                  });
+        this.wrongTel = false
+        this.wrongContact = false
+        this.$refs.ruleForm.validateField('tel' ,message => {
+          if(!message) {
+              this.$refs.ruleForm.validateField('contact' ,message1 => {
+                if(!message1){
+                  if(this.flag){
+                    this.flag = false
+                    this.countDown = false
+                    //在这里post短信验证码，data mobileNumber
+                    // console.log(this.ruleForm.tel);
+                    let data = "phoneNumber=" +this.ruleForm.tel+"&contactName="+this.ruleForm.contact
+                    // console.log(data);
+                    getCaptchaForget(data).then((res)=>{
+                      console.log('yanzheng', res);
+                      if(res.data && res.data.code==='ok'){
+                        // 证实后台已经发送验证码 开始倒计时
+                        this.countDown = true;
+                        this.mobileNumber = this.ruleForm.tel;
+                      }else if(res.data.code != 'ok' && res.data.message==='手机号不正确'){  // 手机号码不正确
+                        this.countDown = false;
+                        // this.test = "手机号不正确";
+                        // this.message == "手机号不正确";
+                        this.flag = true;
+                        this.wrongTel = true
+                        this.$refs.ruleForm.validateField('tel' ,message1 => {
+
+                        })
+                      }
+                      else if(res.data.code != 'ok' && res.data.message==='联系人姓名不正确'){
+                        // 手机号码不正确
+                        this.countDown = false;
+                        // this.test = "手机号不正确";
+                        // this.message == "手机号不正确";
+                        this.flag = true;
+                        this.wrongContact = true
+                        this.$refs.ruleForm.validateField('contact' ,message2 => {
+
+                        })
+                      }
+                      else{
+                        this.flag = true;
+                        this.countDown = false
+                        this.$message({
+                          message: '请稍后尝试',
+                          type: 'error',
+                          duration: 2* 1000
+                        });
+                      }
+                    })
+                  }
                 }
               })
-            }
           }
         })
       },
       goToConfirmPassword(formName) {
+        this.wrongCaptha = false
         this.$refs[formName].validate((valid) => {
-          this.test = ""
           if (valid) {
-            let init = setPassMd5(['tel'], this.ruleForm);
-
+            // let init = setPassMd5(['tel'], this.ruleForm);
+            this.loading = true
+            // 按钮禁止，防止重复提交
+            this.isDisabled = true
+            let init = this.ruleForm
             let data = "phoneNumber=" +init.tel+"&verCode="+init.captcha;
-            console.log('ruleForm',this.ruleForm)
-            console.log('wangj',init)
             // let data = "phoneNumber=" +this.ruleForm.tel+"&verCode="+this.ruleForm.captcha;
             checkSMSCode(data).then((res) => {   // 验证手机号验证码是否正确请求
+              console.log('pass', res)
               // console.log(res);
               if(res.data.data === true && res.data.code=== "ok"){   //验证码正确
                 this.showInfo = false;
                 this.$refs[formName].resetFields();
-              } else {  // 验证码错误
-                this.test = "验证码错误";
-                this.$message({
-                    message: '验证码错误',
-                    type: 'error',
-                    duration: 2* 1000
-                  });
+              } else if(res.data.message ==='验证码错误'){  // 验证码错误
+                this.wrongCaptha = true
+                this.$refs.ruleForm.validateField('captcha' ,message => {
+                })
               }
+              this.loading = false
+              this.isDisabled = false
+            }).catch((err) => {
+              this.isDisabled = false
+              this.loading = false
             })
           } else {
             console.log('error submit!!');
@@ -218,18 +260,26 @@
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.countDown = false
             this.loading = true
             // 按钮禁止，防止重复提交
-            this.isDisabled = true;
+            this.isDisabled = true
 
-            let data = "mobileNumber=" + this.mobileNumber + "&password="+this.ruleForm1.password+"&confirmPassword=" + this.ruleForm1.confirmPassword;
+            let newForm = {
+              mobileNumber:this.mobileNumber,
+              password:this.ruleForm1.password,
+              confirmPassword:this.ruleForm1.confirmPassword
+            }
+            let init = setPassMd5(['password','confirmPassword'], newForm);
+            let data = qs.stringify(init)
+
+            // let data = "mobileNumber=" + this.mobileNumber + "&password="+this.ruleForm1.password+"&confirmPassword=" + this.ruleForm1.confirmPassword;
 
             surePassword(data).then((res) => {
               // console.log('regis res', res)
               let data = res.data
               let message = res.data.message
               if(data.code === 'ok') {
+                this.countDown = false
                 // this.$store.dispatch('SignUp')
                 // this.$notify({
                 //   title: '成功',
@@ -243,11 +293,15 @@
                 this.$emit('signUpSuccess')
               }
               else if(message==='验证码错误'){
-                this.$message({
-                  message: '验证码错误',
-                  type: 'error',
-                  duration: 2* 1000
-                });
+                // this.
+                //  this.$refs.ruleForm.validateField('contact' ,message => {
+
+                //  })
+                // this.$message({
+                //   message: '验证码错误',
+                //   type: 'error',
+                //   duration: 2* 1000
+                // });
                 // 把提交按钮放开
                 this.isDisabled = true;
               }else{
@@ -257,8 +311,9 @@
                   duration: 2* 1000
                 });
                 // 把提交按钮放开
-                this.isDisabled = true;
               }
+              this.isDisabled = false
+              this.loading = false
             })
             this.isDisabled = false
             this.loading = false

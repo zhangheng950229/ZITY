@@ -11,7 +11,7 @@
       <div v-show="this.$route.meta.type == 'slyder' ? activeName==='second' : ''" class="rule-area">
         <ul class="lottery-area">
           <li v-for="(item,index) in lotteryList" v-show="item.price && item.category" :key=index>
-            <p class="lottery-deno"><span>{{item.price}}</span></p><p class="lottery-category">{{item.category}}</p>
+            <p class="lottery-deno"><span>{{item.price && item.price.value}}</span></p><p class="lottery-category">{{item.category}}</p>
           </li>
         </ul>
       </div>
@@ -74,7 +74,8 @@
               </div>
           </el-tab-pane>
           <el-tab-pane label="奖项设置" name="third" class="mytag">
-            <el-button v-show="autoDefinie" @click="addLottery">添加</el-button>
+      <!--       <el-button v-show="autoDefinie" @click="addLottery"><el-tag type="danger">添加</el-tag></el-button> -->
+          <el-tag  v-show="autoDefinie" @click="addLottery" class="zitag" style="padding: 0 20px">添加</el-tag>
             <table id="six-table">
                 <tr class="tr-head">
                   <th v-show="autoDefinie">操作</th>
@@ -87,7 +88,7 @@
                 </tr>
                 <tr v-for="(item,index) in ruleForm.prizeSettings" :key="index" @click="setPosition(index,item.name)">
                   <td class="spc-width-select" v-if="autoDefinie" @click="deleteLottery(index)">
-                  {{index===0 ? '' : '删除'}}
+                  <el-tag type="danger" class="zitag">删除</el-tag>
                   </td>
                   <td class="spc-width-select">
                     <el-input 
@@ -116,7 +117,7 @@
                     </el-select>
                   </td>
                   <td class="spc-width">
-                  <el-select :disabled="item['category'] ? false : true" v-show="item.name!=='谢谢参与'" v-model="item['price']" placeholder="请选择" @change="change1">
+                  <el-select :disabled="item['category'] ? false : true" v-show="item.name!=='谢谢参与'" v-model="item['price']" placeholder="请选择" @change="change1($event,index)">
                     <el-option
                         v-for="item2 in tableData.denomination[currentSelectOption[index]]"
                         :key="item2.value"
@@ -155,7 +156,7 @@
         <span class="fr cursor" @click="close"><i class="el-icon-close"></i></span>
       </div>
       <div slot="body">
-        <div class="confirm">{{this.queryId ? '确定放弃修改表格吗？' : '确定放弃创建表格吗？'}}</div>
+        <div class="confirm">{{this.queryId ? '确定放弃修改活动吗？' : '确定放弃创建活动吗？'}}</div>
         <div>
            <el-button @click="calcelConfirm">取消</el-button>
            <el-button type="primary" @click="confirmGiveUp">确定</el-button>
@@ -190,7 +191,7 @@ let slyderData = [
             {name:'奖项三',category:'',price:'',number:'',weight:'',sort:3,priceCategoryId:0},
             {name:'奖项四',category:'',price:'',number:'',weight:'',sort:4,priceCategoryId:0},
             {name:'奖项五',category:'',price:'',number:'',weight:'',sort:5,priceCategoryId:0},
-            {name:'谢谢参与',number:'',weight:'',sort:6}
+             {name:'谢谢参与',category:'',price:{},number:'',weight:'',value:'',sort:6}
           ]
 let lotteryBaseLine =  {name:'',category:'',price:'',number:'',weight:''}
 
@@ -333,16 +334,22 @@ export default {
     showLottery () {
       this.lotteryList = this.ruleForm.prizeSettings;
       let item = this.lotteryList[this.position]
+      console.log('ite', this.lotteryList)
+      console.log('position', this.position)
       let {category,price} = item
       if(this.aid[this.position]) {
+          console.log('category', category)
+          console.log('price', price)
         if(category && price) {
+          console.log('help', this.help)
+          console.log('acti')
           this.help++
           this.aid[this.position] = false
         }
       }
       if(this.help === 5) {
         this.lotteryList[this.help].category = '参与'
-        this.lotteryList[this.help].price = '谢谢'
+        this.lotteryList[this.help].price.value = '谢谢'
       }
     },
     setTepData (len) {
@@ -388,6 +395,8 @@ export default {
     },
     change (value,index) {
       this.position = index;
+      console.log('position1', index)
+
       // 根据种类 设置奖品面额 的type
       // 每次点击种类，清空 面额数据 重新选择面额
       // this.position 索引
@@ -402,15 +411,16 @@ export default {
         this.category = value
       }
     },
-    change1 (value) {
+    change1 (value, index) {
       // 这里确定奖品的面额
       console.log('value', value);
-
+      this.position = index
       this.price = value
       this.showLottery()
     },
     setPosition (index,name) {
       // 确定是几等奖
+      console.log('index', index)
       this.position = index
     },
     switchKeyName (value) {
@@ -460,12 +470,14 @@ export default {
       }
     },
     deleteLottery (index){
-      if(index===0) {
-        return
+      // 当只剩下一行的时候，不能再删除
+      let len = this.ruleForm.prizeSettings.length
+      if(len <=1) {
+      }else{
+        this.ruleForm.prizeSettings && this.ruleForm.prizeSettings.splice(index,1)
+        // 删除数据之后重新获取 tep的值
+        this.setlotteryData()
       }
-      this.ruleForm.prizeSettings && this.ruleForm.prizeSettings.splice(index,1)
-      // 删除数据之后重新获取 tep的值
-      this.setlotteryData()
     },
     resetForm(formName) {
       // this.$refs[formName].resetFields();
@@ -476,8 +488,10 @@ export default {
         let valid = false
         // 用路由获取templateNo  vuex获取会随着页面刷新而变化
         let templateNo = this.$route.params.no
+        let templateCode = this.$route.meta.type
         if(templateNo) {
            this.ruleForm.templateNo = templateNo
+           this.ruleForm.templateCode = templateCode
         }
         // this.ruleForm.templateNo = this.currentLotteryItem.templateNo
         // this.$refs[formName].validate((valid) => {
@@ -485,6 +499,8 @@ export default {
         //除”奖项设置“之外区域的验证
         for (var prop in data) {
           if(!data[prop]){
+            console.log('rue', this.ruleForm)
+            console.log('data===', data[prop])
             let label = this.switchKeyName(prop)
             // if(label===!'暂无'){
             //   this.setAlert(`${label}未填写`)
@@ -633,6 +649,11 @@ export default {
             // alert('创建成功')
             this.resetForm(formName)
             this.loading.close()
+            // this.$message({
+            //   message: '创建活动成功',
+            //   type: 'error',
+            //   duration: 2* 1000
+            // });
             this.$router.push({ path: `/management/`,})
           }else{
             // alert('请稍后处理')
@@ -651,191 +672,33 @@ export default {
   },
   created () {
     // 初始话tableData 和
-  
-    // initPrizeSet().then((res) =>{
-    //   let typeArr//[]
-    //   let denoObj//{}
-    //    if(res.data === 'ok') {
-    //     let list = res.list
-    //     list.forEach((item) =>{
-    //       if(item.id && item.id !== 3) {
-    //         //处理第一层key
-    //         typeArr.push({value:item.name})
-    //         let sublist = item.priceList
-    //         let arrHelp
-    //         sublist.forEach((subItem) =>{
-    //            arrHelp.push({value: subItem.name})
-    //         })
-    //         if(!deno[item.name]){
-    //           deno[item.name] = arrHelp
-    //         }
-    //       }
-    //     })
-    //     this.tableData.type = typeArr
-    //     this.tableData.denomination = denoObj
-    //    }
-    // }).catch(()=>{
-    //   this.loading = false
-    // })
-    // 初始化select 选项
-    let res = {
-    "code":"ok",
-    "list":[
-        {
-            "id":1,
-            "name":"话费",
-            "category":"话费",
-            "parentId":0,
-            "priceList":[
-                {
-                    "id":4,
-                    "name":"1元",
-                    "category":"话费",
-                    "price":1,
-                    "parentId":1
-                },
-                {
-                    "id":5,
-                    "name":"2元",
-                    "category":"话费",
-                    "price":2,
-                    "parentId":1
-                },
-                {
-                    "id":6,
-                    "name":"5元",
-                    "category":"话费",
-                    "price":5,
-                    "parentId":1
-                },
-                {
-                    "id":7,
-                    "name":"10元",
-                    "category":"话费",
-                    "price":10,
-                    "parentId":1
-                },
-                {
-                    "id":8,
-                    "name":"20元",
-                    "category":"话费",
-                    "price":20,
-                    "parentId":1
-                },
-                {
-                    "id":9,
-                    "name":"30元",
-                    "category":"话费",
-                    "price":30,
-                    "parentId":1
-                },
-                {
-                    "id":10,
-                    "name":"50元",
-                    "category":"话费",
-                    "price":50,
-                    "parentId":1
-                },
-                {
-                    "id":11,
-                    "name":"100元",
-                    "category":"话费",
-                    "price":100,
-                    "parentId":1
-                }
-            ]
-        },
-        {
-            "id":2,
-            "name":"流量",
-            "category":"流量",
-            "parentId":0,
-            "priceList":[
-                {
-                    "id":12,
-                    "name":"10M",
-                    "category":"流量",
-                    "price":0,
-                    "parentId":2
-                },
-                {
-                    "id":13,
-                    "name":"20M",
-                    "category":"流量",
-                    "price":0,
-                    "parentId":2
-                },
-                {
-                    "id":14,
-                    "name":"30M",
-                    "category":"流量",
-                    "price":0,
-                    "parentId":2
-                },
-                {
-                    "id":15,
-                    "name":"50M",
-                    "category":"流量",
-                    "price":0,
-                    "parentId":2
-                },
-                {
-                    "id":16,
-                    "name":"100M",
-                    "category":"流量",
-                    "price":0,
-                    "parentId":2
-                },
-                {
-                    "id":17,
-                    "name":"200M",
-                    "category":"流量",
-                    "price":0,
-                    "parentId":2
-                },
-                {
-                    "id":18,
-                    "name":"500M",
-                    "category":"流量",
-                    "price":0,
-                    "parentId":2
-                },
-                {
-                    "id":19,
-                    "name":"1G",
-                    "category":"流量",
-                    "price":0,
-                    "parentId":2
-                }
-            ]
-        }
-    ]
-    }
-
-    let typeArr = []//[]
-    let denoObj = {}//{}
-     if(res.code === 'ok') {
-      let list = res.list
-      list.forEach((item) =>{
-        if(item.id && item.id !== 3) {
-          //处理第一层key
-          typeArr.push({value:item.name})
-          let sublist = item.priceList
-          let arrHelp = []
-          sublist.forEach((subItem) =>{
-             arrHelp.push({value:subItem.name, id:subItem.id})
-             // arrHelp[0] = {value: subItem.name}
-             // arrHelp[1] = {value: subItem.id}
-
-          })
-          if(!denoObj[item.name]){
-            denoObj[item.name] = arrHelp
+    initPrizeSet().then((res) =>{
+      let typeArr = []//[]
+      let denoObj = {}//{}
+      let result = res.data
+       if(result.code === 'ok') {
+        let list = result.list
+        list.forEach((item) =>{
+          if(item.id && item.id !== 3) {
+            //处理第一层key
+            typeArr.push({value:item.name})
+            let sublist = item.priceList
+            let arrHelp = []
+            sublist.forEach((subItem) =>{
+               arrHelp.push({value:subItem.name, id:subItem.id})
+            })
+            if(!denoObj[item.name]){
+              denoObj[item.name] = arrHelp
+            }
           }
-        }
-      })
-      this.tableData.type = typeArr
-      this.tableData.denomination = denoObj
-     }
+        })
+        this.tableData.type = typeArr
+        this.tableData.denomination = denoObj
+        console.log('table', this.tableData)
+       }
+    }).catch(()=>{
+      this.loading = false
+    })
      console.log('tableData', this.tableData)
     // 如果路由有query参数 那么是编辑活动
     this.queryId = this.$route.query.id
@@ -852,9 +715,11 @@ export default {
       this.setLoading('正在拉取数据中...')
       let initData
       activityEdit(activityId).then((res) =>{
+        console.log('re===s', res)
         let data = res.data;
         if(data.code ==='ok'){
           initData = data.data
+          console.log('inti', initData)
           // 处理settings 格式
           initData.settings = JSON.parse(initData.settings)
           initData.prizeSettings = JSON.parse(initData.prizeSettings)
@@ -887,6 +752,7 @@ export default {
           this.ruleForm.activityRule = initData.activityRule
           this.ruleForm.expiredTime = initData.expiredTime
           this.ruleForm.templateNo = initData.templateNo
+          // this.ruleForm.templateCode = initData.templateCode
           this.ruleForm.activityName = initData.activityName
 
           // 处理settings 中的数据
@@ -982,6 +848,8 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
+.zitag
+  cursor:pointer
 .confirm
   padding:5px 0 25px
 .slyder-first

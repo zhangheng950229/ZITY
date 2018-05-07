@@ -164,6 +164,8 @@
   import { fetchUserList, userEdit, userReject ,fetchAllUser } from 'api/client'
   import qs from 'qs'
   import { mapGetters,mapMutations} from 'vuex'
+  import { getToken, setToken} from 'utils/auth'
+
 
   export default {
     data () {
@@ -237,7 +239,8 @@
   // 使用对象展开运算符将 getter 混入 computed 对象中
       ...mapGetters([
         'ListByStatus',
-        'clientList'
+        'clientList',
+        'userInfo'
       ])
     },
     methods:{
@@ -245,7 +248,8 @@
       'setStatusList', // 将 `this.increment()` 映射为 `this.$store.commit('increment')`
       'setClientList',
       'handleRemove',
-      'handleUpdate'
+      'handleUpdate',
+      'SET_USERINTO'
     ]),
     fetchUserList () {
         this.listLoading = true
@@ -424,9 +428,15 @@
             this.$set(this.submitData, 'status', status)
             let data = qs.stringify(this.submitData)
             userEdit(data).then((res) =>{
+              console.log('youx', res)
+              //更新cookie 
+
               let result = res.data
               if(result.code === 'ok') {
                 let newObj = result.data
+                let obj = Object.assign(newObj, this.userInfo)
+                setToken(obj)
+                this.SET_USERINTO(obj)
                 this.handleUpdate(newObj)
                 this.$refs[formName].resetFields();
                 // 重新拉取列表 

@@ -12,16 +12,8 @@ var CancelToken = axios.CancelToken;
 var cancel;
 
 const service = axios.create({
-  baseURL: 'http://47.93.236.101:8888/marketing', // api的base_url
-  // http://cloudapi.zt31.cn    外网域名
-  // http://192.168.111.119:8888  李明接口
-
-  // http://192.168.111.114:8888  张扬接口
-
-  // http://47.93.236.101:8888   // 外网的口
-  // baseURL: 'http://192.168.111.127:8888', // 峰哥 api的base_url
-  // baseURL: 'http://192.168.88.224:8888', // api的base_url
-  
+  baseURL: 'http://192.168.0.6:8888/marketing', // api的base_url
+  // baseURL: 'http://47.93.236.101:8888/marketing', // api的base_url
   timeout: 5000,// request timeout
   cancelToken: new CancelToken(function executor(c) {
     // An executor function receives a cancel function as a parameter

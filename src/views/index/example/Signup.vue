@@ -184,16 +184,18 @@
               //在这里post短信验证码，data mobileNumber
               let data = this.ruleForm.mobileNumber
               loginGetCaptcha(data).then((res)=>{
-                if(res.data && res.data.code==='ok'){
+                console.log('rescap', res)
+                let result = res.data
+                if(result.code==='ok'){
                   // 证实后台已经发送验证码 开始倒计时
                   this.countDown = true
-                }else{
+                }else if(res.data.message==='号码已存在'){
                   this.countDown = false
-                  this.$message({
-                    message: '请稍后尝试',
-                    type: 'error',
-                    duration: 2* 1000
-                  });
+                  this.telHasExist = true
+                  this.$refs.ruleForm.validateField('mobileNumber' ,message => {
+                    if(message==='号码已存在'){
+                    }
+                  })
                 }
               })
             }
@@ -206,25 +208,17 @@
       submitForm(formName) {
         this.telHasExist = false;
         this.wrongCaptha  = false;
-        this.countDown = false
+        // this.countDown = false
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            // this.countDown = false
-            // console.log('valid', this.$refs[formName].model)
             this.loading = true
             // 按钮禁止，防止重复提交
             this.isDisabled = true
-            // let pass1 = md5(this.ruleForm.password)
-            // let pass2 = md5(this.ruleForm.confirmPassword)
-            // var newObj = Object.assign({}, this.ruleForm);
-            // newObj.password = pass1
-            // newObj.confirmPassword = pass2
             let init = setPassMd5(['password','confirmPassword'], this.ruleForm)
             let data = qs.stringify(init)
-            console.log('data', init)
 
-            // this.$store.dispatch('LoginByUsername', data)
             createUser(data).then((res) => {
+
               let data = res.data
               let message = res.data.message
               if(data.code === 'ok') {
@@ -235,6 +229,7 @@
                   type: 'success',
                   duration: 2000
                 })
+                this.countDown = false
                 this.close()//这里注意顺序
                 // 跳转到创建活动页面
                 // 发出事件， 注册成功
@@ -245,25 +240,21 @@
                   if(message==='验证码错误'){
                   }
                 })
-                // this.$message({
-                //   message: '验证码错误',
-                //   type: 'error',
-                //   duration: 2* 1000
-                // });
+              }
+              // else if(message==='号码已存在'){//message==='号码已存在'
+              //   this.telHasExist = true
+              //   this.$refs.ruleForm.validateField('mobileNumber' ,message => {
+              //   if(message==='号码已存在'){
+              //   }
+              //  })
+              //   // this.$message({
+              //   //   message: '号码已存在',
+              //   //   type: 'error',
+              //   //   duration: 2* 1000
+              //   // });
 
-              }else if(message==='号码已存在'){//message==='号码已存在'
-                this.telHasExist = true
-                this.$refs.ruleForm.validateField('mobileNumber' ,message => {
-                if(message==='号码已存在'){
-                }
-              })
-                // this.$message({
-                //   message: '号码已存在',
-                //   type: 'error',
-                //   duration: 2* 1000
-                // });
-
-              }else{
+              // }
+              else{
                 this.$message({
                   message: '请稍后再试',
                   type: 'error',

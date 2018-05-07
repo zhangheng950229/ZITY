@@ -17,21 +17,23 @@ function hasPermission(roles, permissionRoles) {
  
   return roles.some(role => permissionRoles.indexOf(role) >= 0)
 }
-let flag = true
 const whiteList = ['/login']   // no redirect whitelist
+let flag = true
 router.beforeEach((to, from, next) => {
 
   NProgress.start() // start progress bar
-  next()
-  NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
+  // next()
+  // NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
 
   if (getToken()) {
     // has token 如果已经登录,去login页面，即是本项目的首页，导向创建活动页面
     if (to.path === '/login') {
       next({ path: '/create-project' });
+      NProgress.done()
     }
     else {
         let roles = store.getters.userInfo.authorities
+        // console.log('per',store.getters.userInfo)
         let status = store.getters.userInfo.status
       if(flag) {
         flag = false
@@ -54,6 +56,7 @@ router.beforeEach((to, from, next) => {
       } else {
         next({ path: '/create-project' });
       }
+      NProgress.done()
     }
   } else {
     /* has no token*/
@@ -61,8 +64,8 @@ router.beforeEach((to, from, next) => {
       next()
     } else {
       next('/login') // 否则全部重定向到登录页
-      NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
     }
+      NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
   }
 })
 

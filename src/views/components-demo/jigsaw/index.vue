@@ -1,19 +1,13 @@
 <template>
  <div class="container">
   <zi-header></zi-header>
-  <zi-tab></zi-tab>
+  <zi-tab :dialogVisible="dialogVisible" @close="close"></zi-tab>
 </div>
 </template>
 <script>
-import ziHeader from '../ziHeader'
-import ziTab from '../ziTab'
+import {lotteryRouterMixin} from 'common/js/mixin'
+
 export default {
-  name: 'slyder',
-  components:{
-    ziHeader,
-    ziTab
-  }
+  mixins: [lotteryRouterMixin]
 }
 </script>
-<style lang="stylus" scoped>
-</style>

@@ -67,7 +67,7 @@ export function phoneGetCaptcha(data) {
 // 个人中心 获取用户个人信息
 export function getUserInfo(data) {
   return http({
-    url: `/marketing/userClient/show?${data}`,
+    url: `/userClient/show?${data}`,
     method: 'post',
   })
 }

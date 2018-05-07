@@ -36,13 +36,13 @@
           <el-col class="margin-col" :xs="{span: 12}" :sm="{span: 12}" :md="{span: 6}" v-for="(item, index) in lotteryData" :key="index">
              <el-card>
               <div class="reco">
-                <img :src="'/static/create/' + item.type + '.jpg' " class="image">
+                <img :src="'/static/create/' + item.template_name + '.jpg' " class="image">
                 <!-- <img :src="item.img" class="image"> -->
                 <img class="reco-img" src="/static/create/reco.png">
               </div>
               <div>
                 <div class="bottom clearfix">
-                  <span class="re-name">{{ item.text }}</span>
+                  <span class="re-name">{{ item.template_label }}</span>
                   <el-button  type="primary" class="create-btn fr" @click="openModel(item)">马上创建</el-button>
                 </div>
               </div>
@@ -120,7 +120,8 @@ export default {
         let data = res.data
         console.log("data",data)
         if(data.code === 'ok') {
-          let result = this.changeTemplateData(data.list)
+          // let result = this.changeTemplateData(data.list)
+          let result = data.list
           // this.lotteryData = result
           // 将异步获取的数据 放到vuex全局
           this.initLotteryData(result)
@@ -138,7 +139,6 @@ export default {
     },
     openModel(item) {
       this.showModal = true;
-      console.log("item",item)
       this.setCurrentLottery(item)
     },
     setLoading () {

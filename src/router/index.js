@@ -32,8 +32,8 @@ export const constantRouterMap = [
        { path: 'index', component: _import('createProject/index'),  meta: { type: '创建活动'}},
        { path: 'slyder/:no', component: _import('components-demo/slyder/index'), name:'template',meta: { type: 'slyder',title:'超级大转盘' }},
        { path: 'envelope/:no', component: _import('components-demo/envelope/index'), name:'template', meta: { type: 'envelope' ,title:'抽红包'}},
-       { path: 'box', component: _import('components-demo/box/index'), name: 'box-demo',name:'template', meta: { type: 'box',title:'开宝箱' }},
-       { path: 'jigsaw', component: _import('components-demo/jigsaw/index'), name:'template',meta: { type: 'jigsaw',title:'欢乐拼图' }}
+       { path: 'box/:no', component: _import('components-demo/box/index'), name: 'template', meta: { type: 'box',title:'开宝箱' }},
+       { path: 'jigsaw/:no', component: _import('components-demo/jigsaw/index'), name:'template',meta: { type: 'jigsaw',title:'欢乐拼图' }}
     ]
   },
   {
@@ -47,7 +47,7 @@ export const constantRouterMap = [
     },
     children:[
        { path: 'index', component: _import('management/index'), name: 'management', meta: { title: '活动管理' }},
-       { path: 'info/:id', component: _import('management/Info'), name: 'management', meta: { title: '用户参与详情' }},
+       { path: 'info/:id', component: _import('management/Info'), name: 'management_info', meta: { title: '用户参与详情' }},
     ]
   },
   // {

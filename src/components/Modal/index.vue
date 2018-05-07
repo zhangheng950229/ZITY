@@ -4,7 +4,7 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header" :style="styleObject">
-            <slot name="header" >
+            <slot name="header">
             </slot>
           </div>
 
@@ -61,6 +61,8 @@
 }
 .modal-header
   padding: 0 10px
+  font-size:16px
+  color:#000
 .modal-wrapper {
   display: table-cell;
   vertical-align: middle;

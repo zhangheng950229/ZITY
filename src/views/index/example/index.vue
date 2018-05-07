@@ -3,21 +3,16 @@
   <el-row :gutter="20" style="margin-bottom:140px">
     <el-col class="margin-col" :xs="{span: 12}" :sm="{span: 12}" :md="{span: 6}"  v-for="(item,index) in list" :key="index">
       <el-card :body-style="{ padding: '0px' }">
-        <img class="example-img" :src="'/static/images/' + item.num + '.jpg'">
+        <img class="example-img" :src="'/static/images/' + item.template_name + '.jpg'">
         <div class="example-text">
           <span class="dot">.</span>
-          <span>{{item.text}}</span>
+          <span>{{item.template_label}}</span>
           <span class="dot">.</span>
         </div>
       </el-card>
       <el-button type="primary" class="example-btn" @click="openModel(item)">创建活动</el-button>
     </el-col>
   </el-row>
-  <!-- <modal v-if="showModal">
-    <div slot="body">
-      <div class="close-tep"><span>请您先登录</span><span class="fr" @click="close">X</span></div>
-    </div>
-  </modal> -->
   <zi-dialog
   :currentActivity="currentLotteryItem"
   v-if="showModal"
@@ -47,17 +42,17 @@ export default {
       'setCurrentLottery',
       'initLotteryData'
     ]),
-    changeTemplateData (arr) {
-      let result = []
-      arr.forEach((item,index) =>{
-        if(item.template_name === "测试模板") {
-          result[index] = {num:'01',text:'超级大转盘',type:'slyder',templateNo:item.template_no}
-        }else if(item.template_name === "测试模板2"){
-          result[index] = {num:'02',text:'抽红包',type:'envelope',templateNo:item.template_no}
-        }
-      })
-      return result
-    },
+    // changeTemplateData (arr) {
+    //   let result = []
+    //   arr.forEach((item,index) =>{
+    //     if(item.template_name === "测试模板") {
+    //       result[index] = {num:'01',text:'超级大转盘',type:'slyder',templateNo:item.template_no}
+    //     }else if(item.template_name === "测试模板2"){
+    //       result[index] = {num:'02',text:'抽红包',type:'envelope',templateNo:item.template_no}
+    //     }
+    //   })
+    //   return result
+    // },
     getTemplates () {
       this.setLoading()
       
@@ -65,8 +60,9 @@ export default {
         let data = res.data
         if(data.code === 'ok') {
           
-          let result = this.changeTemplateData(data.list)
-          this.list = result;
+          // let result = this.changeTemplateData(data.list)
+          let result = data.list
+          this.list = result
           // console.log("result",result)
           // 将异步获取的数据 放到vuex全局
           this.initLotteryData(result)

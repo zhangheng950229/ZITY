@@ -10,7 +10,7 @@ let data = {
         "mobile_number": "18863025806",
         "contract_name": "天津支行",
         "contact_name": "哇哈哈",
-        "status": "1",
+        "status": "0",
         "password": "123456",
         "start_time": "2018-03-03 14:38:30",
         "expired_time": "2018-03-14 00:00:00",
@@ -18,7 +18,7 @@ let data = {
         'isLogin': 'login'
     }
 // localStorage.setItem('USER_INFO', JSON.stringify(data))
-setToken(data)
+// setToken(data)
 
 
 handleCookie()
@@ -33,7 +33,7 @@ const user = {
     // roles: handleCookie('roles') || [],
     // flag: true,
     // info:{},
-    userID : handleCookie('id'),
+    // userID : handleCookie('id'),
     // start_time : handleCookie('start_time'),
   },
 
@@ -75,6 +75,9 @@ const user = {
       return new Promise((resolve, reject) => {
           login(userInfo).then(res => {
             let result = res.data
+            console.log('login', res)
+            resolve(res)
+
             if(result.code === 'ok') {
               let data = result.data
               // 获取token 如果token 中code的值是1正常，那么
@@ -98,12 +101,13 @@ const user = {
               // setToken({id:data.id,nick_name:data.nick_name,name:data.contact_name,code:data.status,status:"login",roles:arr,start_time:data.start_time})
               // localStorage.setItem('USER_INFO', JSON.stringify(data));
               // commit('SET_TOKEN', {id:data.id,name:data.contact_name,nick_name:data.nick_name,start_time:data.start_time});
+              console.log('data', data)
               setToken(data);
-              commit('SET_TOKEN',data);
+              commit('SET_USERINTO',data);
               // commit('SET_ID',data.id);
               // commit('SET_START_TIME',data.start_time);
               // 数据传到页面中
-              resolve(res)
+              // resolve(res)
             } else {
               // this.loading = false
             }
