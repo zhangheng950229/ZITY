@@ -120,7 +120,7 @@
           },
           ruleForm1: {
             password: '',
-            confirzmPassword: '',
+            confirmPassword: '',
           },
           rules: {
             contact: [
@@ -157,6 +157,7 @@
               this.countDown = false;
               //在这里post短信验证码，data mobileNumber
               let data = this.ruleForm.contact  //手机号
+              console.log('tel', data)
               getCaptcha(data).then((res)=>{
                 console.log('pas res===', res)
                 // console.log("更改密码验证码请求", res)
@@ -229,11 +230,11 @@
       },
       goToConfirmPassword(formName) {
         this.wrongCaptha = false
-        let data = "phoneNumber="+this.ruleForm.contact+"&verCode="+this.ruleForm.captcha;
         this.$refs[formName].validate((valid) => {
           if(valid) {
           this.loading = true
           this.isDisabled = true
+          let data = "phoneNumber="+this.ruleForm.contact+"&verCode="+this.ruleForm.captcha;
             checkSMSCode(data).then((res) => {   // 验证手机号验证码是否正确请求
               if(res.data.data && res.data.code=== "ok"){   //验证码正确
                 this.showInfo = false;
@@ -260,13 +261,15 @@
       },
       submitForm(formName) {
         // this.$router.push({ path: '/create-project/index' })
-        this.$refs[formName].validate(valid => {
+        this.$refs.ruleForm1.validate((valid) => {
           if (valid) {
-            this.loading = true;
+        console.log('for', formName)
+            this.loading = true
             this.isDisabled = true
             //md5密码加密
-            let init = setPassMd5(['password,confirmPassword'], this.ruleForm1)
-
+            // let newForm = Object.assign({}, this.ruleForm1)
+            let init = setPassMd5(['password','confirmPassword'], this.ruleForm1)
+            console.log('init', init)
             // 后台需要的字段
             let data = "password=" +init.password+"&confirmPassword="+init.confirmPassword+"&id="+this.INFO.id;
             // let data = "password=" +this.ruleForm1.password+"&confirmPassword="+this.ruleForm1.confirmPassword+"&id="+this.INFO.id;

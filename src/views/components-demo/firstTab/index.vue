@@ -8,6 +8,7 @@
       class="rule-content" v-html="ruleForm.activityRule" 
       >
       </pre>
+      <div>{{ruleForm.activityRule}}</div>
       <div v-show="this.$route.meta.type == 'slyder' ? activeName==='second' : ''" class="rule-area">
         <ul class="lottery-area">
           <li v-for="(item,index) in lotteryList" v-show="item.price && item.category" :key=index>
@@ -74,8 +75,8 @@
               </div>
           </el-tab-pane>
           <el-tab-pane label="奖项设置" name="third" class="mytag">
-      <!--       <el-button v-show="autoDefinie" @click="addLottery"><el-tag type="danger">添加</el-tag></el-button> -->
-          <el-tag  v-show="autoDefinie" @click="addLottery" class="zitag" style="padding: 0 20px">添加</el-tag>
+          <!--   <el-button v-show="autoDefinie" @click="addLottery"><el-tag type="danger">添加</el-tag></el-button> -->
+          <el-tag  v-show="autoDefinie" class="zitag" style="padding: 0"><span  id="add-line" @click="addLottery">添加</span></el-tag>
             <table id="six-table">
                 <tr class="tr-head">
                   <th v-show="autoDefinie">操作</th>
@@ -88,7 +89,7 @@
                 </tr>
                 <tr v-for="(item,index) in ruleForm.prizeSettings" :key="index" @click="setPosition(index,item.name)">
                   <td class="spc-width-select" v-if="autoDefinie" @click="deleteLottery(index)">
-                  <el-tag type="danger" class="zitag">删除</el-tag>
+                  <el-tag :type="ruleForm.prizeSettings.length==1 ? 'info' : 'danger'" class="zitag">删除</el-tag>
                   </td>
                   <td class="spc-width-select">
                     <el-input 
@@ -460,13 +461,14 @@ export default {
     addLottery () {
       // 先验证第一行数据是否填写完整
       // this.add = true
+      console.log(1)
       this.setlotteryData()
       let len = this.tep.length
       if(this.tep[len-1]){
         let baseData = JSON.parse( JSON.stringify(lotteryBaseLine))
         this.ruleForm.prizeSettings.push(baseData)
       }else{
-        this.setAlert(`请将奖项设置第${len}行填写完整`)
+        this.setAlert(`请将“奖项设置”第${len}行填写完整`)
       }
     },
     deleteLottery (index){
@@ -679,7 +681,7 @@ export default {
        if(result.code === 'ok') {
         let list = result.list
         list.forEach((item) =>{
-          if(item.id && item.id !== 3) {
+          // if(item.id && item.id !== 3) {
             //处理第一层key
             typeArr.push({value:item.name})
             let sublist = item.priceList
@@ -690,7 +692,7 @@ export default {
             if(!denoObj[item.name]){
               denoObj[item.name] = arrHelp
             }
-          }
+          // }
         })
         this.tableData.type = typeArr
         this.tableData.denomination = denoObj
@@ -699,7 +701,6 @@ export default {
     }).catch(()=>{
       this.loading = false
     })
-     console.log('tableData', this.tableData)
     // 如果路由有query参数 那么是编辑活动
     this.queryId = this.$route.query.id
     if(this.queryId){
@@ -848,6 +849,9 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
+#add-line
+ display :block
+ padding: 0 20px
 .zitag
   cursor:pointer
 .confirm
