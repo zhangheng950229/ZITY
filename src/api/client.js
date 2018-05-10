@@ -2,17 +2,17 @@ import http from 'utils/axios'
 
 // 获取user列表 只是注册过的用户 客户审核->待审核
 //http://192.168.31.241:8888/marketing/userClient/getUserByStatus
-export function fetchUserList() {
+export function fetchUserList(data) {
   return http({
-    url: '/userClient/getUserByStatus?_status=0',
+    url: `/userClient/getUserByStatus?${data}&status=0`,
     method: 'post'
   })
 }
 // http://192.168.31.241:8888/marketing/userClient/getUserWithStatus
 // 获取所有状态的客户列表
-export function fetchAllUser() {
+export function fetchAllUser(data) {
   return http({
-    url: `/userClient/getUserWithStatus?_status=1,2,3`,
+    url: `/userClient/getUserWithStatus?status=1,2,3&${data}`,
     method: 'post'
   })
 }

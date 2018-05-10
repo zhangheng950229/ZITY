@@ -1,9 +1,9 @@
 import http from 'utils/axios'
 
 // 活动管理 获取列表
-export function activityManageList() {
+export function activityManageList(data) {
   return http({
-    url: `/activityClient/show`,
+    url: `/activityClient/show?${data}`,
     method: 'post',
   })
 }
@@ -26,9 +26,9 @@ export function activityEdit(data) {
 
 
 //  获取活动审核 待审核 列表
-export function fetchVerfityList() {
+export function fetchVerfityList(data) {
   return http({
-    url: `/activityClient/getActivityWithStatus?_status=1`,
+    url: `/activityClient/getActivityWithStatus?${data}&status=1`,
     method: 'post',
   })
 }
@@ -36,9 +36,9 @@ export function fetchVerfityList() {
 
 
 // 获取所有客户的活动列表，包括所有状态
-export function fetchActivityListAll() {
+export function fetchActivityListAll(data) {
   return http({
-    url: `/activityClient/getActivityWithStatus?_status=0,2,3,4,5,6,9`,
+    url: `/activityClient/getActivityWithStatus?status=0,2,3,4,5,6,9&${data}`,
     method: 'post',
   })
 }

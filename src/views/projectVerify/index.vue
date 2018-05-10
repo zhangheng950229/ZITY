@@ -8,69 +8,78 @@
         <el-tabs v-model="activeName" @tab-click="tabChange">
           <el-tab-pane label="待审核" name="first">
             <el-table 
-            fit 
-            highlight-current-row 
-            v-loading="listLoading" 
-            element-loading-text="拼命加载中"
-            height="600"
-            :data="aciByStatus" 
-            style="width: 100%"
-            >
-                <el-table-column
-                  label="发布时间"
-                  align="center"
-                  width="180"
-                  >
-                   <template slot-scope="scope">
-                    <p >{{ scope.row.publishTime }}</p>
-                  </template> 
-                </el-table-column>
-                <el-table-column align="center"
-                  v-for="{ prop, label, width } in colConfigs"
-                  :key="prop"
-                  :prop="prop"
-                  :width="width"
-                  :label="label">
-                </el-table-column>
+              fit 
+              highlight-current-row 
+              v-loading="listLoading" 
+              element-loading-text="拼命加载中"
+              height="400"
+              :data="aciByStatus" 
+              style="width: 100%"
+              >
+                  <el-table-column
+                    label="发布时间"
+                    align="center"
+                    width="180"
+                    >
+                     <template slot-scope="scope">
+                      <p >{{ scope.row.publishTime }}</p>
+                    </template> 
+                  </el-table-column>
+                  <el-table-column align="center"
+                    v-for="{ prop, label, width } in colConfigs"
+                    :key="prop"
+                    :prop="prop"
+                    :width="width"
+                    :label="label">
+                  </el-table-column>
 
-                <el-table-column
-                  label="活动时间"
-                  align="center"
-                  width="180">
-                   <template slot-scope="scope">
-                    <p >{{ scope.row.startTime }}</p>
-                    <p >{{ scope.row.expiredTime }}</p>
-                  </template> 
-                </el-table-column>
-   
-                <el-table-column label="操作" 
-                  align="center" width="220">
-                  <template slot-scope="scope">
-                  <el-button
-                      size="mini"
-                      type="primary"
-                      plain
-                      @click="openChange('pass',scope.row)"
-                      >通过</el-button>
+                  <el-table-column
+                    label="活动时间"
+                    align="center"
+                    width="180">
+                     <template slot-scope="scope">
+                      <p >{{ scope.row.startTime }}</p>
+                      <p >{{ scope.row.expiredTime }}</p>
+                    </template> 
+                  </el-table-column>
+     
+                  <el-table-column label="操作" 
+                    align="center" width="220">
+                    <template slot-scope="scope">
                     <el-button
-                      size="mini"
-                      type="danger"
-                      plain
-                      @click="openChange('reject',scope.row)"
-                      >拒绝</el-button>
-                    <el-button
-                      size="mini"
-                      type="success"
-                      plain
-                      @click="openDialog(scope.row)">预览</el-button>
-                  </template>
-                </el-table-column>
+                        size="mini"
+                        type="primary"
+                        plain
+                        @click="openChange('pass',scope.row)"
+                        >通过</el-button>
+                      <el-button
+                        size="mini"
+                        type="danger"
+                        plain
+                        @click="openChange('reject',scope.row)"
+                        >拒绝</el-button>
+                      <el-button
+                        size="mini"
+                        type="success"
+                        plain
+                        @click="openDialog(scope.row)">预览</el-button>
+                    </template>
+                  </el-table-column>
             </el-table>
+            <div class="pagina">
+               <el-pagination
+                @current-change="handleCurrentChange"
+                :current-page.sync="fPageNum"
+                :page-size="10"
+                layout="total, prev, pager, next, jumper"
+                :total="total">
+              </el-pagination>
+            </div>
           </el-tab-pane>
           <el-tab-pane label="活动列表" name="second">
             <el-table fit highlight-current-row
             v-loading="listLoading" element-loading-text="拼命加载中" 
-            height="600"
+            height="400"
             :data="aciList" style="width: 100%">
                 <el-table-column
                   label="发布时间"
@@ -101,7 +110,7 @@
                 </template>
                 </el-table-column>
                 <el-table-column label="用户参与详情" 
-                  align="center" width="100">
+                  align="center" width="110">
                   <template slot-scope="scope">
                   <span
                     class="look"
@@ -129,6 +138,15 @@
                   </template>
                 </el-table-column>
               </el-table>
+              <div class="pagina">
+               <el-pagination
+                @current-change="handleCurrentChange1"
+                :current-page.sync="fPageNum"
+                :page-size="10"
+                layout="total, prev, pager, next, jumper"
+                :total="total1">
+              </el-pagination>
+            </div>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -203,6 +221,7 @@
 
 
   export default {
+    name:'zi',
     data () {
       return {
         colConfigs:[
@@ -242,6 +261,10 @@
               ]
           }
         ],
+        fPageNum:1,
+        sPageNum:1,
+        total:0,
+        total1:0,
         pause:false,
         start:false,
         pass:false,
@@ -273,24 +296,60 @@
         'aciUpdate',
         'aciRemove'
       ]),
-      fetchVerfityList () {
+      handleCurrentChange(val) {
+        this.fPageNum = val
+        this.$router.replace({path:`/project-verify/index?tab=first&page=${this.fPageNum}`})
+        this.fetchVerfityList()
+        console.log(`当前页: ${val}`);
+      },
+      handleCurrentChange1(val) {
+          this.sPageNum = val
+          this.$router.replace({path:`/project-verify/index?tab=second&page=${this.sPageNum}`})
+          this.fetchActivityListAll()
+      },
+      httpFn (flag, pageNum,fn, vuefn) {
         this.listLoading = true
-        fetchVerfityList().then((res) =>{
-          // console.log('e', res)
-          // this.userList = res.data.list
-          // 使用vuex 管理
-          // console.log('待审核',res)
+        let pageSize = 10
+        let data = `pageNum=${--pageNum}&pageSize=${pageSize}`
+        fn(data).then((res) =>{
           let result = res.data
-          if(result.code ==='ok'){
-            let list = result.list;
-            // console.log("list", list)
-            this.setAciStatusList(list)
+          if(result.code === 'ok') {
+            vuefn(result.list)
+            if(flag){
+              this.total =result.meta.total_records
+            }else{
+              this.total1 =result.meta.total_records
+            }
           }
           this.listLoading = false
         }).catch(()=>{
           this.listLoading = false
         })
       },
+      fetchVerfityList () {
+        this.httpFn(true, this.fPageNum, fetchVerfityList, this.setAciStatusList)
+      },
+      fetchActivityListAll(){
+        this.httpFn(false, this.sPageNum, fetchActivityListAll, this.setAciList)
+      },
+      // fetchVerfityList () {
+      //   this.listLoading = true
+      //   fetchVerfityList().then((res) =>{
+      //     // console.log('e', res)
+      //     // this.userList = res.data.list
+      //     // 使用vuex 管理
+      //     // console.log('待审核',res)
+      //     let result = res.data
+      //     if(result.code ==='ok'){
+      //       let list = result.list;
+      //       // console.log("list", list)
+      //       this.setAciStatusList(list)
+      //     }
+      //     this.listLoading = false
+      //   }).catch(()=>{
+      //     this.listLoading = false
+      //   })
+      // },
       handleCommand(command) {
         this.$message('click on item ' + command);
       },
@@ -347,23 +406,23 @@
         // tab 切换的时候不需要 每次都拉取列表，只在待审核列表处理数据的情况下，第一次切换到”客户列表“ 才需要重新拉取
         // 第一次拉取客户列表
         if(tab.name === 'first') {
-          this.$router.push({path:'/project-verify/index?tab=first'})
+          this.$router.push({path:`/project-verify/index?tab=first&page=${this.fPageNum}`})
           this.fetchVerfityList()   // 拉取待审核活动列表
         }else if(tab.name === 'second') {
-          this.$router.push({path:'/project-verify/index?tab=second'})
-          this.listLoading = true
-          fetchActivityListAll().then((res) =>{
+          this.$router.push({path:`/project-verify/index?tab=second&page=${this.sPageNum}`})
+          this.fetchActivityListAll()
+          // fetchActivityListAll().then((res) =>{
             
-            // console.log("活动列表", res)
-            let result = res.data
-            if(result.code==='ok'){
-              let list = result.list
-              this.setAciList(list)
-            }
-            this.listLoading = false
-          }).catch(()=>{
-            this.listLoading = false
-          })
+          //   // console.log("活动列表", res)
+          //   let result = res.data
+          //   if(result.code==='ok'){
+          //     let list = result.list
+          //     this.setAciList(list)
+          //   }
+          //   this.listLoading = false
+          // }).catch(()=>{
+          //   this.listLoading = false
+          // })
         }
       },
       changeStatus (flag) {
@@ -442,7 +501,7 @@
           this.currentItem = item
       },
     },
-    activated () {
+    created () {
       // 获取活动审核 待审核列表
       let query = this.$route.query.tab
       let tabObj

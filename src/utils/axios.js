@@ -12,7 +12,7 @@ var CancelToken = axios.CancelToken;
 var cancel;
 
 const service = axios.create({
-  baseURL: 'http://192.168.0.6:8888/marketing', // api的base_url
+  baseURL: 'http://192.168.0.19:8888/marketing', // api的base_url
   // baseURL: 'http://47.93.236.101:8888/marketing', // api的base_url
   timeout: 5000,// request timeout
   cancelToken: new CancelToken(function executor(c) {
@@ -49,7 +49,7 @@ service.interceptors.request.use(config => {
   // Do something before request is sent
   if (store.getters.userID) {
     config.headers = {
-      'userID' : store.getters.userID,  // 让每个请求携带userID为自定义key 请根据实际情况自行修改
+      'userID' : store.getters.userInfo.id,  // 让每个请求携带userID为自定义key 请根据实际情况自行修改
     }  
   }
   return config;

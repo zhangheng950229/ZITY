@@ -10,7 +10,7 @@
           <el-tab-pane label="待审核" name="first">
             <el-table  fit highlight-current-row
                v-loading="listLoading" element-loading-text="拼命加载中"
-               height="600"
+               height="400"
               :data="ListByStatus" style="width: 100%">
                 <el-table-column align="center" width="180"
                   v-for="{ prop, label } in colConfigs"
@@ -35,12 +35,21 @@
                   </template>
                 </el-table-column>
             </el-table>
+            <div class="pagina">
+               <el-pagination
+                @current-change="handleCurrentChange"
+                :current-page.sync="fPageNum"
+                :page-size="10"
+                layout="total, prev, pager, next, jumper"
+                :total="total">
+              </el-pagination>
+            </div>
           </el-tab-pane>
           <el-tab-pane label="客户列表" name="second">
-            <el-table fit highlight-current-row
+          <el-table fit highlight-current-row
             v-loading="listLoading" element-loading-text="拼命加载中"
             :data="clientList"
-            height="600"
+            height="400"
             style="width: 100%">
               <el-table-column align="center" width="180"
                 v-for="{ prop, label } in colConfigs1"
@@ -80,6 +89,15 @@
                 </template>
               </el-table-column>
           </el-table>
+          <div class="pagina" >
+               <el-pagination
+                @current-change="handleCurrentChange1"
+                :current-page.sync="sPageNum"
+                :page-size="10"
+                layout="total, prev, pager, next, jumper"
+                :total="total1">
+              </el-pagination>
+            </div>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -168,6 +186,7 @@
 
 
   export default {
+    name: 'ziteng',
     data () {
       return {
         pickerBeginDateBefore:{
@@ -224,6 +243,11 @@
         pass:false,
         edit:false,
         activeName:'first',
+        fPageNum:1,
+        sPageNum:1,
+        total:0,
+        total1:0,
+        // paginationShow:false,
         //注意此处的value设置为数字，对应的是后台返回数据的status字段
         // filters: [{text: '正常',value: '1'}, {text: '禁用',value: '2'}
         // ,{text: '未通过',value: '3'}],
@@ -251,20 +275,62 @@
       'handleUpdate',
       'SET_USERINTO'
     ]),
-    fetchUserList () {
-        this.listLoading = true
-        fetchUserList().then((res) =>{
-          // this.userList = res.data.list
+ 
+      // handleCurrentChange(val) {
+      //   console.log(`当前页: ${val}`);
+      // }
+    handleCurrentChange(val) {
+      this.fPageNum = val
+      this.$router.replace({path:`/client-verify/index?tab=first&page=${this.fPageNum}`})
+      this.fetchUserList()
+      console.log(`当前页: ${val}`);
+    },
+    handleCurrentChange1(val) {
+        this.sPageNum = val
+        this.$router.replace({path:`/client-verify/index?tab=second&page=${this.sPageNum}`})
+        this.fetchAllUser()
+    },
+    httpFn (flag, pageNum,fn, vuefn) {
+      this.listLoading = true
+        let pageSize = 10
+        let data = `pageNum=${--pageNum}&pageSize=${pageSize}`
+        fn(data).then((res) =>{
           let result = res.data
           if(result.code === 'ok') {
-            this.setStatusList(res.data.list)
+            vuefn(result.list)
+            if(flag){
+              this.total =result.meta.total_records
+            }else{
+              this.total1 =result.meta.total_records
+            }
           }
           this.listLoading = false
         }).catch(()=>{
           this.listLoading = false
         })
+    },
+    fetchUserList () {
+      this.httpFn(true, this.fPageNum, fetchUserList, this.setStatusList)
+        // this.listLoading = true
+        // // 处理pageNum 默认是0
+        // let pageNum = this.fPageNum
+        // let pageSize = 10
+        // let data = `pageNum=${pageNum}&pageSize=${pageSize}`
+        // fetchUserList(data).then((res) =>{
+        //   let result = res.data
+        //   if(result.code === 'ok') {
+        //     this.setStatusList(res.data.list)
+        //   }
+        //   this.listLoading = false
+        // }).catch(()=>{
+        //   this.listLoading = false
+        // })
+      },
+      fetchAllUser(){
+        this.httpFn(false, this.sPageNum, fetchAllUser, this.setClientList)
       },
       filterTag(value, row) {
+        // 在这里处理数据
         return row.status === value;
       },
       changeStatus (val) {
@@ -288,37 +354,40 @@
           }
           return result
       },
+
       tabChange (tab) {
-        // console.log('cha e')
         // tab 切换的时候不需要 每次都拉取列表，只在待审核列表处理数据的情况下，第一次切换到”客户列表“ 才需要重新拉取
         // 第一次拉取客户列表
-        //添加路由
+        // 
+        // let p1 = localStorage.getItem('zi-fPageNum')
+        // let p2 = localStorage.getItem('zi-sPageNum')
+        // let sPageNum
+        // let fPageNum
+        // if(p1) {
+        //   fPageNum = p1
+        // }else{
+        //    fPageNum = this.sPageNum
+        // }
+        // if(p2) {
+        //   sPageNum = p2
+        // }else{
+        //    sPageNum = this.sPageNum
+        // }
+        // // this.currentPage = parseInt(fPageNum)
+        // // this.currentPage1 =  parseInt(sPageNum)
+        // console.log('p1', parseInt(localStorage.getItem('zi-sPageNum')))
+        // console.log('thisppp', this.sPageNum)
+
         if(tab.name === 'first') {
-          this.$router.push({path:'/client-verify/index?tab=first'})
+          this.$router.replace({path:`/client-verify/index?tab=first&page=${this.fPageNum}`})
           this.fetchUserList()
         }else if(tab.name === 'second') {
-            this.$router.push({path:'/client-verify/index?tab=second'})
-            this.listLoading = true
-            fetchAllUser().then((res) =>{
-              let result = res.data
-              if(result.code==='ok'){
-                let list = result.list
-                this.setClientList(list)
-                this.listLoading = false
-              }else{
-                this.$message({
-                  message: '请稍后尝试',
-                  type: 'error',
-                  duration: 2* 1000
-                });
-                this.listLoading = false
-              }
-            }).catch(()=>{
-              this.listLoading = false
-            })
-            // this.tabHelp = false
+            this.$router.replace({path:`/client-verify/index?tab=second&page=${this.sPageNum}`})
+            this.fetchAllUser()
         }
-
+        // 储存两个tab标签页的页数到localStorage
+        // localStorage.setItem('zi-fPageNum', this.fPageNum)
+        // localStorage.setItem('zi-sPageNum',this.sPageNum)
       },
       passVerify (id, status) {
         this.pass = true;
@@ -377,10 +446,6 @@
         }
       },
       startEdit (id, status,stTime, edTime) {
-        // console.log("id",id)
-        // console.log("status",status)
-        // console.log("stTime",stTime)  
-        // console.log("edTime",edTime)                     
         this.edit = true
         let startTime = new Date(stTime).getTime()
         // 默认的startTime是现在
@@ -417,8 +482,6 @@
         this.$set(this.submitData, 'expiredTime', time2)
       },
       submitEditForm(formName) {
-        console.log(this.ruleForm1.time)
-
         this.$refs[formName].validate(valid => {
           if(valid) {
             this.loading = true
@@ -428,9 +491,7 @@
             this.$set(this.submitData, 'status', status)
             let data = qs.stringify(this.submitData)
             userEdit(data).then((res) =>{
-              console.log('youx', res)
               //更新cookie 
-
               let result = res.data
               if(result.code === 'ok') {
                 let newObj = result.data
@@ -472,20 +533,12 @@
               // 处理数据步骤 1. 提交对单一客户操作的结果 userEdit
               // 2. 重新拉取最新的待审核列表 fetchUserList
               let data = qs.stringify(this.submitData)
-              // let data = this.submitData
-              // console.log('待审核通过form', this.submitData)
-              // console.log('待审核通过', data)
-              // console.log("data1111",data)
               userEdit(data).then((res) =>{
-                // console.log('测试res', res)
                 let data = res.data
                 if(data.code === 'ok') {
                   let newObj = data.data
                   let id = newObj.id
-                  // console.log('id', id)
-                  // this.fetchUserList1() 不再使用ajax 使用vuex
                   this.handleRemove(id)
-                  // console.log('clientList', this.ListByStatus)
                   this.$refs[formName].resetFields();
                   // 重新拉取待审核列表 此处不用table 加载图标，
                   // 开启 客户列表拉取数据 开关
@@ -510,11 +563,23 @@
         })
       }
     },
-    activated () {
-      // this.fetchUserList()
-      // this.fetchUserList()
-      // console.log('active')
+    created () {
+      // 处理
+      // console.log('activated') 处理query
+      // let p1 = parseInt(localStorage.getItem('zi-fPageNum'))
+      // let p2 = parseInt(localStorage.getItem('zi-sPageNum'))
+      // if(p1) {
+      //     this.fPageNum = p1
+      // }
+      // if(p2) {
+      //    this.sPageNum = p2
+      // }
+      // this.handleCurrentChange(p1)
+      // this.handleCurrentChange1(p2)
+      // this.currentPage = parseInt(fPageNum)
+      // this.currentPage1 =  parseInt(sPageNum)
       let query = this.$route.query.tab
+      console.log('query', query)
       let tabObj
       if(query) {
         if( query=== 'second'){
@@ -524,7 +589,6 @@
           tabObj = {active:true,name:'first'}
           this.activeName = 'first'
         }
-        // console.log('tbo', tabObj)
         this.tabChange(tabObj)
       }else{
         this.fetchUserList()

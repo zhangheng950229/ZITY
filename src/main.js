@@ -18,6 +18,7 @@ Vue.use(VueClipboard)
 // Vue.component('v-distpicker', VDistpicker)
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+Vue.prototype.ZI = 200
 
 /* eslint-disable no-new */
 let vm = new Vue({

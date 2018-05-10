@@ -33,4 +33,6 @@ str2.replace(/\s+/g, '\\') 将空格换成 ‘\’
 
 中间两部可以去掉
 
+3. axis 中的store.getters.userID 需要更改
+
 

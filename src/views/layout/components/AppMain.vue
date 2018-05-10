@@ -1,7 +1,7 @@
 <template>
   <section class="app-main">
     <transition name="fade" mode="out-in">
-      <keep-alive exclude="template">
+      <keep-alive exclude="zi">
         <router-view></router-view>
       </keep-alive>
     </transition>

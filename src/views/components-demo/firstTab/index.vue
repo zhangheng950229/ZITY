@@ -8,7 +8,6 @@
       class="rule-content" v-html="ruleForm.activityRule" 
       >
       </pre>
-      <div>{{ruleForm.activityRule}}</div>
       <div v-show="this.$route.meta.type == 'slyder' ? activeName==='second' : ''" class="rule-area">
         <ul class="lottery-area">
           <li v-for="(item,index) in lotteryList" v-show="item.price && item.category" :key=index>
@@ -562,6 +561,7 @@ export default {
         valid = true
         if(valid) {
           this.setLoading('正在提交,请勿离开...')
+            // 处理活动规则
             //处理城市选择区域数据
             // console.log('省',this.select)
             // console.log('市',this.select.city)

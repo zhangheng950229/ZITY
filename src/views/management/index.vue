@@ -11,7 +11,7 @@
           fit highlight-current-row
           v-loading="listLoading" element-loading-text="拼命加载中"
           :data="manageList"
-          height="600"
+          height="400"
           style="width: 100%">
           <el-table-column
             label="活动名称"
@@ -74,6 +74,15 @@
             </template>
           </el-table-column>
         </el-table>
+        <div class="pagina" v-show="total">
+           <el-pagination
+            @current-change="handleCurrentChange"
+            :current-page.sync="pageNum"
+            :page-size="10"
+            layout="total, prev, pager, next, jumper"
+            :total="total">
+          </el-pagination>
+        </div>
       </div>
     </div>
     <modal v-if="isPublish">
@@ -106,6 +115,7 @@
   import qs from 'qs'
 
   export default {
+    name: 'zi',
     data () {
       return {
         userList: [],
@@ -119,7 +129,9 @@
         listLoading:false,
         loading:false,
         isPublish:false,
-        handleItem:{}
+        handleItem:{},
+        pageNum:1,
+        total:0
       }
     },
     computed: {
@@ -136,12 +148,17 @@
       'manageUpdate',
       'setPass'
     ]),
+    handleCurrentChange(val) {
+      this.pageNum = val
+      this.$router.replace({path:`/management/index?page=${this.pageNum}`})
+      this.activityManageList()
+      console.log(`当前页: ${val}`);
+    },
       editLottery (item) {
         //item携带了项目的所有信息 获取id -》获取全部信息到 创建活动页面 展示该项目的全部数据
         //（根据后台接口）
         //根据携带的 templateNo获得需要跳转的路由，根据路由的query  created 函数获取数据
         // console.log("item",item)
-        console.log('bianji ', item)
         // let templateNo = item.templateNo
         // let type
         // if(templateNo==='123456'){
@@ -186,9 +203,15 @@
       },
       activityManageList () {
         this.listLoading = true
-        activityManageList().then((res) =>{
+        let pageSize = 10
+        let pageNum = this.pageNum
+        let data = `pageNum=${--pageNum}&pageSize=${pageSize}`
+        activityManageList(data).then((res) =>{
           // this.userList = res.data.list
-          let list = res.data.list
+          console.log('res', res)
+          let result = res.data
+          let list = result.list
+          this.total =result.meta.total_records
           this.setManageList(list)
           this.listLoading = false
         }).catch(()=>{
@@ -257,9 +280,10 @@
         })
       }
     },
-    activated () {
-      // 获取活动审核 待审核列表
+    created () {
+      // 获取活动列表
       if(!this.pass){
+        this.$router.replace({path:`/management/index`})
         this.activityManageList()
       }else{
         this.setPass(false)

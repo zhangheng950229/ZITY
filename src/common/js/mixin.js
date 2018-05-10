@@ -4,7 +4,7 @@ import { mapGetters,mapMutations} from 'vuex'
 
 
 export const lotteryRouterMixin = {
-  name: 'template',
+  name: 'zi',
   components:{
     ziHeader,
     ziTab
